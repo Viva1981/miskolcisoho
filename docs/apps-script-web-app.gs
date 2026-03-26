@@ -185,7 +185,7 @@ function getHeaders(sheet) {
 function getSheetRows(sheet) {
   const headers = getHeaders(sheet);
   const lastRow = sheet.getLastRow();
-  const timezone = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  const timezone = sheet.getParent().getSpreadsheetTimeZone();
 
   if (lastRow <= 1 || headers.length === 0) {
     return [];
