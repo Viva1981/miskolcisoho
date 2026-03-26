@@ -5,21 +5,11 @@ import Link from "next/link";
 import { useState } from "react";
 
 const menuItems = [
-  { href: "#fooldal", label: "Fooldal" },
-  { href: "#esemenyek", label: "Esemenyek" },
-  { href: "#facebook", label: "Facebook" },
+  { href: "/", label: "Főoldal" },
+  { href: "/#esemenyek", label: "Események" },
+  { href: "/galeria", label: "Galéria" },
+  { href: "/kapcsolat", label: "Kapcsolat" },
 ];
-
-function FacebookIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M13.5 21v-7.4h2.5l.4-3h-2.9V8.7c0-.9.2-1.5 1.5-1.5h1.6V4.5c-.3 0-.9-.1-2-.1-2 0-3.4 1.2-3.4 3.5v2.7H9v3h2.2V21h2.3Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
 
 function MenuIcon() {
   return (
@@ -71,29 +61,18 @@ export function SohoHeader() {
         </Link>
       </div>
 
-      <nav className="soho-header-nav" aria-label="Soho navigacio">
+      <nav className="soho-header-nav" aria-label="Soho navigáció">
         {menuItems.map((item) => (
-          <a key={item.href} href={item.href}>
+          <Link key={item.href} href={item.href}>
             {item.label}
-          </a>
+          </Link>
         ))}
       </nav>
-
-      <div className="soho-header-socials">
-        <a
-          href="https://www.facebook.com/profile.php?id=61575425759586&locale=hu_HU"
-          target="_blank"
-          rel="noreferrer"
-          aria-label="Soho Facebook"
-        >
-          <FacebookIcon />
-        </a>
-      </div>
 
       <button
         type="button"
         className="soho-mobile-toggle"
-        aria-label={isOpen ? "Menu bezarasa" : "Menu megnyitasa"}
+        aria-label={isOpen ? "Menü bezárása" : "Menü megnyitása"}
         aria-expanded={isOpen}
         onClick={() => setIsOpen((open) => !open)}
       >
@@ -101,16 +80,16 @@ export function SohoHeader() {
       </button>
 
       <div className={`soho-mobile-menu ${isOpen ? "is-open" : ""}`}>
-        <nav className="soho-mobile-nav" aria-label="Soho mobil navigacio">
+        <nav className="soho-mobile-nav" aria-label="Soho mobil navigáció">
           {menuItems.map((item, index) => (
-            <a
+            <Link
               key={item.href}
               href={item.href}
               className={index === 0 ? "is-active" : ""}
               onClick={closeMenu}
             >
               {item.label}
-            </a>
+            </Link>
           ))}
         </nav>
       </div>

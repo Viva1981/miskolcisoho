@@ -13,16 +13,16 @@ const facebookFeedItems = [
   {
     id: "event-1",
     eyebrow: "Facebook event",
-    title: "Hetvegi nyito est",
-    subtitle: "Kattintas utan a valodi Facebook esemeny nyilik meg.",
+    title: "Hétvégi nyitó est",
+    subtitle: "Kattintás után a valódi Facebook esemény nyílik meg.",
     href: "https://fb.me/e/3lJC1LLFD",
     tone: "lime",
   },
   {
     id: "event-2",
-    eyebrow: "Kovetkezo buli",
+    eyebrow: "Következő buli",
     title: "Soho night session",
-    subtitle: "Valodi event linkkel, sajat dizajnkeppel megjelenitve.",
+    subtitle: "Valódi event linkkel, saját dizájnképpel megjelenítve.",
     href: "https://fb.me/e/8hWvC5sVa",
     tone: "blue",
   },
@@ -30,31 +30,31 @@ const facebookFeedItems = [
     id: "post-1",
     eyebrow: "Friss poszt",
     title: "Klubpillanatok",
-    subtitle: "Poszt, teaser vagy aftermovie is bekerulhet ugyanebbe a racsba.",
+    subtitle: "Poszt, teaser vagy aftermovie is bekerülhet ugyanebbe a rácsba.",
     href: "https://www.facebook.com/permalink.php?story_fbid=pfbid0h1oLuAHyUKjYGaiPyFdr6Q98pMWwxuFWkqD39rHufsFwAP7oKP9mwKYNLPETbKCzl&id=61575425759586",
     tone: "violet",
   },
   {
     id: "post-2",
-    eyebrow: "Fotoalbum",
-    title: "Penteki hangulat",
-    subtitle: "Kesobb sajat feltoltott 1:1 vagy 4:5 aranyu boritokeppel.",
+    eyebrow: "Fotóalbum",
+    title: "Pénteki hangulat",
+    subtitle: "Később saját feltöltött 1:1 vagy 4:5 arányú borítóképpel.",
     href: "https://www.facebook.com/profile.php?id=61575425759586&locale=hu_HU",
     tone: "sunset",
   },
   {
     id: "post-3",
     eyebrow: "Kiemelt poszt",
-    title: "Line-up bejelentes",
-    subtitle: "A feed egyseges marad, nem esik szet iframe-ek miatt.",
+    title: "Line-up bejelentés",
+    subtitle: "A feed egységes marad, nem esik szét iframe-ek miatt.",
     href: "https://www.facebook.com/profile.php?id=61575425759586&locale=hu_HU",
     tone: "graphite",
   },
   {
     id: "post-4",
-    eyebrow: "Kulisszak mogott",
+    eyebrow: "Kulisszák mögött",
     title: "Backstage vibe",
-    subtitle: "Ez a blokk idealis lesz adminos vagy Drive-os adatforrashoz is.",
+    subtitle: "Ez a blokk ideális lesz adminos vagy Drive-os adatforráshoz is.",
     href: "https://www.facebook.com/profile.php?id=61575425759586&locale=hu_HU",
     tone: "emerald",
   },
@@ -144,15 +144,7 @@ export default function Home() {
 
           <div className="soho-hero-actions-v2">
             <a href="#esemenyek" className="soho-pill-button">
-              Esemenyeink
-            </a>
-            <a
-              href="https://www.facebook.com/profile.php?id=61575425759586&locale=hu_HU"
-              target="_blank"
-              rel="noreferrer"
-              className="soho-pill-button"
-            >
-              Facebook
+              Eseményeink
             </a>
           </div>
         </div>
@@ -162,7 +154,7 @@ export default function Home() {
 
       <section id="facebook" className="soho-facebook-section">
         <div className="soho-facebook-wrap">
-          <h2>Kovess minket Facebookon</h2>
+          <h2>Kövess minket Facebookon</h2>
 
           <div className="soho-facebook-profile">
             <Image
@@ -176,9 +168,9 @@ export default function Home() {
             <div className="soho-facebook-profile-copy">
               <strong>soho.miskolc</strong>
               <span>
-                Ez itt egy sajat, Rockwell-szeru feed-racs: nem iframe-ekbol all, hanem
-                szabadon formalhato tartalomkartyakbol. Kesobb ide maximum 9 valodi Facebook
-                tartalom kerulhet keppel, cimmel es linkkel.
+                Ez itt egy saját, Rockwell-szerű feed-rács: nem iframe-ekből áll, hanem
+                szabadon formázható tartalomkártyákból. Később ide maximum 9 valódi Facebook
+                tartalom kerülhet képpel, címmel és linkkel.
               </span>
             </div>
           </div>
@@ -224,8 +216,10 @@ export default function Home() {
             />
 
             <p>
-              A regio legnagyobb es legkedveltebb szorakozohelye, hetrol hetre Magyarorszag
-              top fellepoivel!
+              A Miskolci Soho négy helyi vállalkozás - A LEVES és BURGER, a Melon Cafe, a
+              Rockabilly Chicken és az Ex-Home Apartmanházak - összefogásából született. Az a
+              célunk, hogy egy olyan városi szegletet teremtsünk, amely él, lélegzik, és ahol jó
+              megállni, leülni, találkozni.
             </p>
 
             <div className="soho-footer-socials">
@@ -248,16 +242,16 @@ export default function Home() {
               <h3>Dokumentumok</h3>
               <a href="#">
                 <CookieIcon />
-                <span>Adatkezelesi Tajekoztato</span>
+                <span>Adatkezelési Tájékoztató</span>
               </a>
               <a href="#">
                 <DocumentIcon />
-                <span>Altalanos Hazirend</span>
+                <span>Általános Házirend</span>
               </a>
             </div>
 
             <div className="soho-footer-block">
-              <h3>Elerhetosegek</h3>
+              <h3>Elérhetőségek</h3>
               <a href="mailto:info@sohomiskolc.hu">
                 <MailIcon />
                 <span>info@sohomiskolc.hu</span>

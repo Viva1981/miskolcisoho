@@ -611,6 +611,36 @@ textarea {
   font-size: 0.95rem;
 }
 
+.soho-subpage-shell {
+  min-height: calc(100vh - 112px);
+  padding: 2rem 1.5rem 4rem;
+  display: grid;
+  place-items: center;
+}
+
+.soho-subpage-card {
+  width: min(720px, 100%);
+  padding: 2rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  text-align: center;
+}
+
+.soho-subpage-card h1 {
+  margin: 0 0 0.9rem;
+  font-size: clamp(2.6rem, 5vw, 4.2rem);
+  text-transform: uppercase;
+}
+
+.soho-subpage-card p {
+  margin: 0;
+  font-family: var(--font-body), sans-serif;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.6;
+}
+
 @media (min-width: 1680px) {
   .soho-header,
   .soho-events-wrap,
@@ -936,6 +966,11 @@ textarea {
 
   .soho-footer {
     padding: 1rem 1rem 2rem;
+  }
+
+  .soho-subpage-shell {
+    min-height: calc(100vh - 88px);
+    padding-inline: 1rem;
   }
 
   .soho-footer-grid {

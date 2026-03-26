@@ -13,21 +13,21 @@ type SohoEvent = {
 const events: SohoEvent[] = [
   {
     id: "dummy-1",
-    title: "Husveti Ven Teenager Party",
+    title: "Húsvéti Vén Teenager Party",
     date: "2026-04-03",
     time: "20:00",
     accent: "soho-event-art aqua",
   },
   {
     id: "dummy-2",
-    title: "Csajpentek",
+    title: "Csajpéntek",
     date: "2026-04-10",
     time: "22:00",
     accent: "soho-event-art red",
   },
   {
     id: "dummy-3",
-    title: "Nagy Bogi Lemezbemutato",
+    title: "Nagy Bogi Lemezbemutató",
     date: "2026-04-17",
     time: "20:00",
     accent: "soho-event-art amber",
@@ -145,13 +145,13 @@ export function SohoEventsCarousel() {
   return (
     <section id="esemenyek" className="soho-events-section">
       <div className="soho-events-wrap">
-        <h2>Kozelgo esemenyek</h2>
+        <h2>Közelgő események</h2>
 
         <div className="soho-events-desktop">
           <button
             type="button"
             className="soho-events-arrow left"
-            aria-label="Elozo esemenyek"
+            aria-label="Előző események"
             onClick={goPrevious}
           >
             <ArrowLeftIcon />
@@ -180,7 +180,7 @@ export function SohoEventsCarousel() {
                   <h3>{event.title}</h3>
 
                   <div className="soho-event-actions">
-                    <a href="#" aria-label={`${event.title} Facebook esemeny`}>
+                    <a href="#" aria-label={`${event.title} Facebook esemény`}>
                       <FacebookIcon />
                     </a>
                   </div>
@@ -192,7 +192,7 @@ export function SohoEventsCarousel() {
           <button
             type="button"
             className="soho-events-arrow right"
-            aria-label="Kovetkezo esemenyek"
+            aria-label="Következő események"
             onClick={goNext}
           >
             <ArrowRightIcon />
@@ -221,7 +221,7 @@ export function SohoEventsCarousel() {
               <h3>{mobileCard.title}</h3>
 
               <div className="soho-event-actions">
-                <a href="#" aria-label={`${mobileCard.title} Facebook esemeny`}>
+                <a href="#" aria-label={`${mobileCard.title} Facebook esemény`}>
                   <FacebookIcon />
                 </a>
               </div>
@@ -231,7 +231,7 @@ export function SohoEventsCarousel() {
           <button
             type="button"
             className="soho-events-arrow left"
-            aria-label="Elozo esemeny"
+            aria-label="Előző esemény"
             onClick={goPrevious}
           >
             <ArrowLeftIcon />
@@ -239,7 +239,7 @@ export function SohoEventsCarousel() {
           <button
             type="button"
             className="soho-events-arrow right"
-            aria-label="Kovetkezo esemeny"
+            aria-label="Következő esemény"
             onClick={goNext}
           >
             <ArrowRightIcon />
