@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AdminEventForm } from "@/components/admin-event-form";
 import { SohoHeader } from "@/components/soho-header";
 import { getAdminContent } from "@/lib/admin-content";
 import { isAppsScriptConfigured } from "@/lib/apps-script";
@@ -205,6 +206,8 @@ export default async function AdminPage() {
           </div>
 
           <div className="soho-admin-grid">
+            <AdminEventForm />
+
             <PreviewCard
               title="Events előnézet"
               source={eventsResult.source}
@@ -213,7 +216,9 @@ export default async function AdminPage() {
               rows={eventsResult.data}
               columns={["id", "title", "date", "time", "facebook_url", "published"]}
             />
+          </div>
 
+          <div className="soho-admin-grid">
             <PreviewCard
               title="Facebook feed előnézet"
               source={facebookFeedResult.source}
@@ -222,6 +227,16 @@ export default async function AdminPage() {
               rows={facebookFeedResult.data}
               columns={["id", "title", "text", "facebook_url", "published"]}
             />
+
+            <article className="soho-admin-card">
+              <h2>API teszt linkek</h2>
+              <div className="soho-admin-link-list">
+                <Link href="/api/admin/content?resource=events">API minta: events</Link>
+                <Link href="/api/admin/content?resource=facebook_feed">
+                  API minta: facebook_feed
+                </Link>
+              </div>
+            </article>
           </div>
 
           <div className="soho-admin-grid">
@@ -235,13 +250,12 @@ export default async function AdminPage() {
             </article>
 
             <article className="soho-admin-card">
-              <h2>API teszt linkek</h2>
-              <div className="soho-admin-link-list">
-                <Link href="/api/admin/content?resource=events">API minta: events</Link>
-                <Link href="/api/admin/content?resource=facebook_feed">
-                  API minta: facebook_feed
-                </Link>
-              </div>
+              <h2>Következő lépések</h2>
+              <ul className="soho-admin-list">
+                <li>Events és Facebook feed létrehozás admin űrlapról</li>
+                <li>Galéria albumok listázása és létrehozása</li>
+                <li>Drive-alapú képfeltöltés adminból</li>
+              </ul>
             </article>
           </div>
 
@@ -263,15 +277,6 @@ export default async function AdminPage() {
           </div>
 
           <div className="soho-admin-grid soho-admin-grid-bottom">
-            <article className="soho-admin-card">
-              <h2>Következő lépések</h2>
-              <ul className="soho-admin-list">
-                <li>Events és Facebook feed létrehozás admin űrlapról</li>
-                <li>Galéria albumok listázása és létrehozása</li>
-                <li>Drive-alapú képfeltöltés adminból</li>
-              </ul>
-            </article>
-
             <article className="soho-admin-card">
               <h2>Dokumentáció</h2>
               <div className="soho-admin-link-list">

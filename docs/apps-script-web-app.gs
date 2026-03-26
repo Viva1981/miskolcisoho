@@ -185,6 +185,7 @@ function getHeaders(sheet) {
 function getSheetRows(sheet) {
   const headers = getHeaders(sheet);
   const lastRow = sheet.getLastRow();
+  const timezone = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
 
   if (lastRow <= 1 || headers.length === 0) {
     return [];
@@ -196,11 +197,29 @@ function getSheetRows(sheet) {
     const entry = {};
 
     headers.forEach((header, index) => {
-      entry[header] = String(row[index] ?? "");
+      entry[header] = stringifyCellValue(row[index], header, timezone);
     });
 
     return entry;
   });
+}
+
+function stringifyCellValue(value, header, timezone) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  if (Object.prototype.toString.call(value) === "[object Date]") {
+    if (header === "date" || header === "event_date") {
+      return Utilities.formatDate(value, timezone, "yyyy-MM-dd");
+    }
+
+    if (header === "time") {
+      return Utilities.formatDate(value, timezone, "HH:mm");
+    }
+  }
+
+  return String(value);
 }
 
 function jsonResponse(payload) {

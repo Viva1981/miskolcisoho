@@ -70,3 +70,10 @@ Ez a fájl azért készült, hogy később is visszakövethető legyen:
 - Az admin ugyanazt a háttérlogikát használja, mint az API route.
 - Üres sheet esetén a felület ezt külön, kulturált üres állapotként kezeli.
 - Beépült a forrásjelzés is, így látszik, hogy mock vagy Apps Script adat jött-e.
+
+## 2026-03-26 - Első admin űrlap
+
+- Elkészült az első működő admin űrlap az `events` erőforráshoz.
+- Az adminból most már új esemény sor hozható létre.
+- A mentés az Apps Scripten keresztül közvetlenül az `events` Sheetbe történik.
+- Sikeres mentés után az admin előnézet újratöltődik.

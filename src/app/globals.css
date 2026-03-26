@@ -1107,6 +1107,97 @@ textarea {
   color: rgba(255, 255, 255, 0.9);
 }
 
+.soho-admin-form-card {
+  gap: 1rem;
+}
+
+.soho-admin-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.soho-admin-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.soho-admin-form label {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.soho-admin-form label span {
+  color: #d0d60d;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.soho-admin-form input {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+  padding: 0 0.9rem;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.98rem;
+}
+
+.soho-admin-form input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.soho-admin-checkbox {
+  align-content: start;
+}
+
+.soho-admin-checkbox input {
+  width: 20px;
+  min-height: 20px;
+  margin-top: 0.3rem;
+  accent-color: #d0d60d;
+}
+
+.soho-admin-form-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.soho-admin-form-actions button {
+  min-height: 46px;
+  padding: 0 1.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: #d0d60d;
+  color: #000000;
+  font-weight: 700;
+  font-size: 0.96rem;
+  cursor: pointer;
+}
+
+.soho-admin-form-actions button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.soho-admin-form-message {
+  margin: 0;
+  font-family: var(--font-body), sans-serif;
+  line-height: 1.6;
+}
+
+.soho-admin-form-message.is-success {
+  color: #d0d60d;
+}
+
+.soho-admin-form-message.is-error {
+  color: #ffb8b8;
+}
+
 .soho-admin-footnote {
   margin-top: 1.5rem;
 }
@@ -1446,6 +1537,10 @@ textarea {
     flex-direction: column;
     align-items: center;
     text-align: center;
+  }
+
+  .soho-admin-form-grid {
+    grid-template-columns: 1fr;
   }
 
   .soho-admin-footnote {
