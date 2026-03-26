@@ -1,26 +1,977 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+* {
+  box-sizing: border-box;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  background: #000000;
+  color: #ffffff;
+  font-family: var(--font-body), sans-serif;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+.soho-landing {
+  min-height: 100vh;
+  background: #000000;
+  color: #ffffff;
+  letter-spacing: 0.035em;
+}
+
+.soho-header {
+  width: min(1380px, calc(100% - 3rem));
+  margin: 0 auto;
+  min-height: 112px;
+  display: grid;
+  grid-template-columns: 220px 1fr auto;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.soho-header-logo a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 56px;
+}
+
+.soho-logo-image {
+  width: auto;
+  height: 72px;
+  object-fit: contain;
+}
+
+.soho-header-nav {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: 1.65rem;
+  font-size: 1.35rem;
+  text-transform: uppercase;
+}
+
+.soho-header-nav a,
+.soho-header-socials a,
+.soho-pill-button {
+  transition:
+    color 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.soho-header-nav a:hover,
+.soho-header-socials a:hover {
+  color: #d0d60d;
+}
+
+.soho-header-socials {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.soho-header-socials a {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.soho-header-socials svg {
+  width: 100%;
+  height: 100%;
+}
+
+.soho-mobile-toggle,
+.soho-mobile-menu {
+  display: none;
+}
+
+.soho-hero-v2 {
+  min-height: clamp(420px, 58vh, 760px);
+  display: grid;
+  place-items: start center;
+  padding: 1.1rem 1.5rem 2.2rem;
+}
+
+.soho-hero-inner {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 0.2rem;
+  margin-top: -1.2rem;
+}
+
+.soho-hero-logo {
+  width: min(560px, 80vw);
+  height: auto;
+  object-fit: contain;
+}
+
+.soho-hero-actions-v2 {
+  display: flex;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0.9rem;
+}
+
+.soho-pill-button {
+  min-width: 148px;
+  min-height: 42px;
+  padding: 0 1.3rem;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #000000;
+  font-size: 1.35rem;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+.soho-pill-button:hover {
+  background: #d0d60d;
+  transform: translateY(-1px);
+}
+
+.soho-events-section {
+  padding: 0 1.5rem 4rem;
+  margin-top: -0.5rem;
+}
+
+.soho-events-wrap {
+  width: min(1380px, 100%);
+  margin: 0 auto;
+}
+
+.soho-events-wrap h2 {
+  margin: 0 0 1.25rem;
+  font-size: clamp(2.4rem, 4vw, 4rem);
+  text-transform: uppercase;
+}
+
+.soho-events-desktop,
+.soho-events-mobile,
+.soho-events-grid,
+.soho-event-meta,
+.soho-event-actions,
+.soho-facebook-wrap,
+.soho-facebook-profile,
+.soho-facebook-grid,
+.soho-facebook-profile-copy,
+.soho-facebook-link-row,
+.soho-footer-grid,
+.soho-footer-meta,
+.soho-footer-socials {
+  display: grid;
+}
+
+.soho-events-desktop {
+  position: relative;
+  align-items: center;
+}
+
+.soho-events-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.soho-event-card-v2 {
+  overflow: hidden;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #2a2a2a;
+}
+
+.soho-event-art {
+  aspect-ratio: 2 / 1;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: white;
+}
+
+.soho-event-art span {
+  font-size: 0.95rem;
+  letter-spacing: 0.18em;
+}
+
+.soho-event-art strong {
+  font-size: clamp(2rem, 2.4vw, 3.2rem);
+  line-height: 0.9;
+  max-width: 9ch;
+  text-transform: uppercase;
+}
+
+.soho-event-art.aqua {
+  background: linear-gradient(135deg, #49d3da, #1f8896 45%, #0b1419);
+}
+
+.soho-event-art.red {
+  background: linear-gradient(135deg, #ff6b6b, #931a1a 45%, #150707);
+}
+
+.soho-event-art.amber {
+  background: linear-gradient(135deg, #ffb347, #c46a14 42%, #17110c);
+}
+
+.soho-event-art.violet {
+  background: linear-gradient(135deg, #8b7bff, #382d7b 44%, #110f1d);
+}
+
+.soho-event-art.blue {
+  background: linear-gradient(135deg, #57b9ff, #0e538f 45%, #081119);
+}
+
+.soho-event-body {
+  padding: 1.25rem 1.1rem 1.35rem;
+}
+
+.soho-event-meta {
+  grid-auto-flow: column;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.soho-event-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #f2f2f2;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.88rem;
+  letter-spacing: 0;
+}
+
+.soho-event-meta svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.soho-event-body h3 {
+  margin: 1.4rem 0 0;
+  text-align: center;
+  font-size: clamp(2rem, 2.4vw, 3rem);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.soho-event-actions {
+  grid-auto-flow: column;
+  justify-content: center;
+  gap: 0.9rem;
+  margin-top: 1.5rem;
+}
+
+.soho-event-actions a {
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #000000;
+}
+
+.soho-event-actions svg {
+  width: 22px;
+  height: 22px;
+}
+
+.soho-events-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 64px;
+  height: 64px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: #111111;
+  color: #ffffff;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.soho-events-arrow.left {
+  left: -14px;
+}
+
+.soho-events-arrow.right {
+  right: -14px;
+}
+
+.soho-events-arrow svg {
+  width: 30px;
+  height: 30px;
+}
+
+.soho-events-mobile {
+  display: none;
+  position: relative;
+}
+
+.soho-facebook-section {
+  padding: 0 1.5rem 4rem;
+}
+
+.soho-facebook-wrap {
+  width: min(1380px, 100%);
+  margin: 0 auto;
+}
+
+.soho-facebook-wrap h2 {
+  margin: 0 0 1.25rem;
+  font-size: clamp(2.4rem, 4vw, 4rem);
+  text-transform: uppercase;
+}
+
+.soho-facebook-profile {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.4rem;
+}
+
+.soho-facebook-avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 999px;
+  object-fit: cover;
+  background: #ffffff;
+  padding: 0.4rem;
+}
+
+.soho-facebook-profile-copy strong,
+.soho-facebook-card strong {
+  font-size: 1.8rem;
+  text-transform: uppercase;
+}
+
+.soho-facebook-profile-copy span,
+.soho-facebook-card-copy p,
+.soho-footer-brand p,
+.soho-footer-block a,
+.soho-footer-copy {
+  font-family: var(--font-body), sans-serif;
+  letter-spacing: 0;
+}
+
+.soho-facebook-profile-copy span,
+.soho-facebook-card-copy p {
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+}
+
+.soho-facebook-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.soho-facebook-card {
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.soho-facebook-card.link {
+  display: grid;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease;
+}
+
+.soho-facebook-card.link:hover {
+  transform: translateY(-3px);
+  border-color: rgba(208, 214, 13, 0.45);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.soho-facebook-thumb {
+  aspect-ratio: 1 / 1;
+  padding: 1rem 1rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #3c6df0, #162344 62%, #090c14);
+}
+
+.soho-facebook-thumb span {
+  font-size: 0.92rem;
+  letter-spacing: 0.18em;
+}
+
+.soho-facebook-thumb strong {
+  max-width: 8ch;
+  line-height: 0.95;
+}
+
+.soho-facebook-card-copy {
+  padding: 1rem 1rem 1.1rem;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.soho-facebook-card-copy p {
+  margin: 0;
+  min-height: 3.2em;
+}
+
+.soho-facebook-link-row {
+  grid-auto-flow: column;
+  justify-content: start;
+}
+
+.soho-facebook-link-badge {
+  min-width: 138px;
+  min-height: 48px;
+  padding: 0 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #000000;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.soho-facebook-link-badge svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+
+.soho-facebook-link-badge em {
+  font-style: normal;
+  line-height: 1;
+}
+
+.soho-facebook-thumb.lime {
+  background:
+    linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.42)),
+    linear-gradient(135deg, #d0d60d, #7a8210 48%, #121507);
+}
+
+.soho-facebook-thumb.blue {
+  background:
+    linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.42)),
+    linear-gradient(135deg, #54c3ff, #1d6eb4 45%, #09121a);
+}
+
+.soho-facebook-thumb.violet {
+  background:
+    linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.44)),
+    linear-gradient(135deg, #b17cff, #5630a3 46%, #120a19);
+}
+
+.soho-facebook-thumb.sunset {
+  background:
+    linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.44)),
+    linear-gradient(135deg, #ffb15b, #dc5d4f 48%, #180b0e);
+}
+
+.soho-facebook-thumb.graphite {
+  background:
+    linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.4)),
+    linear-gradient(135deg, #5b6773, #212832 52%, #05070a);
+}
+
+.soho-facebook-thumb.emerald {
+  background:
+    linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.42)),
+    linear-gradient(135deg, #49d19c, #176a5f 46%, #071411);
+}
+
+.soho-footer {
+  padding: 2rem 1.5rem 2.4rem;
+}
+
+.soho-footer-grid {
+  width: min(1380px, 100%);
+  margin: 0 auto;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 420px);
+  gap: 2rem;
+  padding-top: 2.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.soho-footer-brand {
+  display: grid;
+  align-content: start;
+  gap: 1.15rem;
+}
+
+.soho-footer-logo {
+  width: min(260px, 52vw);
+  height: auto;
+  object-fit: contain;
+}
+
+.soho-footer-brand p {
+  margin: 0;
+  max-width: 34ch;
+  color: rgba(255, 255, 255, 0.92);
+  line-height: 1.55;
+  font-size: 1rem;
+}
+
+.soho-footer-socials {
+  grid-auto-flow: column;
+  justify-content: start;
+  gap: 1rem;
+}
+
+.soho-footer-socials a {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.soho-footer-socials svg,
+.soho-footer-block svg {
+  width: 100%;
+  height: 100%;
+}
+
+.soho-footer-meta {
+  grid-template-columns: 1fr;
+  gap: 1.8rem;
+  align-content: start;
+}
+
+.soho-footer-block {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.soho-footer-block h3 {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 3rem);
+  text-transform: uppercase;
+}
+
+.soho-footer-block a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: rgba(255, 255, 255, 0.96);
+  font-size: 0.98rem;
+}
+
+.soho-footer-block a svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.soho-footer-copy {
+  width: min(1380px, 100%);
+  margin: 2rem auto 0;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.95rem;
+}
+
+@media (min-width: 1680px) {
+  .soho-header,
+  .soho-events-wrap,
+  .soho-facebook-wrap,
+  .soho-footer-grid,
+  .soho-footer-copy {
+    width: min(1560px, calc(100% - 5rem));
+  }
+
+  .soho-header {
+    min-height: 126px;
+    grid-template-columns: 250px 1fr auto;
+  }
+
+  .soho-logo-image {
+    height: 80px;
+  }
+
+  .soho-header-nav {
+    font-size: 1.5rem;
+    gap: 1.9rem;
+  }
+
+  .soho-hero-v2 {
+    min-height: clamp(420px, 52vh, 680px);
+    padding-top: 0.85rem;
+    padding-bottom: 1.8rem;
+  }
+
+  .soho-hero-logo {
+    width: min(600px, 34vw);
+  }
+
+  .soho-hero-actions-v2 {
+    margin-top: 1.15rem;
+  }
+
+  .soho-pill-button {
+    min-width: 164px;
+    min-height: 44px;
+    font-size: 1.28rem;
+  }
+
+  .soho-events-section {
+    margin-top: -1rem;
+  }
+}
+
+@media (min-width: 1280px) and (max-width: 1679px) {
+  .soho-hero-v2 {
+    min-height: clamp(420px, 56vh, 720px);
+    padding-bottom: 2rem;
+  }
+
+  .soho-events-section {
+    margin-top: -0.35rem;
+  }
+}
+
+@media (min-width: 981px) and (max-width: 1279px) {
+  .soho-header,
+  .soho-events-wrap,
+  .soho-facebook-wrap,
+  .soho-footer-grid,
+  .soho-footer-copy {
+    width: min(1180px, calc(100% - 2rem));
+  }
+
+  .soho-header {
+    min-height: 98px;
+    grid-template-columns: 180px 1fr auto;
+    gap: 1rem;
+  }
+
+  .soho-logo-image {
+    height: 62px;
+  }
+
+  .soho-header-nav {
+    font-size: 1.12rem;
+    gap: 1.2rem;
+  }
+
+  .soho-hero-v2 {
+    min-height: clamp(360px, 48vh, 560px);
+    padding-top: 0.8rem;
+    padding-bottom: 1.8rem;
+  }
+
+  .soho-hero-logo {
+    width: min(470px, 56vw);
+  }
+
+  .soho-hero-actions-v2 {
+    margin-top: 0.75rem;
+  }
+
+  .soho-pill-button {
+    min-width: 134px;
+    min-height: 40px;
+    font-size: 1.12rem;
+  }
+
+  .soho-events-grid {
+    gap: 1rem;
+  }
+
+  .soho-event-meta {
+    gap: 0.7rem;
+  }
+
+  .soho-event-meta span {
+    font-size: 0.8rem;
+  }
+
+  .soho-event-body h3 {
+    font-size: clamp(1.65rem, 2.1vw, 2.35rem);
+  }
+
+  .soho-events-arrow {
+    width: 54px;
+    height: 54px;
+  }
+
+  .soho-events-arrow.left {
+    left: -8px;
+  }
+
+  .soho-events-arrow.right {
+    right: -8px;
+  }
+
+  .soho-footer-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+  }
+}
+
+@media (max-width: 980px) {
+  .soho-header {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    width: min(100% - 1.5rem, 1380px);
+    padding: 1rem 0;
+  }
+
+  .soho-header-nav {
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: 1.15rem;
+  }
+
+  .soho-footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .soho-facebook-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .soho-header {
+    width: 100%;
+    min-height: 88px;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.2rem 0 0;
+    position: relative;
+  }
+
+  .soho-header-logo a {
+    min-height: auto;
+  }
+
+  .soho-header-logo {
+    padding-left: 0;
+    justify-self: start;
+  }
+
+  .soho-header-nav,
+  .soho-header-socials {
+    display: none;
+  }
+
+  .soho-mobile-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-right: 1rem;
+    border: 0;
+    background: transparent;
+    color: #ffffff;
+    cursor: pointer;
+    z-index: 35;
+  }
+
+  .soho-mobile-toggle svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .soho-logo-image {
+    height: 52px;
+    margin-left: 0.35rem;
+  }
+
+  .soho-mobile-menu {
+    display: none;
+    position: absolute;
+    top: 88px;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    padding: 0.25rem 0 1.2rem;
+    background: #000000;
+  }
+
+  .soho-mobile-menu.is-open {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .soho-mobile-nav {
+    display: grid;
+  }
+
+  .soho-mobile-nav a {
+    min-height: 58px;
+    display: flex;
+    align-items: center;
+    padding: 0 1.35rem;
+    color: #ffffff;
+    font-size: 1.45rem;
+    text-transform: uppercase;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .soho-mobile-nav a.is-active {
+    background: #ffffff;
+    color: #000000;
+  }
+
+  .soho-hero-v2 {
+    min-height: auto;
+    padding-inline: 1rem;
+    padding-top: 0.35rem;
+    padding-bottom: 0.9rem;
+  }
+
+  .soho-hero-inner {
+    gap: 0.3rem;
+    margin-top: 0;
+  }
+
+  .soho-hero-actions-v2 {
+    width: 100%;
+  }
+
+  .soho-pill-button {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1.2rem;
+  }
+
+  .soho-events-section {
+    padding: 0 1rem 3rem;
+    margin-top: -0.15rem;
+  }
+
+  .soho-facebook-section {
+    padding: 0 1rem 3rem;
+  }
+
+  .soho-facebook-wrap h2,
+  .soho-events-wrap h2 {
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .soho-facebook-profile {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .soho-facebook-avatar {
+    width: 72px;
+    height: 72px;
+  }
+
+  .soho-facebook-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .soho-events-desktop {
+    display: none;
+  }
+
+  .soho-events-mobile {
+    display: block;
+  }
+
+  .soho-events-mobile .soho-event-card-v2 {
+    width: 100%;
+  }
+
+  .soho-events-mobile .soho-events-arrow {
+    width: 52px;
+    height: 52px;
+    top: 40%;
+  }
+
+  .soho-events-mobile .soho-events-arrow.left {
+    left: -2px;
+  }
+
+  .soho-events-mobile .soho-events-arrow.right {
+    right: -2px;
+  }
+
+  .soho-footer {
+    padding: 1rem 1rem 2rem;
+  }
+
+  .soho-footer-grid {
+    gap: 2rem;
+    padding-top: 1.75rem;
+    text-align: center;
+  }
+
+  .soho-footer-brand {
+    justify-items: center;
+  }
+
+  .soho-footer-logo {
+    width: min(250px, 72vw);
+  }
+
+  .soho-footer-brand p {
+    max-width: 22ch;
+    font-size: 0.98rem;
+  }
+
+  .soho-footer-socials {
+    justify-content: center;
+  }
+
+  .soho-footer-block {
+    justify-items: center;
+  }
+
+  .soho-footer-block a {
+    font-size: 0.95rem;
+  }
+
+  .soho-footer-copy {
+    margin-top: 1.7rem;
+    text-align: center;
+    font-size: 0.92rem;
+  }
 }
