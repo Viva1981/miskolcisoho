@@ -915,9 +915,9 @@ textarea {
 
 .soho-admin-head h1 {
   margin: 0;
-  font-size: clamp(2.8rem, 5vw, 5rem);
+  font-size: clamp(2.2rem, 4vw, 3.8rem);
   text-transform: uppercase;
-  line-height: 0.92;
+  line-height: 0.96;
 }
 
 .soho-admin-head p,
@@ -961,9 +961,9 @@ textarea {
 .soho-admin-card h2,
 .soho-admin-section-card h2 {
   margin: 0 0 1rem;
-  font-size: 2rem;
+  font-size: clamp(1.4rem, 2vw, 1.9rem);
   text-transform: uppercase;
-  line-height: 1;
+  line-height: 1.05;
 }
 
 .soho-admin-link-list {

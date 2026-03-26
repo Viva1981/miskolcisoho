@@ -12,9 +12,9 @@ import {
 const adminSections = [
   {
     id: "events",
-    title: "F\u0151oldali esem\u00e9nyek",
+    title: "Fooldali esemenyek",
     description:
-      "Ezek adj\u00e1k a hero alatti esem\u00e9nyk\u00e1rty\u00e1kat. K\u00e9s\u0151bb c\u00edm, d\u00e1tum, id\u0151, Facebook link \u00e9s bor\u00edt\u00f3k\u00e9p is innen j\u00f6n majd.",
+      "Ezek adjak a hero alatti esemenykartyakat. Kesobb cim, datum, ido, Facebook link es boritokep is innen jon majd.",
     fields: [
       "title",
       "date",
@@ -27,9 +27,9 @@ const adminSections = [
   },
   {
     id: "facebook-feed",
-    title: "K\u00f6vess minket Facebookon",
+    title: "Kovess minket Facebookon",
     description:
-      "A feed k\u00e1rty\u00e1k c\u00edme, sz\u00f6vege, bor\u00edt\u00f3ja \u00e9s a Facebook link is k\u00fcl\u00f6n kezelhet\u0151 adatsork\u00e9nt lesz t\u00e1rolva.",
+      "A feed kartyak cime, szovege, boritoja es a Facebook link is kulon kezelheto adatsorkent lesz tarolva.",
     fields: [
       "title",
       "text",
@@ -41,9 +41,9 @@ const adminSections = [
   },
   {
     id: "gallery",
-    title: "Gal\u00e9ria albumok",
+    title: "Galeria albumok",
     description:
-      "A gal\u00e9ria k\u00e9tszint\u0171: album metaadatok k\u00fcl\u00f6n, az albumon bel\u00fcli k\u00e9pek k\u00fcl\u00f6n. Ez\u00e9rt k\u00e9s\u0151bb j\u00f3l sk\u00e1l\u00e1zhat\u00f3 marad az admin.",
+      "A galeria ketszintu: album metaadatok kulon, az albumon beluli kepek kulon. Ezert kesobb jol skalazhato marad az admin.",
     fields: [
       "title",
       "slug",
@@ -81,11 +81,11 @@ function PreviewCard({ title, source, ok, error, rows, columns }: PreviewCardPro
         <div>
           <h2>{title}</h2>
           <p>
-            Forr\u00e1s: <strong>{source}</strong>
+            Forras: <strong>{source}</strong>
           </p>
         </div>
         <span className={`soho-admin-status-chip ${ok ? "is-ok" : "is-error"}`}>
-          {ok ? "kapcsol\u00f3dva" : "hiba"}
+          {ok ? "kapcsolodva" : "hiba"}
         </span>
       </div>
 
@@ -93,8 +93,8 @@ function PreviewCard({ title, source, ok, error, rows, columns }: PreviewCardPro
         <p className="soho-admin-error">{error ?? "Ismeretlen hiba."}</p>
       ) : rows.length === 0 ? (
         <p className="soho-admin-empty">
-          M\u00e9g nincs adat ebben a forr\u00e1sban. Ez j\u00f3 teszt\u00e1llapot: az \u00e9l\u0151 kapcsolat m\u0171k\u00f6dik, csak a
-          sheet m\u00e9g \u00fcres.
+          Meg nincs adat ebben a forrasban. Ez jo tesztallapot: az elo kapcsolat mukodik, csak a
+          sheet meg ures.
         </p>
       ) : (
         <div className="soho-admin-table-wrap">
@@ -139,16 +139,16 @@ export default async function AdminPage() {
           <div className="soho-admin-head">
             <div>
               <span className="soho-gallery-kicker">Admin Architecture</span>
-              <h1>Admin el\u0151k\u00e9sz\u00edt\u00e9s</h1>
+              <h1>Admin elokeszites</h1>
               <p>
-                Ez m\u00e1r a v\u00e9gleges adat\u00fat szerinti admin alap: a f\u0151oldali esem\u00e9nyek, a Facebook
-                feed \u00e9s a gal\u00e9ria egy k\u00f6z\u00f6s tartalommodellre k\u00e9sz\u00fclnek, amelyet k\u00e9s\u0151bb Apps
-                Scripten kereszt\u00fcl a Google Sheetekb\u0151l \u00e9s Drive-b\u00f3l fogunk olvasni \u00e9s \u00edrni.
+                Ez mar a vegleges adatut szerinti admin alap: a fooldali esemenyek, a Facebook
+                feed es a galeria egy kozos tartalommodellre keszulnek, amelyet kesobb Apps
+                Scripten keresztul a Google Sheetekbol es Drive-bol fogunk olvasni es irni.
               </p>
             </div>
 
             <div className="soho-gallery-source-card">
-              <strong>Drive gy\u00f6k\u00e9r</strong>
+              <strong>Drive gyoker</strong>
               <a
                 href={getGoogleDriveFolderUrl(config.driveRootFolderId)}
                 target="_blank"
@@ -192,11 +192,11 @@ export default async function AdminPage() {
             </article>
 
             <article className="soho-admin-card">
-              <h2>Apps Script státusz</h2>
+              <h2>Apps Script statusz</h2>
               <p>
                 {appsScriptReady
-                  ? "A k\u00f6rnyezeti v\u00e1ltoz\u00f3k be vannak \u00e1ll\u00edtva, a projekt k\u00e9szen \u00e1ll az \u00e9l\u0151 Apps Script kapcsolatra."
-                  : "M\u00e9g nincs be\u00e1ll\u00edtva a Web App URL vagy a shared secret, ez\u00e9rt most mock adatokkal dolgozik a projekt."}
+                  ? "A kornyezeti valtozok be vannak allitva, a projekt keszen all az elo Apps Script kapcsolatra."
+                  : "Meg nincs beallitva a Web App URL vagy a shared secret, ezert most mock adatokkal dolgozik a projekt."}
               </p>
               <div className="soho-admin-tag-block">
                 <span>{appsScriptReady ? "apps-script-ready" : "mock-mode"}</span>
@@ -206,7 +206,7 @@ export default async function AdminPage() {
 
           <div className="soho-admin-grid">
             <PreviewCard
-              title="Events el\u0151n\u00e9zet"
+              title="Events elonezet"
               source={eventsResult.source}
               ok={eventsResult.ok}
               error={eventsResult.error}
@@ -215,7 +215,7 @@ export default async function AdminPage() {
             />
 
             <PreviewCard
-              title="Facebook feed el\u0151n\u00e9zet"
+              title="Facebook feed elonezet"
               source={facebookFeedResult.source}
               ok={facebookFeedResult.ok}
               error={facebookFeedResult.error}
@@ -226,7 +226,7 @@ export default async function AdminPage() {
 
           <div className="soho-admin-grid">
             <article className="soho-admin-card">
-              <h2>Apps Script műveletek</h2>
+              <h2>Apps Script muveletek</h2>
               <div className="soho-admin-tag-block">
                 {apiActions.map((action) => (
                   <span key={action}>{action}</span>
@@ -264,16 +264,16 @@ export default async function AdminPage() {
 
           <div className="soho-admin-grid soho-admin-grid-bottom">
             <article className="soho-admin-card">
-              <h2>K\u00f6vetkez\u0151 l\u00e9p\u00e9sek</h2>
+              <h2>Kovetkezo lepesek</h2>
               <ul className="soho-admin-list">
-                <li>Events \u00e9s Facebook feed l\u00e9trehoz\u00e1s admin \u0171rlapr\u00f3l</li>
-                <li>Gal\u00e9ria albumok list\u00e1z\u00e1sa \u00e9s l\u00e9trehoz\u00e1sa</li>
-                <li>Drive-alap\u00fa k\u00e9pfelt\u00f6lt\u00e9s adminb\u00f3l</li>
+                <li>Events es Facebook feed letrehozas admin urlaprol</li>
+                <li>Galeria albumok listazasa es letrehozasa</li>
+                <li>Drive-alapu kepfeltoltes adminbol</li>
               </ul>
             </article>
 
             <article className="soho-admin-card">
-              <h2>Dokument\u00e1ci\u00f3</h2>
+              <h2>Dokumentacio</h2>
               <div className="soho-admin-link-list">
                 <a
                   href="https://docs.google.com/spreadsheets/d/1iakm8kyLYBM8v0V5PgFfLkF3gSAHLMIkdq-w7yIGcts/edit"
@@ -282,8 +282,8 @@ export default async function AdminPage() {
                 >
                   events sheet
                 </a>
-                <Link href="/">F\u0151oldal megnyit\u00e1sa</Link>
-                <Link href="/galeria">Gal\u00e9ria megnyit\u00e1sa</Link>
+                <Link href="/">Fooldal megnyitasa</Link>
+                <Link href="/galeria">Galeria megnyitasa</Link>
               </div>
             </article>
           </div>
