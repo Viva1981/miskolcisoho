@@ -1022,6 +1022,91 @@ textarea {
   letter-spacing: 0;
 }
 
+.soho-admin-preview-card {
+  gap: 1rem;
+}
+
+.soho-admin-preview-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.soho-admin-preview-head p {
+  margin-top: 0.35rem;
+}
+
+.soho-admin-status-chip {
+  min-height: 34px;
+  padding: 0 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.soho-admin-status-chip.is-ok {
+  border: 1px solid rgba(208, 214, 13, 0.28);
+  background: rgba(208, 214, 13, 0.12);
+  color: #d0d60d;
+}
+
+.soho-admin-status-chip.is-error {
+  border: 1px solid rgba(255, 91, 91, 0.3);
+  background: rgba(255, 91, 91, 0.12);
+  color: #ffb8b8;
+}
+
+.soho-admin-empty,
+.soho-admin-error {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.7;
+}
+
+.soho-admin-error {
+  color: #ffb8b8;
+}
+
+.soho-admin-table-wrap {
+  overflow-x: auto;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.soho-admin-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+}
+
+.soho-admin-table th,
+.soho-admin-table td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: left;
+  vertical-align: top;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.soho-admin-table th {
+  background: rgba(255, 255, 255, 0.04);
+  color: #d0d60d;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.soho-admin-table td {
+  color: rgba(255, 255, 255, 0.9);
+}
+
 .soho-admin-footnote {
   margin-top: 1.5rem;
 }
@@ -1354,6 +1439,12 @@ textarea {
   }
 
   .soho-admin-head {
+    text-align: center;
+  }
+
+  .soho-admin-preview-head {
+    flex-direction: column;
+    align-items: center;
     text-align: center;
   }
 

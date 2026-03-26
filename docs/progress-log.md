@@ -63,3 +63,10 @@ Ez a fájl azért készült, hogy később is visszakövethető legyen:
 - Bekerült egy Next.js proxy route: `/api/admin/content`.
 - Ez a route mock mód és élő Apps Script mód között is tud működni.
 - Az admin oldal most már jelzi, hogy mock vagy Apps Script állapotban van-e a projekt.
+
+## 2026-03-26 - Élő admin előnézet
+
+- Az admin oldal már élő `events` és `facebook_feed` adatokat tud előnézetben megjeleníteni.
+- Az admin ugyanazt a háttérlogikát használja, mint az API route.
+- Üres sheet esetén a felület ezt külön, kulturált üres állapotként kezeli.
+- Beépült a forrásjelzés is, így látszik, hogy mock vagy Apps Script adat jött-e.

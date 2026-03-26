@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { getMockAdminRows, isAdminResource } from "@/lib/admin-resources";
-import { callAppsScript, isAppsScriptConfigured } from "@/lib/apps-script";
+import { getAdminContent, parseAdminResource } from "@/lib/admin-content";
 
 export async function GET(request: NextRequest) {
-  const resource = request.nextUrl.searchParams.get("resource");
+  const resource = parseAdminResource(request.nextUrl.searchParams.get("resource"));
 
-  if (!resource || !isAdminResource(resource)) {
+  if (!resource) {
     return NextResponse.json(
       {
         ok: false,
@@ -16,24 +15,13 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  if (!isAppsScriptConfigured()) {
-    const data = await getMockAdminRows(resource);
-    return NextResponse.json({
-      ok: true,
-      source: "mock",
-      data,
-    });
-  }
-
-  const response = await callAppsScript({
-    action: "GET_CONTENT",
-    resource,
-  });
+  const response = await getAdminContent(resource);
 
   if (!response.ok) {
     return NextResponse.json(
       {
         ok: false,
+        source: response.source,
         error: response.error,
       },
       { status: 502 },
