@@ -156,3 +156,8 @@ Ez a fájl azért készült, hogy később is visszakövethető legyen:
 - Az admin galéria album űrlap nem létező `/api/admin/create-gallery-folder` végpontot hívott.
 - Az űrlap most már a helyes `/api/admin/create-drive-folder` route-ot használja.
 - Biztonsági kompatibilitásként bekerült egy alias route is a régi útvonalra, hogy a kliensoldali cache ne tudjon HTML 404-et visszaadni JSON helyett.
+
+## 2026-03-26 - Galéria gyűjtőmappa mező javítás
+
+- Az admin galéria album űrlap a helyes route-ra már átállt, de nem küldte át a szükséges `collectionName` mezőt.
+- A kérés most már a `gallery` gyűjtőmappába hozza létre az új album saját almappáját.
