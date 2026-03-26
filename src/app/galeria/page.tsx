@@ -33,7 +33,11 @@ export default async function GaleriaPage() {
 
           <div className="soho-gallery-album-grid">
             {albums.map((album) => (
-              <Link key={album.id} href={`/galeria/${album.slug}`} className="soho-gallery-album-card">
+              <Link
+                key={album.id}
+                href={`/galeria/${album.slug}`}
+                className="soho-gallery-album-card"
+              >
                 <div className={`soho-gallery-album-cover ${album.coverTone}`}>
                   <span>{album.eventDate}</span>
                   <strong>{album.title}</strong>

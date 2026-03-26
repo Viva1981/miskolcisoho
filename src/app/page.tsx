@@ -123,9 +123,9 @@ export default async function Home() {
             <div className="soho-facebook-profile-copy">
               <strong>soho.miskolc</strong>
               <span>
-                Ez itt egy saját, Rockwell-szerű feed-rács: nem iframe-ekből áll, hanem
-                szabadon formázható tartalomkártyákból. Később ide maximum 9 valódi Facebook
-                tartalom kerülhet képpel, címmel és linkkel.
+                Ez itt egy saját, Rockwell-szerű feedrács: nem iframe-ekből áll, hanem szabadon
+                formázható tartalomkártyákból. Később ide maximum 9 valódi Facebook tartalom
+                kerülhet képpel, címmel és linkkel.
               </span>
             </div>
           </div>

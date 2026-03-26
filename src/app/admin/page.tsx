@@ -41,7 +41,7 @@ const adminSections = [
     id: "gallery",
     title: "Galéria albumok",
     description:
-      "A galéria két szintű: album metaadatok külön, az albumon belüli képek külön. Ezért később jól skálázható marad az admin.",
+      "A galéria kétszintű: album metaadatok külön, az albumon belüli képek külön. Ezért később jól skálázható marad az admin.",
     fields: [
       "title",
       "slug",
