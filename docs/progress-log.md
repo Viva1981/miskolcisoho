@@ -150,3 +150,9 @@ Ez a fájl azért készült, hogy később is visszakövethető legyen:
 - A galéria listaoldal és az albumoldal most már a `gallery_albums` és `gallery_images` Sheetekből épül fel.
 - A publikus oldalak dinamikus renderelésre lettek állítva, így a Sheets-ben módosított tartalom redeploy nélkül is frissül.
 - A Drive fájlazonosítókból közvetlen publikus preview képek készülnek a főoldalon és a galériában is.
+
+## 2026-03-26 - Galéria album route javítás
+
+- Az admin galéria album űrlap nem létező `/api/admin/create-gallery-folder` végpontot hívott.
+- Az űrlap most már a helyes `/api/admin/create-drive-folder` route-ot használja.
+- Biztonsági kompatibilitásként bekerült egy alias route is a régi útvonalra, hogy a kliensoldali cache ne tudjon HTML 404-et visszaadni JSON helyett.

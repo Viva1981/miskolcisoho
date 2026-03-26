@@ -27,7 +27,7 @@ export function AdminGalleryAlbumForm() {
     try {
       setState({ type: "saving", message: "Galéria mappa létrehozása a Drive-ban..." });
 
-      const folderResponse = await fetch("/api/admin/create-gallery-folder", {
+      const folderResponse = await fetch("/api/admin/create-drive-folder", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
