@@ -1,7 +1,7 @@
 "use client";
 
+import { FormEvent, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
 
 import type { AdminResource } from "@/lib/admin-resources";
 
@@ -13,7 +13,36 @@ type AdminPreviewTableProps = {
   error?: string;
   rows: Record<string, string>[];
   columns: string[];
+  editableFields: string[];
 };
+
+function fieldLabel(field: string) {
+  return field.replaceAll("_", " ");
+}
+
+function fieldType(field: string) {
+  if (field === "published") {
+    return "checkbox";
+  }
+
+  if (field === "date" || field === "event_date") {
+    return "date";
+  }
+
+  if (field === "time") {
+    return "time";
+  }
+
+  if (field.endsWith("_url") || field === "facebook_url") {
+    return "url";
+  }
+
+  if (field === "description" || field === "text" || field === "caption") {
+    return "textarea";
+  }
+
+  return "text";
+}
 
 export function AdminPreviewTable({
   title,
@@ -23,11 +52,16 @@ export function AdminPreviewTable({
   error,
   rows,
   columns,
+  editableFields,
 }: AdminPreviewTableProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [actionError, setActionError] = useState("");
   const [activeRowId, setActiveRowId] = useState("");
+  const [editingRowId, setEditingRowId] = useState("");
+  const [formValues, setFormValues] = useState<Record<string, string>>({});
+
+  const editingRow = rows.find((row) => row.id === editingRowId) ?? null;
 
   async function handleDelete(id: string) {
     const confirmed = window.confirm("Biztosan törölni szeretnéd ezt a sort?");
@@ -65,6 +99,70 @@ export function AdminPreviewTable({
       router.refresh();
     });
     setActiveRowId("");
+  }
+
+  async function handleUpdate(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!editingRowId) {
+      return;
+    }
+
+    setActionError("");
+    setActiveRowId(editingRowId);
+
+    const response = await fetch("/api/admin/content", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        resource,
+        id: editingRowId,
+        payload: formValues,
+      }),
+    });
+
+    const result = (await response.json()) as {
+      ok: boolean;
+      error?: string;
+    };
+
+    if (!response.ok || !result.ok) {
+      setActionError(result.error ?? "Nem sikerült elmenteni a módosításokat.");
+      setActiveRowId("");
+      return;
+    }
+
+    closeEditor();
+    setActiveRowId("");
+    startTransition(() => {
+      router.refresh();
+    });
+  }
+
+  function updateValue(field: string, value: string) {
+    setFormValues((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  }
+
+  function openEditor(row: Record<string, string>) {
+    const nextValues: Record<string, string> = {};
+
+    editableFields.forEach((field) => {
+      nextValues[field] = row[field] ?? "";
+    });
+
+    setActionError("");
+    setFormValues(nextValues);
+    setEditingRowId(row.id ?? "");
+  }
+
+  function closeEditor() {
+    setEditingRowId("");
+    setFormValues({});
   }
 
   return (
@@ -109,14 +207,24 @@ export function AdminPreviewTable({
                       <td key={column}>{row[column] || "-"}</td>
                     ))}
                     <td>
-                      <button
-                        type="button"
-                        className="soho-admin-row-action"
-                        onClick={() => handleDelete(rowId)}
-                        disabled={isPending || activeRowId === rowId}
-                      >
-                        {activeRowId === rowId ? "törlés..." : "törlés"}
-                      </button>
+                      <div className="soho-admin-row-actions">
+                        <button
+                          type="button"
+                          className="soho-admin-row-action"
+                          onClick={() => openEditor(row)}
+                          disabled={isPending || activeRowId === rowId}
+                        >
+                          szerkesztés
+                        </button>
+                        <button
+                          type="button"
+                          className="soho-admin-row-action"
+                          onClick={() => handleDelete(rowId)}
+                          disabled={isPending || activeRowId === rowId}
+                        >
+                          {activeRowId === rowId ? "törlés..." : "törlés"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -125,6 +233,82 @@ export function AdminPreviewTable({
           </table>
         </div>
       )}
+
+      {editingRow ? (
+        <div className="soho-admin-modal-backdrop" role="presentation" onClick={closeEditor}>
+          <div
+            className="soho-admin-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${title} szerkesztés`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="soho-admin-preview-head">
+              <div>
+                <h2>Sor szerkesztése</h2>
+                <p>
+                  ID: <strong>{editingRow.id}</strong>
+                </p>
+              </div>
+              <button type="button" className="soho-admin-row-action" onClick={closeEditor}>
+                bezárás
+              </button>
+            </div>
+
+            <form className="soho-admin-form" onSubmit={handleUpdate}>
+              {editableFields.map((field) => {
+                const type = fieldType(field);
+                const value = formValues[field] ?? "";
+
+                if (type === "checkbox") {
+                  return (
+                    <label key={field} className="soho-admin-checkbox">
+                      <span>{fieldLabel(field)}</span>
+                      <input
+                        type="checkbox"
+                        checked={value === "true"}
+                        onChange={(event) =>
+                          updateValue(field, event.target.checked ? "true" : "false")
+                        }
+                      />
+                    </label>
+                  );
+                }
+
+                if (type === "textarea") {
+                  return (
+                    <label key={field}>
+                      <span>{fieldLabel(field)}</span>
+                      <textarea
+                        value={value}
+                        onChange={(event) => updateValue(field, event.target.value)}
+                        rows={4}
+                      />
+                    </label>
+                  );
+                }
+
+                return (
+                  <label key={field}>
+                    <span>{fieldLabel(field)}</span>
+                    <input
+                      type={type}
+                      value={value}
+                      onChange={(event) => updateValue(field, event.target.value)}
+                    />
+                  </label>
+                );
+              })}
+
+              <div className="soho-admin-form-actions">
+                <button type="submit" disabled={isPending || activeRowId === editingRow.id}>
+                  {activeRowId === editingRow.id ? "mentés..." : "módosítás mentése"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
 
       {actionError ? <p className="soho-admin-form-message is-error">{actionError}</p> : null}
     </article>

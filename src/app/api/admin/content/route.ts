@@ -5,6 +5,7 @@ import {
   deleteAdminRow,
   getAdminContent,
   parseAdminResource,
+  updateAdminRow,
 } from "@/lib/admin-content";
 
 export async function GET(request: NextRequest) {
@@ -187,6 +188,65 @@ export async function DELETE(request: NextRequest) {
   }
 
   const response = await deleteAdminRow(resource, body.id.trim());
+
+  if (!response.ok) {
+    return NextResponse.json(
+      {
+        ok: false,
+        source: response.source,
+        error: response.error,
+      },
+      { status: 502 },
+    );
+  }
+
+  return NextResponse.json({
+    ok: true,
+    source: response.source,
+    data: response.data,
+  });
+}
+
+export async function PUT(request: NextRequest) {
+  const body = (await request.json()) as {
+    resource?: string;
+    id?: string;
+    payload?: Record<string, string>;
+  };
+
+  const resource = parseAdminResource(body.resource ?? null);
+
+  if (!resource) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Invalid resource.",
+      },
+      { status: 400 },
+    );
+  }
+
+  if (!body.id?.trim()) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Missing row id.",
+      },
+      { status: 400 },
+    );
+  }
+
+  if (!body.payload) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Missing payload.",
+      },
+      { status: 400 },
+    );
+  }
+
+  const response = await updateAdminRow(resource, body.id.trim(), body.payload);
 
   if (!response.ok) {
     return NextResponse.json(

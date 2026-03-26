@@ -178,6 +178,16 @@ export default async function AdminPage() {
                 "cover_drive_file_id",
                 "published",
               ]}
+              editableFields={[
+                "title",
+                "date",
+                "time",
+                "facebook_url",
+                "cover_drive_file_id",
+                "cover_drive_url",
+                "published",
+                "sort_order",
+              ]}
             />
           </div>
 
@@ -199,6 +209,15 @@ export default async function AdminPage() {
                 "cover_drive_file_id",
                 "published",
               ]}
+              editableFields={[
+                "title",
+                "text",
+                "facebook_url",
+                "cover_drive_file_id",
+                "cover_drive_url",
+                "published",
+                "sort_order",
+              ]}
             />
           </div>
 
@@ -213,6 +232,17 @@ export default async function AdminPage() {
               error={galleryAlbumsResult.error}
               rows={galleryAlbumsResult.data}
               columns={["id", "slug", "title", "event_date", "drive_folder_id", "published"]}
+              editableFields={[
+                "slug",
+                "title",
+                "event_date",
+                "description",
+                "drive_folder_id",
+                "cover_drive_file_id",
+                "cover_drive_url",
+                "published",
+                "sort_order",
+              ]}
             />
           </div>
 
@@ -228,6 +258,13 @@ export default async function AdminPage() {
               rows={galleryImagesResult.data}
               columns={[
                 "id",
+                "album_id",
+                "drive_file_id",
+                "drive_file_url",
+                "caption",
+                "sort_order",
+              ]}
+              editableFields={[
                 "album_id",
                 "drive_file_id",
                 "drive_file_url",
@@ -287,7 +324,7 @@ export default async function AdminPage() {
               <ul className="soho-admin-next-steps">
                 <li>Az albumválasztást később legördülő mezőre kötjük az élő gallery_albums listából.</li>
                 <li>A nyilvános oldalakat ezután már a Sheets adatokból tudjuk etetni mock helyett.</li>
-                <li>A következő kör lehet a sorok szerkesztése adminból.</li>
+                <li>A következő kör lehet a preview képek és gyors linkek megjelenítése.</li>
               </ul>
             </article>
           </div>

@@ -81,6 +81,43 @@ export async function createAdminRow(
   };
 }
 
+export async function updateAdminRow(
+  resource: AdminResource,
+  id: string,
+  payload: Record<string, string>,
+): Promise<AdminContentResult> {
+  if (!isAppsScriptConfigured()) {
+    return {
+      ok: false,
+      source: "mock",
+      data: [],
+      error: "A szerkesztés csak élő Apps Script kapcsolattal érhető el.",
+    };
+  }
+
+  const response = await callAppsScript({
+    action: "UPDATE_ROW",
+    resource,
+    id,
+    payload,
+  });
+
+  if (!response.ok) {
+    return {
+      ok: false,
+      source: "apps-script",
+      data: [],
+      error: response.error,
+    };
+  }
+
+  return {
+    ok: true,
+    source: "apps-script",
+    data: response.data ?? [],
+  };
+}
+
 export async function deleteAdminRow(
   resource: AdminResource,
   id: string,
@@ -138,7 +175,9 @@ export async function createAdminDriveFolder(payload: { collectionName: string; 
   if (!response.ok || !response.folderId || !response.folderUrl) {
     return {
       ok: false as const,
-      error: response.ok ? "A Drive mappa létrehozása nem adott vissza mappa adatot." : response.error,
+      error: response.ok
+        ? "A Drive mappa létrehozása nem adott vissza mappa adatot."
+        : response.error,
     };
   }
 

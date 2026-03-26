@@ -1225,6 +1225,43 @@ textarea {
   cursor: wait;
 }
 
+.soho-admin-row-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.soho-admin-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  z-index: 1000;
+}
+
+.soho-admin-modal {
+  width: min(720px, 100%);
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #090909;
+  padding: 1.4rem;
+}
+
+.soho-admin-modal textarea {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: #ffffff;
+  padding: 0.95rem 1rem;
+}
+
 .soho-admin-footnote {
   margin-top: 1.5rem;
 }

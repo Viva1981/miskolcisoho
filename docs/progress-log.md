@@ -122,3 +122,9 @@ Ez a fájl azért készült, hogy később is visszakövethető legyen:
 - A preview táblák most már soronként törlés gombot kaptak.
 - A törlés valós Apps Script `DELETE_ROW` műveleten keresztül megy.
 - A sikeres törlés után az admin oldal automatikusan frissül, így a preview és a Google Sheet állapota együtt marad.
+
+## 2026-03-26 - Admin szerkesztés a preview táblákból
+
+- A preview táblák most már soronként szerkesztés gombot is kaptak.
+- A szerkesztés egy admin modalon keresztül történik, és a módosításokat az Apps Script `UPDATE_ROW` művelet menti.
+- Így a legfontosabb mezők már közvetlenül a listanézetből karbantarthatók.
