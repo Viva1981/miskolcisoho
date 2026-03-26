@@ -102,3 +102,10 @@ Ez a fájl azért készült, hogy később is visszakövethető legyen:
 - A galéria kép űrlap most már közvetlenül képfájlt is fogad.
 - Mentéskor a rendszer először feltölti a fájlt a megadott Drive mappába, majd az ebből visszakapott `fileId` és `fileUrl` értékkel hozza létre a `gallery_images` sort.
 - Később ugyanezt a feltöltési mintát át tudjuk emelni az esemény és Facebook feed borítóképekre is.
+
+## 2026-03-26 - Automatikus album mappa a galériához
+
+- A galéria album létrehozása már nem kézi `drive_folder_id` mezővel működik.
+- Az admin új album mentésekor a rendszer automatikusan létrehoz egy almappát a `Soho_Content/gallery` alatt.
+- A mappa neve az album címe lesz, és ennek az azonosítója kerül be a `gallery_albums` sheet megfelelő mezőjébe.
+- Így a későbbi képfeltöltés már albumonként rendezett Drive struktúrába tud menni.

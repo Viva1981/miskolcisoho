@@ -40,6 +40,8 @@ function doPost(e) {
         return handleDeleteRow(body);
       case "UPLOAD_DRIVE_FILE":
         return handleUploadDriveFile(body);
+      case "CREATE_DRIVE_FOLDER":
+        return handleCreateDriveFolder(body);
       default:
         return jsonResponse({
           ok: false,
@@ -150,6 +152,31 @@ function handleUploadDriveFile(body) {
   });
 }
 
+function handleCreateDriveFolder(body) {
+  const payload = body.payload || {};
+  const rootFolderId = payload.rootFolderId;
+  const collectionName = payload.collectionName;
+  const folderName = payload.folderName;
+
+  if (!rootFolderId || !collectionName || !folderName) {
+    return jsonResponse({
+      ok: false,
+      error: "Missing folder creation payload fields.",
+    });
+  }
+
+  const rootFolder = DriveApp.getFolderById(rootFolderId);
+  const collectionFolder = getOrCreateChildFolder(rootFolder, collectionName);
+  const albumFolder = getOrCreateChildFolder(collectionFolder, folderName);
+
+  return jsonResponse({
+    ok: true,
+    folderId: albumFolder.getId(),
+    folderUrl: albumFolder.getUrl(),
+    folderName: albumFolder.getName(),
+  });
+}
+
 function getSheet(resource) {
   const resourceConfig = RESOURCE_CONFIG[resource];
 
@@ -220,6 +247,17 @@ function stringifyCellValue(value, header, timezone) {
   }
 
   return String(value);
+}
+
+function getOrCreateChildFolder(parentFolder, childName) {
+  const normalizedChildName = String(childName).trim();
+  const folders = parentFolder.getFoldersByName(normalizedChildName);
+
+  if (folders.hasNext()) {
+    return folders.next();
+  }
+
+  return parentFolder.createFolder(normalizedChildName);
 }
 
 function jsonResponse(payload) {

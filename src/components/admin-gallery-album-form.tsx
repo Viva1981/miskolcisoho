@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 type SubmitState =
   | { type: "idle" }
-  | { type: "saving" }
+  | { type: "saving"; message: string }
   | { type: "success"; message: string }
   | { type: "error"; message: string };
 
@@ -18,60 +18,93 @@ export function AdminGalleryAlbumForm() {
   const [slug, setSlug] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [description, setDescription] = useState("");
-  const [driveFolderId, setDriveFolderId] = useState("");
   const [sortOrder, setSortOrder] = useState(INITIAL_SORT_ORDER);
   const [published, setPublished] = useState(true);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setState({ type: "saving" });
 
-    const response = await fetch("/api/admin/content", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        resource: "gallery_albums",
-        payload: {
-          title,
-          slug,
-          event_date: eventDate,
-          description,
-          drive_folder_id: driveFolderId,
-          cover_drive_file_id: "",
-          cover_drive_url: "",
-          published: published ? "true" : "false",
-          sort_order: sortOrder || INITIAL_SORT_ORDER,
+    try {
+      setState({ type: "saving", message: "Galéria mappa létrehozása a Drive-ban..." });
+
+      const folderResponse = await fetch("/api/admin/create-gallery-folder", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      }),
-    });
+        body: JSON.stringify({
+          folderName: title.trim(),
+        }),
+      });
 
-    const result = (await response.json()) as {
-      ok: boolean;
-      error?: string;
-    };
+      const folderResult = (await folderResponse.json()) as {
+        ok: boolean;
+        folderId?: string;
+        folderUrl?: string;
+        error?: string;
+      };
 
-    if (!response.ok || !result.ok) {
+      if (!folderResponse.ok || !folderResult.ok || !folderResult.folderId) {
+        setState({
+          type: "error",
+          message: folderResult.error ?? "Nem sikerült létrehozni a galéria mappát a Drive-ban.",
+        });
+        return;
+      }
+
+      setState({ type: "saving", message: "Galéria album mentése a sheetbe..." });
+
+      const response = await fetch("/api/admin/content", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resource: "gallery_albums",
+          payload: {
+            title,
+            slug,
+            event_date: eventDate,
+            description,
+            drive_folder_id: folderResult.folderId,
+            cover_drive_file_id: "",
+            cover_drive_url: folderResult.folderUrl ?? "",
+            published: published ? "true" : "false",
+            sort_order: sortOrder || INITIAL_SORT_ORDER,
+          },
+        }),
+      });
+
+      const result = (await response.json()) as {
+        ok: boolean;
+        error?: string;
+      };
+
+      if (!response.ok || !result.ok) {
+        setState({
+          type: "error",
+          message: result.error ?? "Nem sikerült elmenteni a galéria albumot.",
+        });
+        return;
+      }
+
+      setTitle("");
+      setSlug("");
+      setEventDate("");
+      setDescription("");
+      setSortOrder(INITIAL_SORT_ORDER);
+      setPublished(true);
+      setState({
+        type: "success",
+        message: "A galéria album és a hozzá tartozó Drive mappa sikeresen létrejött.",
+      });
+      router.refresh();
+    } catch (error) {
       setState({
         type: "error",
-        message: result.error ?? "Nem sikerült elmenteni a galéria albumot.",
+        message: error instanceof Error ? error.message : "Ismeretlen hiba történt.",
       });
-      return;
     }
-
-    setTitle("");
-    setSlug("");
-    setEventDate("");
-    setDescription("");
-    setDriveFolderId("");
-    setSortOrder(INITIAL_SORT_ORDER);
-    setPublished(true);
-    setState({
-      type: "success",
-      message: "A galéria album sikeresen bekerült a sheetbe.",
-    });
-    router.refresh();
   }
 
   return (
@@ -79,7 +112,10 @@ export function AdminGalleryAlbumForm() {
       <div className="soho-admin-preview-head">
         <div>
           <h2>Új galéria album</h2>
-          <p>Ez az űrlap a `gallery_albums` Sheetbe ment új albumot.</p>
+          <p>
+            Ez az űrlap először létrehozza az album saját Drive mappáját a `gallery` alatt, majd
+            elmenti a `gallery_albums` sort.
+          </p>
         </div>
       </div>
 
@@ -128,17 +164,6 @@ export function AdminGalleryAlbumForm() {
           />
         </label>
 
-        <label>
-          <span>Drive mappa ID</span>
-          <input
-            type="text"
-            value={driveFolderId}
-            onChange={(event) => setDriveFolderId(event.target.value)}
-            placeholder="Például: 1AbCdEf..."
-            required
-          />
-        </label>
-
         <div className="soho-admin-form-grid">
           <label>
             <span>Sorrend</span>
@@ -164,7 +189,7 @@ export function AdminGalleryAlbumForm() {
 
         <div className="soho-admin-form-actions">
           <button type="submit" disabled={state.type === "saving"}>
-            {state.type === "saving" ? "Mentés..." : "Galéria album mentése"}
+            {state.type === "saving" ? state.message : "Galéria album létrehozása"}
           </button>
         </div>
 

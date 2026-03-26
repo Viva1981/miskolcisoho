@@ -7,7 +7,8 @@ type AppsScriptAction =
   | "CREATE_ROW"
   | "UPDATE_ROW"
   | "DELETE_ROW"
-  | "UPLOAD_DRIVE_FILE";
+  | "UPLOAD_DRIVE_FILE"
+  | "CREATE_DRIVE_FOLDER";
 
 type AppsScriptRequest = {
   action: AppsScriptAction;
@@ -22,6 +23,9 @@ type AppsScriptSuccess = {
   data?: AdminRow[];
   fileId?: string;
   fileUrl?: string;
+  folderId?: string;
+  folderUrl?: string;
+  folderName?: string;
 };
 
 type AppsScriptFailure = {

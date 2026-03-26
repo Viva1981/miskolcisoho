@@ -1,5 +1,6 @@
 import "server-only";
 
+import { getContentConfig } from "@/lib/content-config";
 import {
   AdminResource,
   AdminRow,
@@ -77,6 +78,40 @@ export async function createAdminRow(
     ok: true,
     source: "apps-script",
     data: response.data ?? [],
+  };
+}
+
+export async function createAdminDriveFolder(payload: { collectionName: string; folderName: string }) {
+  if (!isAppsScriptConfigured()) {
+    return {
+      ok: false as const,
+      error: "A mappalétrehozás csak élő Apps Script kapcsolattal érhető el.",
+    };
+  }
+
+  const config = getContentConfig();
+  const response = await callAppsScript({
+    action: "CREATE_DRIVE_FOLDER",
+    resource: "gallery_albums",
+    payload: {
+      rootFolderId: config.driveRootFolderId,
+      collectionName: payload.collectionName,
+      folderName: payload.folderName,
+    },
+  });
+
+  if (!response.ok || !response.folderId || !response.folderUrl) {
+    return {
+      ok: false as const,
+      error: response.ok ? "A Drive mappa létrehozása nem adott vissza mappa adatot." : response.error,
+    };
+  }
+
+  return {
+    ok: true as const,
+    folderId: response.folderId,
+    folderUrl: response.folderUrl,
+    folderName: response.folderName ?? payload.folderName,
   };
 }
 

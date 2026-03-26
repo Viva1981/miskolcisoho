@@ -149,7 +149,9 @@ export function AdminGalleryImageForm() {
       <div className="soho-admin-preview-head">
         <div>
           <h2>Új galéria kép</h2>
-          <p>Ez az űrlap először feltölti a fájlt Drive-ba, majd létrehozza a `gallery_images` sort.</p>
+          <p>
+            Ez az űrlap először feltölti a fájlt Drive-ba, majd létrehozza a `gallery_images` sort.
+          </p>
         </div>
       </div>
 

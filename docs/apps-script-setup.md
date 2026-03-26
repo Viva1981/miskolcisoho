@@ -2,7 +2,8 @@
 
 ## Cél
 
-Ez a leírás azt a minimális beállítást adja meg, amivel a Next.js admin már képes lesz a Google Sheetekkel és később a Drive feltöltéssel is beszélni.
+Ez a leírás azt a minimális beállítást adja meg, amivel a Next.js admin már képes lesz a Google
+Sheetekkel és a Drive feltöltéssel is beszélni.
 
 ## 1. Apps Script projekt létrehozása
 
@@ -68,8 +69,19 @@ GOOGLE_SHEETS_GALLERY_IMAGES_ID=1nlYcvDZI2n7klBMb8yDpaI43POSOLdI11lp2l-Rzd-s
 Most a projekt már tud:
 
 - mock adatokkal működni,
-- vagy ha az Apps Script be van állítva, akkor az `/api/admin/content` route-on keresztül onnan olvasni.
+- élő Apps Scripten át sheet adatot olvasni és írni,
+- Drive-ba képet feltölteni,
+- galéria albumhoz automatikusan almappát létrehozni a `Soho_Content/gallery` alatt.
+
+## 8. Fontos működés a galériánál
+
+- új galéria album mentésekor a rendszer létrehoz egy almappát a `gallery` alatt,
+- a mappa neve az album címe lesz,
+- ha már létezik ugyanilyen nevű mappa, azt használja újra,
+- az album `drive_folder_id` mezője ezt a mappát kapja meg,
+- a galéria képek feltöltése már ebbe az album mappába tud menni.
 
 ## Következő lépés
 
-Ha a Web App URL és a shared secret bekerül a projektbe, a következő körben már rá tudjuk kötni az admin listát az élő Google adatokra.
+Ha a Web App URL és a shared secret bekerül a projektbe, a következő körben tovább tudjuk vinni a
+borítóképek automatikus feltöltését az eseményekhez és a Facebook feed elemekhez is.
