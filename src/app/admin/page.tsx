@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AdminEventForm } from "@/components/admin-event-form";
 import { AdminFacebookFeedForm } from "@/components/admin-facebook-feed-form";
 import { AdminGalleryAlbumForm } from "@/components/admin-gallery-album-form";
+import { AdminGalleryImageForm } from "@/components/admin-gallery-image-form";
 import { SohoHeader } from "@/components/soho-header";
 import { getAdminContent } from "@/lib/admin-content";
 import { isAppsScriptConfigured } from "@/lib/apps-script";
@@ -128,11 +129,13 @@ function PreviewCard({ title, source, ok, error, rows, columns }: PreviewCardPro
 export default async function AdminPage() {
   const config = getContentConfig();
   const appsScriptReady = isAppsScriptConfigured();
-  const [eventsResult, facebookFeedResult, galleryAlbumsResult] = await Promise.all([
-    getAdminContent("events"),
-    getAdminContent("facebook_feed"),
-    getAdminContent("gallery_albums"),
-  ]);
+  const [eventsResult, facebookFeedResult, galleryAlbumsResult, galleryImagesResult] =
+    await Promise.all([
+      getAdminContent("events"),
+      getAdminContent("facebook_feed"),
+      getAdminContent("gallery_albums"),
+      getAdminContent("gallery_images"),
+    ]);
 
   return (
     <main className="soho-landing">
@@ -248,6 +251,26 @@ export default async function AdminPage() {
           </div>
 
           <div className="soho-admin-grid">
+            <AdminGalleryImageForm />
+
+            <PreviewCard
+              title="Galéria képek előnézet"
+              source={galleryImagesResult.source}
+              ok={galleryImagesResult.ok}
+              error={galleryImagesResult.error}
+              rows={galleryImagesResult.data}
+              columns={[
+                "id",
+                "album_id",
+                "drive_file_id",
+                "drive_file_url",
+                "caption",
+                "sort_order",
+              ]}
+            />
+          </div>
+
+          <div className="soho-admin-grid">
             <article className="soho-admin-card">
               <h2>API teszt linkek</h2>
               <div className="soho-admin-link-list">
@@ -258,9 +281,31 @@ export default async function AdminPage() {
                 <Link href="/api/admin/content?resource=gallery_albums">
                   API minta: gallery_albums
                 </Link>
+                <Link href="/api/admin/content?resource=gallery_images">
+                  API minta: gallery_images
+                </Link>
               </div>
             </article>
 
+            <article className="soho-admin-card">
+              <h2>Adatmodell pillanatkép</h2>
+              <div className="soho-admin-section-list">
+                {adminSections.map((section) => (
+                  <div key={section.id} className="soho-admin-section-item">
+                    <h3>{section.title}</h3>
+                    <p>{section.description}</p>
+                    <ul>
+                      {section.fields.map((field) => (
+                        <li key={field}>{field}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </article>
+          </div>
+
+          <div className="soho-admin-grid">
             <article className="soho-admin-card">
               <h2>Apps Script műveletek</h2>
               <div className="soho-admin-tag-block">
@@ -269,63 +314,15 @@ export default async function AdminPage() {
                 ))}
               </div>
             </article>
-          </div>
 
-          <div className="soho-admin-grid">
             <article className="soho-admin-card">
               <h2>Következő lépések</h2>
-              <ul className="soho-admin-list">
-                <li>Galéria képek listázása és hozzáadása</li>
-                <li>Drive-alapú képfeltöltés adminból</li>
-                <li>Később szerkesztés és törlés hozzáadása</li>
+              <ul className="soho-admin-next-steps">
+                <li>Galéria képek után jöhet a közvetlen Drive-os képfeltöltés adminból.</li>
+                <li>Az albumválasztást később legördülő mezőre kötjük az élő gallery_albums listából.</li>
+                <li>A nyilvános oldalakat ezután már a Sheets adatokból tudjuk etetni mock helyett.</li>
               </ul>
             </article>
-
-            <article className="soho-admin-card">
-              <h2>Dokumentáció</h2>
-              <div className="soho-admin-link-list">
-                <a
-                  href="https://docs.google.com/spreadsheets/d/1iakm8kyLYBM8v0V5PgFfLkF3gSAHLMIkdq-w7yIGcts/edit"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  events sheet
-                </a>
-                <a
-                  href="https://docs.google.com/spreadsheets/d/1ONaRhHY1NB-SHonXu-zT7s7E2nMs40TpUC92lbbqm9k/edit"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  facebook_feed sheet
-                </a>
-                <a
-                  href="https://docs.google.com/spreadsheets/d/1e6sL_r0AKtf50Ne0zk0yGi3cusEoHVYIknf37cxZiWo/edit"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  gallery_albums sheet
-                </a>
-                <Link href="/">Főoldal megnyitása</Link>
-                <Link href="/galeria">Galéria megnyitása</Link>
-              </div>
-            </article>
-          </div>
-
-          <div className="soho-admin-section-list">
-            {adminSections.map((section) => (
-              <article key={section.id} className="soho-admin-section-card">
-                <div className="soho-admin-section-copy">
-                  <h2>{section.title}</h2>
-                  <p>{section.description}</p>
-                </div>
-
-                <div className="soho-admin-tag-block">
-                  {section.fields.map((field) => (
-                    <span key={field}>{field}</span>
-                  ))}
-                </div>
-              </article>
-            ))}
           </div>
         </div>
       </section>

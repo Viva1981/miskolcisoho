@@ -22,9 +22,9 @@
 
 ### Tartalmi modulok
 
-- Külön kezeltük a főoldali eseményeket.
-- Külön kezeltük a Facebook feed blokkot.
-- Külön kezeltük a galéria album és galériakép réteget.
+- Külön kezeljük a főoldali eseményeket.
+- Külön kezeljük a Facebook feed blokkot.
+- Külön kezeljük a galéria album és galériakép réteget.
 
 ### Drive és Sheet előkészítés
 
@@ -89,3 +89,10 @@ Ez a fájl azért készült, hogy később is visszakövethető legyen:
 - Elkészült a `gallery_albums` admin űrlap is.
 - Az adminból most már új galéria album is létrehozható.
 - A slug kézzel is megadható, de ha üres marad, a rendszer automatikusan generálja.
+
+## 2026-03-26 - Galéria képek admin és admin szövegtisztítás
+
+- Az admin oldalon minden látható magyar szöveg vissza lett állítva normál ékezetes formára.
+- Elkészült az első admin űrlap a `gallery_images` Sheethez.
+- A galériaképekhez most már külön rögzíthető az `album_id`, a Drive fájl azonosítója, a Drive URL, a képaláírás és a sorrend.
+- A következő lépés a közvetlen Drive-os képfeltöltés lesz, hogy a fájl ID-t és URL-t már ne kézzel kelljen bemásolni.

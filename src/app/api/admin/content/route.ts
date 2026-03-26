@@ -67,9 +67,20 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (resource === "events" || resource === "facebook_feed" || resource === "gallery_albums") {
+  if (
+    resource === "events" ||
+    resource === "facebook_feed" ||
+    resource === "gallery_albums" ||
+    resource === "gallery_images"
+  ) {
     const idPrefix =
-      resource === "events" ? "evt" : resource === "facebook_feed" ? "feed" : "album";
+      resource === "events"
+        ? "evt"
+        : resource === "facebook_feed"
+          ? "feed"
+          : resource === "gallery_albums"
+            ? "album"
+            : "image";
     const response = await createAdminRow(resource, {
       ...(resource === "events"
         ? {
@@ -83,31 +94,40 @@ export async function POST(request: NextRequest) {
             published: body.payload.published?.trim() ?? "true",
             sort_order: body.payload.sort_order?.trim() ?? "10",
           }
-        : resource === "gallery_albums"
-          ? {
-              id: `${idPrefix}_${Date.now()}`,
-              slug:
-                body.payload.slug?.trim() ||
-                slugify(body.payload.title?.trim() ?? `${idPrefix}_${Date.now()}`),
-              title: body.payload.title?.trim() ?? "",
-              event_date: body.payload.event_date?.trim() ?? "",
-              description: body.payload.description?.trim() ?? "",
-              drive_folder_id: body.payload.drive_folder_id?.trim() ?? "",
-              cover_drive_file_id: body.payload.cover_drive_file_id?.trim() ?? "",
-              cover_drive_url: body.payload.cover_drive_url?.trim() ?? "",
-              published: body.payload.published?.trim() ?? "true",
-              sort_order: body.payload.sort_order?.trim() ?? "10",
-            }
-        : {
-            id: `${idPrefix}_${Date.now()}`,
-            title: body.payload.title?.trim() ?? "",
-            text: body.payload.text?.trim() ?? "",
-            facebook_url: body.payload.facebook_url?.trim() ?? "",
-            cover_drive_file_id: body.payload.cover_drive_file_id?.trim() ?? "",
-            cover_drive_url: body.payload.cover_drive_url?.trim() ?? "",
-            published: body.payload.published?.trim() ?? "true",
-            sort_order: body.payload.sort_order?.trim() ?? "10",
-          }),
+          : resource === "gallery_albums"
+            ? {
+                id: `${idPrefix}_${Date.now()}`,
+                slug:
+                  body.payload.slug?.trim() ||
+                  slugify(body.payload.title?.trim() ?? `${idPrefix}_${Date.now()}`),
+                title: body.payload.title?.trim() ?? "",
+                event_date: body.payload.event_date?.trim() ?? "",
+                description: body.payload.description?.trim() ?? "",
+                drive_folder_id: body.payload.drive_folder_id?.trim() ?? "",
+                cover_drive_file_id: body.payload.cover_drive_file_id?.trim() ?? "",
+                cover_drive_url: body.payload.cover_drive_url?.trim() ?? "",
+                published: body.payload.published?.trim() ?? "true",
+                sort_order: body.payload.sort_order?.trim() ?? "10",
+              }
+            : resource === "gallery_images"
+              ? {
+                  id: `${idPrefix}_${Date.now()}`,
+                  album_id: body.payload.album_id?.trim() ?? "",
+                  drive_file_id: body.payload.drive_file_id?.trim() ?? "",
+                  drive_file_url: body.payload.drive_file_url?.trim() ?? "",
+                  caption: body.payload.caption?.trim() ?? "",
+                  sort_order: body.payload.sort_order?.trim() ?? "10",
+                }
+              : {
+                  id: `${idPrefix}_${Date.now()}`,
+                  title: body.payload.title?.trim() ?? "",
+                  text: body.payload.text?.trim() ?? "",
+                  facebook_url: body.payload.facebook_url?.trim() ?? "",
+                  cover_drive_file_id: body.payload.cover_drive_file_id?.trim() ?? "",
+                  cover_drive_url: body.payload.cover_drive_url?.trim() ?? "",
+                  published: body.payload.published?.trim() ?? "true",
+                  sort_order: body.payload.sort_order?.trim() ?? "10",
+                }),
     });
 
     if (!response.ok) {
