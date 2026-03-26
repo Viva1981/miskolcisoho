@@ -71,6 +71,56 @@ function ArrowRightIcon() {
   );
 }
 
+function EventCard({
+  event,
+  mobile = false,
+}: {
+  event: HomepageEvent;
+  mobile?: boolean;
+}) {
+  const artClassName = `soho-event-art ${event.accent} ${event.coverImageUrl ? "has-image" : ""}`;
+
+  return (
+    <article className="soho-event-card-v2">
+      <div className={artClassName}>
+        {event.coverImageUrl ? (
+          <img
+            src={event.coverImageUrl}
+            alt={event.title}
+            className="soho-event-art-image"
+            loading={mobile ? "eager" : "lazy"}
+          />
+        ) : null}
+        <div className="soho-event-art-overlay">
+          <span>{event.coverImageUrl ? "Facebook event" : "Dummy event"}</span>
+          <strong>{event.title}</strong>
+        </div>
+      </div>
+
+      <div className="soho-event-body">
+        <div className="soho-event-meta">
+          <span>
+            <CalendarIcon />
+            {event.date}
+          </span>
+          <span>
+            <ClockIcon />
+            {event.time}
+          </span>
+        </div>
+
+        <h3>{event.title}</h3>
+
+        <div className="soho-event-actions">
+          <a href={event.facebookUrl} target="_blank" rel="noreferrer" aria-label={`${event.title} Facebook esemény`}>
+            <FacebookIcon />
+          </a>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export function SohoEventsCarousel({ events }: SohoEventsCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -123,33 +173,7 @@ export function SohoEventsCarousel({ events }: SohoEventsCarouselProps) {
 
           <div className="soho-events-grid">
             {desktopCards.map((event) => (
-              <article key={`${event.id}-desktop`} className="soho-event-card-v2">
-                <div className={`soho-event-art ${event.accent}`}>
-                  <span>DUMMY EVENT</span>
-                  <strong>{event.title}</strong>
-                </div>
-
-                <div className="soho-event-body">
-                  <div className="soho-event-meta">
-                    <span>
-                      <CalendarIcon />
-                      {event.date}
-                    </span>
-                    <span>
-                      <ClockIcon />
-                      {event.time}
-                    </span>
-                  </div>
-
-                  <h3>{event.title}</h3>
-
-                  <div className="soho-event-actions">
-                    <a href={event.facebookUrl} aria-label={`${event.title} Facebook esemény`}>
-                      <FacebookIcon />
-                    </a>
-                  </div>
-                </div>
-              </article>
+              <EventCard key={`${event.id}-desktop`} event={event} />
             ))}
           </div>
 
@@ -164,36 +188,7 @@ export function SohoEventsCarousel({ events }: SohoEventsCarouselProps) {
         </div>
 
         <div className="soho-events-mobile">
-          <article key={`${mobileCard.id}-mobile`} className="soho-event-card-v2">
-            <div className={`soho-event-art ${mobileCard.accent}`}>
-              <span>DUMMY EVENT</span>
-              <strong>{mobileCard.title}</strong>
-            </div>
-
-            <div className="soho-event-body">
-              <div className="soho-event-meta">
-                <span>
-                  <CalendarIcon />
-                  {mobileCard.date}
-                </span>
-                <span>
-                  <ClockIcon />
-                  {mobileCard.time}
-                </span>
-              </div>
-
-              <h3>{mobileCard.title}</h3>
-
-              <div className="soho-event-actions">
-                <a
-                  href={mobileCard.facebookUrl}
-                  aria-label={`${mobileCard.title} Facebook esemény`}
-                >
-                  <FacebookIcon />
-                </a>
-              </div>
-            </div>
-          </article>
+          <EventCard key={`${mobileCard.id}-mobile`} event={mobileCard} mobile />
 
           <button
             type="button"

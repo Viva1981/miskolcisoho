@@ -1,3 +1,7 @@
+import "server-only";
+
+import { getAdminContent } from "@/lib/admin-content";
+
 export type AccentTone =
   | "lime"
   | "blue"
@@ -13,6 +17,7 @@ export type HomepageEvent = {
   time: string;
   accent: AccentTone;
   facebookUrl: string;
+  coverImageUrl?: string;
 };
 
 export type FacebookFeedItem = {
@@ -22,7 +27,10 @@ export type FacebookFeedItem = {
   subtitle: string;
   href: string;
   tone: AccentTone;
+  coverImageUrl?: string;
 };
+
+const tones: AccentTone[] = ["lime", "blue", "violet", "sunset", "graphite", "emerald"];
 
 const mockHomepageEvents: HomepageEvent[] = [
   {
@@ -65,7 +73,7 @@ const mockHomepageEvents: HomepageEvent[] = [
     accent: "graphite",
     facebookUrl: "https://www.facebook.com/profile.php?id=61575425759586&locale=hu_HU",
   },
-] as const;
+];
 
 const mockFacebookFeedItems: FacebookFeedItem[] = [
   {
@@ -80,7 +88,7 @@ const mockFacebookFeedItems: FacebookFeedItem[] = [
     id: "event-2",
     eyebrow: "Következő buli",
     title: "Soho night session",
-    subtitle: "Valódi event linkkel, saját dizájnképpel megjelenítve.",
+    subtitle: "Valódi event linkkel, saját dizájnéppel megjelenítve.",
     href: "https://fb.me/e/8hWvC5sVa",
     tone: "blue",
   },
@@ -92,36 +100,83 @@ const mockFacebookFeedItems: FacebookFeedItem[] = [
     href: "https://www.facebook.com/permalink.php?story_fbid=pfbid0h1oLuAHyUKjYGaiPyFdr6Q98pMWwxuFWkqD39rHufsFwAP7oKP9mwKYNLPETbKCzl&id=61575425759586",
     tone: "violet",
   },
-  {
-    id: "post-2",
-    eyebrow: "Fotóalbum",
-    title: "Pénteki hangulat",
-    subtitle: "Később saját feltöltött 1:1 vagy 4:5 arányú borítóképpel.",
-    href: "https://www.facebook.com/profile.php?id=61575425759586&locale=hu_HU",
-    tone: "sunset",
-  },
-  {
-    id: "post-3",
-    eyebrow: "Kiemelt poszt",
-    title: "Line-up bejelentés",
-    subtitle: "A feed egységes marad, nem esik szét iframe-ek miatt.",
-    href: "https://www.facebook.com/profile.php?id=61575425759586&locale=hu_HU",
-    tone: "graphite",
-  },
-  {
-    id: "post-4",
-    eyebrow: "Kulisszák mögött",
-    title: "Backstage vibe",
-    subtitle: "Ez a blokk ideális lesz adminos vagy Drive-os adatforráshoz is.",
-    href: "https://www.facebook.com/profile.php?id=61575425759586&locale=hu_HU",
-    tone: "emerald",
-  },
-] as const;
+];
+
+function getTone(index: number): AccentTone {
+  return tones[index % tones.length];
+}
+
+function isPublished(value: string | undefined) {
+  return String(value ?? "").trim().toLowerCase() === "true";
+}
+
+function toSortOrder(value: string | undefined, fallback: number) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+export function getDriveThumbnailUrl(fileId: string | undefined, size = 1200) {
+  const normalized = String(fileId ?? "").trim();
+
+  if (!normalized) {
+    return "";
+  }
+
+  return `https://drive.google.com/thumbnail?id=${encodeURIComponent(normalized)}&sz=w${size}`;
+}
+
+export function getDrivePreviewUrl(fileId: string | undefined) {
+  const normalized = String(fileId ?? "").trim();
+
+  if (!normalized) {
+    return "";
+  }
+
+  return `https://drive.google.com/file/d/${encodeURIComponent(normalized)}/view`;
+}
 
 export async function getHomepageEvents() {
-  return mockHomepageEvents;
+  const result = await getAdminContent("events");
+
+  if (!result.ok || result.source === "mock") {
+    return mockHomepageEvents;
+  }
+
+  const mapped = result.data
+    .filter((row) => isPublished(row.published))
+    .sort((a, b) => toSortOrder(a.sort_order, 9999) - toSortOrder(b.sort_order, 9999))
+    .map((row, index) => ({
+      id: row.id || `event-${index + 1}`,
+      title: row.title || "Esemény",
+      date: row.date || "",
+      time: row.time || "",
+      accent: getTone(index),
+      facebookUrl: row.facebook_url || "#",
+      coverImageUrl: getDriveThumbnailUrl(row.cover_drive_file_id, 1600),
+    }));
+
+  return mapped.length > 0 ? mapped : mockHomepageEvents;
 }
 
 export async function getFacebookFeedItems() {
-  return mockFacebookFeedItems;
+  const result = await getAdminContent("facebook_feed");
+
+  if (!result.ok || result.source === "mock") {
+    return mockFacebookFeedItems;
+  }
+
+  const mapped = result.data
+    .filter((row) => isPublished(row.published))
+    .sort((a, b) => toSortOrder(a.sort_order, 9999) - toSortOrder(b.sort_order, 9999))
+    .map((row, index) => ({
+      id: row.id || `feed-${index + 1}`,
+      eyebrow: index < 2 ? "Facebook event" : "Friss poszt",
+      title: row.title || "Facebook tartalom",
+      subtitle: row.text || "Facebook tartalom a Soho felületén.",
+      href: row.facebook_url || "#",
+      tone: getTone(index),
+      coverImageUrl: getDriveThumbnailUrl(row.cover_drive_file_id, 1200),
+    }));
+
+  return mapped.length > 0 ? mapped : mockFacebookFeedItems;
 }

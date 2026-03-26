@@ -5,6 +5,8 @@ import { SohoEventsCarousel } from "@/components/soho-events-carousel";
 import { SohoHeader } from "@/components/soho-header";
 import { getFacebookFeedItems, getHomepageEvents } from "@/lib/content";
 
+export const dynamic = "force-dynamic";
+
 const sohoDisplay = Bebas_Neue({
   subsets: ["latin"],
   weight: "400",
@@ -123,9 +125,8 @@ export default async function Home() {
             <div className="soho-facebook-profile-copy">
               <strong>soho.miskolc</strong>
               <span>
-                Ez itt egy saját, Rockwell-szerű feedrács: nem iframe-ekből áll, hanem szabadon
-                formázható tartalomkártyákból. Később ide maximum 9 valódi Facebook tartalom
-                kerülhet képpel, címmel és linkkel.
+                A Miskolci Soho Facebook tartalmai itt jelennek meg saját rácsos megjelenéssel.
+                Az adminban feltöltött képek, szövegek és linkek közvetlenül erre a blokkra érkeznek.
               </span>
             </div>
           </div>
@@ -139,9 +140,19 @@ export default async function Home() {
                 rel="noreferrer"
                 className="soho-facebook-card link"
               >
-                <div className={`soho-facebook-thumb ${item.tone}`}>
-                  <span>{item.eyebrow}</span>
-                  <strong>{item.title}</strong>
+                <div className={`soho-facebook-thumb ${item.tone} ${item.coverImageUrl ? "has-image" : ""}`}>
+                  {item.coverImageUrl ? (
+                    <img
+                      src={item.coverImageUrl}
+                      alt={item.title}
+                      className="soho-facebook-thumb-image"
+                      loading="lazy"
+                    />
+                  ) : null}
+                  <div className="soho-facebook-thumb-overlay">
+                    <span>{item.eyebrow}</span>
+                    <strong>{item.title}</strong>
+                  </div>
                 </div>
 
                 <div className="soho-facebook-card-copy">
@@ -197,11 +208,11 @@ export default async function Home() {
               <h3>Dokumentumok</h3>
               <a href="#">
                 <CookieIcon />
-                <span>Adatkezelési Tájékoztató</span>
+                <span>Adatkezelési tájékoztató</span>
               </a>
               <a href="#">
                 <DocumentIcon />
-                <span>Általános Házirend</span>
+                <span>Általános házirend</span>
               </a>
             </div>
 

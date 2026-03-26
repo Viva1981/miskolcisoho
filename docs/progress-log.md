@@ -142,3 +142,11 @@ Ez a fájl azért készült, hogy később is visszakövethető legyen:
 - A létrehozott galéria- és gyűjtőmappák is publikus megtekintési jogosultságot kapnak.
 - Ettől az újonnan feltöltött képek admin preview-ja működni fog.
 - A korábban feltöltött fájlokat külön újra kell osztani vagy újra kell tölteni, ha preview képként is látszaniuk kell.
+
+## 2026-03-26 - Publikus felület élő adatbekötése
+
+- A főoldali eseménykártyák most már a valós `events` Sheetből olvasnak.
+- A `Kövess minket Facebookon` blokk most már a valós `facebook_feed` Sheet adatait használja.
+- A galéria listaoldal és az albumoldal most már a `gallery_albums` és `gallery_images` Sheetekből épül fel.
+- A publikus oldalak dinamikus renderelésre lettek állítva, így a Sheets-ben módosított tartalom redeploy nélkül is frissül.
+- A Drive fájlazonosítókból közvetlen publikus preview képek készülnek a főoldalon és a galériában is.

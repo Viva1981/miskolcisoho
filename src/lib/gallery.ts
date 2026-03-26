@@ -1,4 +1,8 @@
+import "server-only";
+
+import { getAdminContent } from "@/lib/admin-content";
 import { getContentConfig } from "@/lib/content-config";
+import { getDriveThumbnailUrl } from "@/lib/content";
 
 export type GalleryImage = {
   id: string;
@@ -6,6 +10,8 @@ export type GalleryImage = {
   alt: string;
   caption?: string;
   tone: string;
+  imageUrl?: string;
+  fileUrl?: string;
 };
 
 export type GalleryAlbum = {
@@ -18,16 +24,11 @@ export type GalleryAlbum = {
   coverTone: string;
   driveFolderId: string;
   rootFolderId: string;
+  coverImageUrl?: string;
   images: GalleryImage[];
 };
 
-export function getGalleryRootFolderId() {
-  return getContentConfig().driveRootFolderId;
-}
-
-export function isGoogleDriveLiveMode() {
-  return Boolean(process.env.GOOGLE_DRIVE_API_KEY);
-}
+const tones = ["lime", "blue", "violet", "sunset", "graphite", "emerald"] as const;
 
 const mockAlbums: Omit<GalleryAlbum, "rootFolderId">[] = [
   {
@@ -37,16 +38,13 @@ const mockAlbums: Omit<GalleryAlbum, "rootFolderId">[] = [
     eventDate: "2026.04.24.",
     tags: ["soho", "opening", "miskolc"],
     description:
-      "Főkártya-adatokhoz és képlistához előkészített mintaalbum. Később a Google Drive mappából és egy metaadat-listából fog összeállni.",
+      "Főkártyaadatokhoz és képlistához előkészített mintaalbum. Később a Google Drive mappából és egy metaadat-listából fog összeállni.",
     coverTone: "lime",
     driveFolderId: "drive-folder-opening-night",
     images: [
       { id: "img-1", name: "opening-01.jpg", alt: "Opening Night 1", tone: "lime" },
       { id: "img-2", name: "opening-02.jpg", alt: "Opening Night 2", tone: "blue" },
       { id: "img-3", name: "opening-03.jpg", alt: "Opening Night 3", tone: "violet" },
-      { id: "img-4", name: "opening-04.jpg", alt: "Opening Night 4", tone: "sunset" },
-      { id: "img-5", name: "opening-05.jpg", alt: "Opening Night 5", tone: "emerald" },
-      { id: "img-6", name: "opening-06.jpg", alt: "Opening Night 6", tone: "graphite" },
     ],
   },
   {
@@ -63,9 +61,6 @@ const mockAlbums: Omit<GalleryAlbum, "rootFolderId">[] = [
       { id: "img-1", name: "city-01.jpg", alt: "City Lights 1", tone: "blue" },
       { id: "img-2", name: "city-02.jpg", alt: "City Lights 2", tone: "graphite" },
       { id: "img-3", name: "city-03.jpg", alt: "City Lights 3", tone: "emerald" },
-      { id: "img-4", name: "city-04.jpg", alt: "City Lights 4", tone: "sunset" },
-      { id: "img-5", name: "city-05.jpg", alt: "City Lights 5", tone: "violet" },
-      { id: "img-6", name: "city-06.jpg", alt: "City Lights 6", tone: "lime" },
     ],
   },
   {
@@ -82,20 +77,96 @@ const mockAlbums: Omit<GalleryAlbum, "rootFolderId">[] = [
       { id: "img-1", name: "live-01.jpg", alt: "Live Session 1", tone: "violet" },
       { id: "img-2", name: "live-02.jpg", alt: "Live Session 2", tone: "sunset" },
       { id: "img-3", name: "live-03.jpg", alt: "Live Session 3", tone: "lime" },
-      { id: "img-4", name: "live-04.jpg", alt: "Live Session 4", tone: "graphite" },
-      { id: "img-5", name: "live-05.jpg", alt: "Live Session 5", tone: "blue" },
-      { id: "img-6", name: "live-06.jpg", alt: "Live Session 6", tone: "emerald" },
     ],
   },
-] as const;
+];
+
+export function getGalleryRootFolderId() {
+  return getContentConfig().driveRootFolderId;
+}
+
+export function isGoogleDriveLiveMode() {
+  return Boolean(process.env.APPS_SCRIPT_WEB_APP_URL && process.env.ADMIN_SHARED_SECRET);
+}
+
+function getTone(index: number) {
+  return tones[index % tones.length];
+}
+
+function slugify(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function isPublished(value: string | undefined) {
+  return String(value ?? "").trim().toLowerCase() === "true";
+}
+
+function toSortOrder(value: string | undefined, fallback: number) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
 
 export async function getGalleryAlbums() {
   const rootFolderId = getGalleryRootFolderId();
+  const [albumsResult, imagesResult] = await Promise.all([
+    getAdminContent("gallery_albums"),
+    getAdminContent("gallery_images"),
+  ]);
 
-  return mockAlbums.map((album) => ({
-    ...album,
-    rootFolderId,
-  }));
+  if (!albumsResult.ok || !imagesResult.ok || albumsResult.source === "mock") {
+    return mockAlbums.map((album) => ({
+      ...album,
+      rootFolderId,
+    }));
+  }
+
+  const publishedAlbums = albumsResult.data
+    .filter((row) => isPublished(row.published))
+    .sort((a, b) => toSortOrder(a.sort_order, 9999) - toSortOrder(b.sort_order, 9999));
+
+  const publishedImages = imagesResult.data
+    .sort((a, b) => toSortOrder(a.sort_order, 9999) - toSortOrder(b.sort_order, 9999));
+
+  const albums = publishedAlbums.map((row, albumIndex) => {
+    const albumImages = publishedImages
+      .filter((image) => image.album_id === row.id)
+      .map((image, imageIndex) => ({
+        id: image.id || `${row.id}-image-${imageIndex + 1}`,
+        name: image.drive_file_id ? `Kép ${imageIndex + 1}` : `Galéria kép ${imageIndex + 1}`,
+        alt: image.caption || row.title || `Galéria kép ${imageIndex + 1}`,
+        caption: image.caption || "",
+        tone: getTone(imageIndex),
+        imageUrl: getDriveThumbnailUrl(image.drive_file_id, 1600),
+        fileUrl: image.drive_file_url || "",
+      }));
+
+    return {
+      id: row.id || `album-${albumIndex + 1}`,
+      slug: row.slug || slugify(row.title || `album-${albumIndex + 1}`),
+      title: row.title || `Galéria ${albumIndex + 1}`,
+      eventDate: row.event_date || "",
+      tags: ["soho", "galéria"],
+      description: row.description || "Soho galéria album.",
+      coverTone: getTone(albumIndex),
+      driveFolderId: row.drive_folder_id || "",
+      rootFolderId,
+      coverImageUrl:
+        getDriveThumbnailUrl(row.cover_drive_file_id, 1400) || albumImages[0]?.imageUrl || "",
+      images: albumImages,
+    } satisfies GalleryAlbum;
+  });
+
+  return albums.length > 0
+    ? albums
+    : mockAlbums.map((album) => ({
+        ...album,
+        rootFolderId,
+      }));
 }
 
 export async function getGalleryAlbum(slug: string) {
