@@ -83,3 +83,9 @@ Ez a fájl azért készült, hogy később is visszakövethető legyen:
 - Elkészült a második működő admin űrlap a `facebook_feed` erőforráshoz.
 - Az adminból most már új Facebook feed kártya is létrehozható.
 - Az `events` és a `facebook_feed` mentés ugyanazt az API útvonalat és Apps Script hidat használja.
+
+## 2026-03-26 - Galéria album űrlap
+
+- Elkészült a `gallery_albums` admin űrlap is.
+- Az adminból most már új galéria album is létrehozható.
+- A slug kézzel is megadható, de ha üres marad, a rendszer automatikusan generálja.

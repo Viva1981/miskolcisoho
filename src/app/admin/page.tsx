@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { AdminEventForm } from "@/components/admin-event-form";
 import { AdminFacebookFeedForm } from "@/components/admin-facebook-feed-form";
+import { AdminGalleryAlbumForm } from "@/components/admin-gallery-album-form";
 import { SohoHeader } from "@/components/soho-header";
 import { getAdminContent } from "@/lib/admin-content";
 import { isAppsScriptConfigured } from "@/lib/apps-script";
@@ -127,9 +128,10 @@ function PreviewCard({ title, source, ok, error, rows, columns }: PreviewCardPro
 export default async function AdminPage() {
   const config = getContentConfig();
   const appsScriptReady = isAppsScriptConfigured();
-  const [eventsResult, facebookFeedResult] = await Promise.all([
+  const [eventsResult, facebookFeedResult, galleryAlbumsResult] = await Promise.all([
     getAdminContent("events"),
     getAdminContent("facebook_feed"),
+    getAdminContent("gallery_albums"),
   ]);
 
   return (
@@ -233,12 +235,28 @@ export default async function AdminPage() {
           </div>
 
           <div className="soho-admin-grid">
+            <AdminGalleryAlbumForm />
+
+            <PreviewCard
+              title="Galéria albumok előnézet"
+              source={galleryAlbumsResult.source}
+              ok={galleryAlbumsResult.ok}
+              error={galleryAlbumsResult.error}
+              rows={galleryAlbumsResult.data}
+              columns={["id", "slug", "title", "event_date", "drive_folder_id", "published"]}
+            />
+          </div>
+
+          <div className="soho-admin-grid">
             <article className="soho-admin-card">
               <h2>API teszt linkek</h2>
               <div className="soho-admin-link-list">
                 <Link href="/api/admin/content?resource=events">API minta: events</Link>
                 <Link href="/api/admin/content?resource=facebook_feed">
                   API minta: facebook_feed
+                </Link>
+                <Link href="/api/admin/content?resource=gallery_albums">
+                  API minta: gallery_albums
                 </Link>
               </div>
             </article>
@@ -257,7 +275,7 @@ export default async function AdminPage() {
             <article className="soho-admin-card">
               <h2>Következő lépések</h2>
               <ul className="soho-admin-list">
-                <li>Galéria albumok listázása és létrehozása</li>
+                <li>Galéria képek listázása és hozzáadása</li>
                 <li>Drive-alapú képfeltöltés adminból</li>
                 <li>Később szerkesztés és törlés hozzáadása</li>
               </ul>
@@ -279,6 +297,13 @@ export default async function AdminPage() {
                   rel="noreferrer"
                 >
                   facebook_feed sheet
+                </a>
+                <a
+                  href="https://docs.google.com/spreadsheets/d/1e6sL_r0AKtf50Ne0zk0yGi3cusEoHVYIknf37cxZiWo/edit"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  gallery_albums sheet
                 </a>
                 <Link href="/">Főoldal megnyitása</Link>
                 <Link href="/galeria">Galéria megnyitása</Link>

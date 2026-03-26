@@ -67,8 +67,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (resource === "events" || resource === "facebook_feed") {
-    const idPrefix = resource === "events" ? "evt" : "feed";
+  if (resource === "events" || resource === "facebook_feed" || resource === "gallery_albums") {
+    const idPrefix =
+      resource === "events" ? "evt" : resource === "facebook_feed" ? "feed" : "album";
     const response = await createAdminRow(resource, {
       ...(resource === "events"
         ? {
@@ -82,6 +83,21 @@ export async function POST(request: NextRequest) {
             published: body.payload.published?.trim() ?? "true",
             sort_order: body.payload.sort_order?.trim() ?? "10",
           }
+        : resource === "gallery_albums"
+          ? {
+              id: `${idPrefix}_${Date.now()}`,
+              slug:
+                body.payload.slug?.trim() ||
+                slugify(body.payload.title?.trim() ?? `${idPrefix}_${Date.now()}`),
+              title: body.payload.title?.trim() ?? "",
+              event_date: body.payload.event_date?.trim() ?? "",
+              description: body.payload.description?.trim() ?? "",
+              drive_folder_id: body.payload.drive_folder_id?.trim() ?? "",
+              cover_drive_file_id: body.payload.cover_drive_file_id?.trim() ?? "",
+              cover_drive_url: body.payload.cover_drive_url?.trim() ?? "",
+              published: body.payload.published?.trim() ?? "true",
+              sort_order: body.payload.sort_order?.trim() ?? "10",
+            }
         : {
             id: `${idPrefix}_${Date.now()}`,
             title: body.payload.title?.trim() ?? "",
@@ -119,4 +135,13 @@ export async function POST(request: NextRequest) {
     },
     { status: 400 },
   );
+}
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
