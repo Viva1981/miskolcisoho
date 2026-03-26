@@ -81,6 +81,41 @@ export async function createAdminRow(
   };
 }
 
+export async function deleteAdminRow(
+  resource: AdminResource,
+  id: string,
+): Promise<AdminContentResult> {
+  if (!isAppsScriptConfigured()) {
+    return {
+      ok: false,
+      source: "mock",
+      data: [],
+      error: "A törlés csak élő Apps Script kapcsolattal érhető el.",
+    };
+  }
+
+  const response = await callAppsScript({
+    action: "DELETE_ROW",
+    resource,
+    id,
+  });
+
+  if (!response.ok) {
+    return {
+      ok: false,
+      source: "apps-script",
+      data: [],
+      error: response.error,
+    };
+  }
+
+  return {
+    ok: true,
+    source: "apps-script",
+    data: response.data ?? [],
+  };
+}
+
 export async function createAdminDriveFolder(payload: { collectionName: string; folderName: string }) {
   if (!isAppsScriptConfigured()) {
     return {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import {
   createAdminRow,
+  deleteAdminRow,
   getAdminContent,
   parseAdminResource,
 } from "@/lib/admin-content";
@@ -155,6 +156,54 @@ export async function POST(request: NextRequest) {
     },
     { status: 400 },
   );
+}
+
+export async function DELETE(request: NextRequest) {
+  const body = (await request.json()) as {
+    resource?: string;
+    id?: string;
+  };
+
+  const resource = parseAdminResource(body.resource ?? null);
+
+  if (!resource) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Invalid resource.",
+      },
+      { status: 400 },
+    );
+  }
+
+  if (!body.id?.trim()) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Missing row id.",
+      },
+      { status: 400 },
+    );
+  }
+
+  const response = await deleteAdminRow(resource, body.id.trim());
+
+  if (!response.ok) {
+    return NextResponse.json(
+      {
+        ok: false,
+        source: response.source,
+        error: response.error,
+      },
+      { status: 502 },
+    );
+  }
+
+  return NextResponse.json({
+    ok: true,
+    source: response.source,
+    data: response.data,
+  });
 }
 
 function slugify(value: string) {

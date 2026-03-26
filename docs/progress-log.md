@@ -116,3 +116,9 @@ Ez a fájl azért készült, hogy később is visszakövethető legyen:
 - Mindkét esetben a rendszer létrehozza a saját Drive almappát a megfelelő gyűjtőmappán belül.
 - A fájl feltöltése után a visszakapott `cover_drive_file_id` és `cover_drive_url` automatikusan bekerül a mentett sorba.
 - Így az admin felhasználónak már nem kell kézzel fájl azonosítót vagy Drive linket másolnia.
+
+## 2026-03-26 - Admin törlés a preview táblákból
+
+- A preview táblák most már soronként törlés gombot kaptak.
+- A törlés valós Apps Script `DELETE_ROW` műveleten keresztül megy.
+- A sikeres törlés után az admin oldal automatikusan frissül, így a preview és a Google Sheet állapota együtt marad.

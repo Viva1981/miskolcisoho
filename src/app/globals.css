@@ -1198,6 +1198,33 @@ textarea {
   color: #ffb8b8;
 }
 
+.soho-admin-row-action {
+  min-width: 88px;
+  min-height: 36px;
+  padding: 0 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: transparent;
+  color: #ffffff;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.soho-admin-row-action:hover:not(:disabled) {
+  background: #d0d60d;
+  border-color: #d0d60d;
+  color: #000000;
+}
+
+.soho-admin-row-action:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 .soho-admin-footnote {
   margin-top: 1.5rem;
 }

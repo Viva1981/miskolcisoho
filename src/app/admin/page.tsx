@@ -4,6 +4,7 @@ import { AdminEventForm } from "@/components/admin-event-form";
 import { AdminFacebookFeedForm } from "@/components/admin-facebook-feed-form";
 import { AdminGalleryAlbumForm } from "@/components/admin-gallery-album-form";
 import { AdminGalleryImageForm } from "@/components/admin-gallery-image-form";
+import { AdminPreviewTable } from "@/components/admin-preview-table";
 import { SohoHeader } from "@/components/soho-header";
 import { getAdminContent } from "@/lib/admin-content";
 import { isAppsScriptConfigured } from "@/lib/apps-script";
@@ -72,63 +73,6 @@ const apiActions = [
   "CREATE_DRIVE_FOLDER",
   "UPLOAD_DRIVE_FILE",
 ] as const;
-
-type PreviewCardProps = {
-  title: string;
-  source: "mock" | "apps-script";
-  ok: boolean;
-  error?: string;
-  rows: Record<string, string>[];
-  columns: string[];
-};
-
-function PreviewCard({ title, source, ok, error, rows, columns }: PreviewCardProps) {
-  return (
-    <article className="soho-admin-card soho-admin-preview-card">
-      <div className="soho-admin-preview-head">
-        <div>
-          <h2>{title}</h2>
-          <p>
-            Forrás: <strong>{source}</strong>
-          </p>
-        </div>
-        <span className={`soho-admin-status-chip ${ok ? "is-ok" : "is-error"}`}>
-          {ok ? "kapcsolódva" : "hiba"}
-        </span>
-      </div>
-
-      {!ok ? (
-        <p className="soho-admin-error">{error ?? "Ismeretlen hiba."}</p>
-      ) : rows.length === 0 ? (
-        <p className="soho-admin-empty">
-          Még nincs adat ebben a forrásban. Ez jó tesztállapot: az élő kapcsolat működik, csak a
-          sheet még üres.
-        </p>
-      ) : (
-        <div className="soho-admin-table-wrap">
-          <table className="soho-admin-table">
-            <thead>
-              <tr>
-                {columns.map((column) => (
-                  <th key={column}>{column}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.slice(0, 5).map((row) => (
-                <tr key={row.id ?? `${title}-${JSON.stringify(row)}`}>
-                  {columns.map((column) => (
-                    <td key={column}>{row[column] || "-"}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </article>
-  );
-}
 
 export default async function AdminPage() {
   const config = getContentConfig();
@@ -218,8 +162,9 @@ export default async function AdminPage() {
           <div className="soho-admin-grid">
             <AdminEventForm />
 
-            <PreviewCard
+            <AdminPreviewTable
               title="Events előnézet"
+              resource="events"
               source={eventsResult.source}
               ok={eventsResult.ok}
               error={eventsResult.error}
@@ -239,8 +184,9 @@ export default async function AdminPage() {
           <div className="soho-admin-grid">
             <AdminFacebookFeedForm />
 
-            <PreviewCard
+            <AdminPreviewTable
               title="Facebook feed előnézet"
+              resource="facebook_feed"
               source={facebookFeedResult.source}
               ok={facebookFeedResult.ok}
               error={facebookFeedResult.error}
@@ -259,8 +205,9 @@ export default async function AdminPage() {
           <div className="soho-admin-grid">
             <AdminGalleryAlbumForm />
 
-            <PreviewCard
+            <AdminPreviewTable
               title="Galéria albumok előnézet"
+              resource="gallery_albums"
               source={galleryAlbumsResult.source}
               ok={galleryAlbumsResult.ok}
               error={galleryAlbumsResult.error}
@@ -272,8 +219,9 @@ export default async function AdminPage() {
           <div className="soho-admin-grid">
             <AdminGalleryImageForm />
 
-            <PreviewCard
+            <AdminPreviewTable
               title="Galéria képek előnézet"
+              resource="gallery_images"
               source={galleryImagesResult.source}
               ok={galleryImagesResult.ok}
               error={galleryImagesResult.error}
@@ -339,7 +287,7 @@ export default async function AdminPage() {
               <ul className="soho-admin-next-steps">
                 <li>Az albumválasztást később legördülő mezőre kötjük az élő gallery_albums listából.</li>
                 <li>A nyilvános oldalakat ezután már a Sheets adatokból tudjuk etetni mock helyett.</li>
-                <li>A következő kör lehet a szerkesztés és törlés adminból.</li>
+                <li>A következő kör lehet a sorok szerkesztése adminból.</li>
               </ul>
             </article>
           </div>
