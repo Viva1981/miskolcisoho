@@ -13,7 +13,7 @@ Sheetekkel és a Drive feltöltéssel is beszélni.
 
 ## 2. Script fájl tartalma
 
-1. Másold be a [apps-script-web-app.gs](C:/Users/zsolt/Documents/GitHub/miskolcisoho/docs/apps-script-web-app.gs) teljes tartalmát a projekt `Code.gs` fájljába.
+1. Másold be a [docs/apps-script-web-app.gs](C:/Users/zsolt/Documents/GitHub/miskolcisoho/docs/apps-script-web-app.gs) teljes tartalmát a projekt `Code.gs` fájljába.
 2. Mentsd el.
 
 ## 3. Script Properties
@@ -37,7 +37,7 @@ A jelenlegi projekt ezeket a Google Sheeteket használja:
 - `gallery_albums`
 - `gallery_images`
 
-Mind a négy külön spreadsheet-ben van, ezért a script ID alapján nyitja meg őket.
+Mind a négy külön spreadsheetben van, ezért a script ID alapján nyitja meg őket.
 
 ## 5. Web App deploy
 
@@ -81,7 +81,14 @@ Most a projekt már tud:
 - az album `drive_folder_id` mezője ezt a mappát kapja meg,
 - a galéria képek feltöltése már ebbe az album mappába tud menni.
 
+## 9. Fontos működés a Drive preview képeknél
+
+- az új Apps Script verzió az adminból feltöltött fájlokat automatikusan `anyone with the link can view` jogosultsággal hozza létre,
+- ettől a Drive thumbnail URL-ek az admin preview táblákban is meg fognak jelenni,
+- a korábban feltöltött régi fájlok ettől még nem biztos, hogy látszani fognak,
+- a régi fájlokat vagy kézzel kell megosztani, vagy újra kell tölteni az adminból.
+
 ## Következő lépés
 
-Ha a Web App URL és a shared secret bekerül a projektbe, a következő körben tovább tudjuk vinni a
-borítóképek automatikus feltöltését az eseményekhez és a Facebook feed elemekhez is.
+Ha a friss `Code.gs` bekerül az Apps Script projektbe és új Web App verzió lesz deployolva, az új
+feltöltések preview képei már meg fognak jelenni az adminban is.

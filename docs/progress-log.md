@@ -95,7 +95,7 @@ Ez a fájl azért készült, hogy később is visszakövethető legyen:
 - Az admin oldalon minden látható magyar szöveg vissza lett állítva normál ékezetes formára.
 - Elkészült az első admin űrlap a `gallery_images` Sheethez.
 - A galériaképekhez most már külön rögzíthető az `album_id`, a Drive fájl azonosítója, a Drive URL, a képaláírás és a sorrend.
-- A következő lépés a közvetlen Drive-os képfeltöltés lesz, hogy a fájl ID-t és URL-t már ne kézzel kelljen bemásolni.
+- A következő lépés a közvetlen Drive-os képfeltöltés lett, hogy a fájl ID-t és URL-t már ne kézzel kelljen bemásolni.
 
 ## 2026-03-26 - Közvetlen Drive képfeltöltés adminból
 
@@ -134,3 +134,11 @@ Ez a fájl azért készült, hogy később is visszakövethető legyen:
 - A galéria képfeltöltő űrlap már album legördülőből is tud dolgozni, és automatikusan kitölti a Drive mappa ID-t.
 - A preview táblákban a Drive fájlokhoz thumbnail előnézet jelenik meg, a link mezők pedig közvetlenül megnyithatók.
 - A listanézetből gyors publikálás váltás és sorrend léptetés is bekerült, így a napi szerkesztés sokkal gyorsabb lett.
+
+## 2026-03-26 - Drive preview jogosultsági javítás
+
+- Kiderült, hogy a törött admin thumbnail nem frontend hiba volt, hanem Google Drive láthatósági probléma.
+- Az új Apps Script minta most már a feltöltött képeket automatikusan `anyone with the link can view` jogosultsággal hozza létre.
+- A létrehozott galéria- és gyűjtőmappák is publikus megtekintési jogosultságot kapnak.
+- Ettől az újonnan feltöltött képek admin preview-ja működni fog.
+- A korábban feltöltött fájlokat külön újra kell osztani vagy újra kell tölteni, ha preview képként is látszaniuk kell.

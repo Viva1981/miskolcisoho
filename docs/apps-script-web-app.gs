@@ -144,6 +144,7 @@ function handleUploadDriveFile(body) {
   const folder = DriveApp.getFolderById(folderId);
   const blob = Utilities.newBlob(Utilities.base64Decode(base64), mimeType, fileName);
   const file = folder.createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
   return jsonResponse({
     ok: true,
@@ -168,6 +169,8 @@ function handleCreateDriveFolder(body) {
   const rootFolder = DriveApp.getFolderById(rootFolderId);
   const collectionFolder = getOrCreateChildFolder(rootFolder, collectionName);
   const albumFolder = getOrCreateChildFolder(collectionFolder, folderName);
+  collectionFolder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  albumFolder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
   return jsonResponse({
     ok: true,
