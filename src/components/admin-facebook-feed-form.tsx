@@ -3,9 +3,11 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { readFileAsBase64 } from "@/lib/read-file-as-base64";
+
 type SubmitState =
   | { type: "idle" }
-  | { type: "saving" }
+  | { type: "saving"; message: string }
   | { type: "success"; message: string }
   | { type: "error"; message: string };
 
@@ -19,53 +21,136 @@ export function AdminFacebookFeedForm() {
   const [facebookUrl, setFacebookUrl] = useState("");
   const [sortOrder, setSortOrder] = useState(INITIAL_SORT_ORDER);
   const [published, setPublished] = useState(true);
+  const [file, setFile] = useState<File | null>(null);
+  const [fileInputKey, setFileInputKey] = useState(0);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setState({ type: "saving" });
 
-    const response = await fetch("/api/admin/content", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        resource: "facebook_feed",
-        payload: {
-          title,
-          text,
-          facebook_url: facebookUrl,
-          cover_drive_file_id: "",
-          cover_drive_url: "",
-          published: published ? "true" : "false",
-          sort_order: sortOrder || INITIAL_SORT_ORDER,
-        },
-      }),
-    });
-
-    const result = (await response.json()) as {
-      ok: boolean;
-      error?: string;
-    };
-
-    if (!response.ok || !result.ok) {
+    if (!file) {
       setState({
         type: "error",
-        message: result.error ?? "Nem sikerült elmenteni a Facebook feed elemet.",
+        message: "Válassz ki egy borítóképet a Facebook feed elemhez.",
       });
       return;
     }
 
-    setTitle("");
-    setText("");
-    setFacebookUrl("");
-    setSortOrder(INITIAL_SORT_ORDER);
-    setPublished(true);
-    setState({
-      type: "success",
-      message: "A Facebook feed elem sikeresen bekerült a sheetbe.",
-    });
-    router.refresh();
+    try {
+      setState({ type: "saving", message: "Feed mappa létrehozása a Drive-ban..." });
+
+      const folderResponse = await fetch("/api/admin/create-drive-folder", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          collectionName: "facebook_feed",
+          folderName: title.trim(),
+        }),
+      });
+
+      const folderResult = (await folderResponse.json()) as {
+        ok: boolean;
+        folderId?: string;
+        error?: string;
+      };
+
+      if (!folderResponse.ok || !folderResult.ok || !folderResult.folderId) {
+        setState({
+          type: "error",
+          message: folderResult.error ?? "Nem sikerült létrehozni a feed mappáját.",
+        });
+        return;
+      }
+
+      setState({ type: "saving", message: "Borítókép feltöltése Drive-ba..." });
+      const base64 = await readFileAsBase64(file);
+
+      const uploadResponse = await fetch("/api/admin/upload-drive-file", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          folderId: folderResult.folderId,
+          fileName: file.name,
+          mimeType: file.type || "application/octet-stream",
+          base64,
+        }),
+      });
+
+      const uploadResult = (await uploadResponse.json()) as {
+        ok: boolean;
+        fileId?: string;
+        fileUrl?: string;
+        error?: string;
+      };
+
+      if (
+        !uploadResponse.ok ||
+        !uploadResult.ok ||
+        !uploadResult.fileId ||
+        !uploadResult.fileUrl
+      ) {
+        setState({
+          type: "error",
+          message: uploadResult.error ?? "Nem sikerült feltölteni a feed borítóképét.",
+        });
+        return;
+      }
+
+      setState({ type: "saving", message: "Facebook feed elem mentése a sheetbe..." });
+
+      const response = await fetch("/api/admin/content", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resource: "facebook_feed",
+          payload: {
+            title,
+            text,
+            facebook_url: facebookUrl,
+            cover_drive_file_id: uploadResult.fileId,
+            cover_drive_url: uploadResult.fileUrl,
+            published: published ? "true" : "false",
+            sort_order: sortOrder || INITIAL_SORT_ORDER,
+          },
+        }),
+      });
+
+      const result = (await response.json()) as {
+        ok: boolean;
+        error?: string;
+      };
+
+      if (!response.ok || !result.ok) {
+        setState({
+          type: "error",
+          message: result.error ?? "Nem sikerült elmenteni a Facebook feed elemet.",
+        });
+        return;
+      }
+
+      setTitle("");
+      setText("");
+      setFacebookUrl("");
+      setSortOrder(INITIAL_SORT_ORDER);
+      setPublished(true);
+      setFile(null);
+      setFileInputKey((current) => current + 1);
+      setState({
+        type: "success",
+        message: "A Facebook feed elem és a borítóképe sikeresen bekerült a rendszerbe.",
+      });
+      router.refresh();
+    } catch (error) {
+      setState({
+        type: "error",
+        message: error instanceof Error ? error.message : "Ismeretlen hiba történt.",
+      });
+    }
   }
 
   return (
@@ -73,7 +158,7 @@ export function AdminFacebookFeedForm() {
       <div className="soho-admin-preview-head">
         <div>
           <h2>Új Facebook feed elem</h2>
-          <p>Ez az űrlap a `facebook_feed` Sheetbe ment új kártyát.</p>
+          <p>Az űrlap létrehozza a feed elem saját Drive mappáját, feltölti a borítóképet, majd menti a `facebook_feed` sort.</p>
         </div>
       </div>
 
@@ -111,6 +196,17 @@ export function AdminFacebookFeedForm() {
           />
         </label>
 
+        <label>
+          <span>Borítókép</span>
+          <input
+            key={fileInputKey}
+            type="file"
+            accept="image/*"
+            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+            required
+          />
+        </label>
+
         <div className="soho-admin-form-grid">
           <label>
             <span>Sorrend</span>
@@ -136,7 +232,7 @@ export function AdminFacebookFeedForm() {
 
         <div className="soho-admin-form-actions">
           <button type="submit" disabled={state.type === "saving"}>
-            {state.type === "saving" ? "Mentés..." : "Feed elem mentése"}
+            {state.type === "saving" ? state.message : "Facebook feed elem létrehozása"}
           </button>
         </div>
 

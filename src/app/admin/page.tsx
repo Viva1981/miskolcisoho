@@ -18,13 +18,14 @@ const adminSections = [
     id: "events",
     title: "Főoldali események",
     description:
-      "Ezek adják a hero alatti eseménykártyákat. Később cím, dátum, idő, Facebook link és borítókép is innen jön majd.",
+      "Ezek adják a hero alatti eseménykártyákat. Cím, dátum, idő, Facebook link és borítókép is innen jön.",
     fields: [
       "title",
       "date",
       "time",
       "facebook_url",
       "cover_drive_file_id",
+      "cover_drive_url",
       "published",
       "sort_order",
     ],
@@ -33,12 +34,13 @@ const adminSections = [
     id: "facebook-feed",
     title: "Kövess minket Facebookon",
     description:
-      "A feed kártyák címe, szövege, borítója és a Facebook link is külön kezelhető adatsorként lesz tárolva.",
+      "A feed kártyák címe, szövege, borítója és a Facebook link is külön kezelhető adatsorként van tárolva.",
     fields: [
       "title",
       "text",
       "facebook_url",
       "cover_drive_file_id",
+      "cover_drive_url",
       "published",
       "sort_order",
     ],
@@ -55,6 +57,7 @@ const adminSections = [
       "description",
       "drive_folder_id",
       "cover_drive_file_id",
+      "cover_drive_url",
       "published",
       "sort_order",
     ],
@@ -66,6 +69,7 @@ const apiActions = [
   "CREATE_ROW",
   "UPDATE_ROW",
   "DELETE_ROW",
+  "CREATE_DRIVE_FOLDER",
   "UPLOAD_DRIVE_FILE",
 ] as const;
 
@@ -149,8 +153,8 @@ export default async function AdminPage() {
               <h1>Admin előkészítés</h1>
               <p>
                 Ez már a végleges adatút szerinti admin alap: a főoldali események, a Facebook
-                feed és a galéria egy közös tartalommodellre készülnek, amelyet később Apps
-                Scripten keresztül a Google Sheetekből és Drive-ból fogunk olvasni és írni.
+                feed és a galéria egy közös tartalommodellre készülnek, amelyet Apps Scripten
+                keresztül a Google Sheetekből és Drive-ból olvasunk és írunk.
               </p>
             </div>
 
@@ -169,7 +173,7 @@ export default async function AdminPage() {
 
           <div className="soho-admin-grid">
             <article className="soho-admin-card">
-              <h2>Kapcsolt Sheetek</h2>
+              <h2>Kapcsolt sheetek</h2>
               <div className="soho-admin-link-list">
                 <a href={getGoogleSheetUrl(config.sheets.events)} target="_blank" rel="noreferrer">
                   events
@@ -220,7 +224,15 @@ export default async function AdminPage() {
               ok={eventsResult.ok}
               error={eventsResult.error}
               rows={eventsResult.data}
-              columns={["id", "title", "date", "time", "facebook_url", "published"]}
+              columns={[
+                "id",
+                "title",
+                "date",
+                "time",
+                "facebook_url",
+                "cover_drive_file_id",
+                "published",
+              ]}
             />
           </div>
 
@@ -233,7 +245,14 @@ export default async function AdminPage() {
               ok={facebookFeedResult.ok}
               error={facebookFeedResult.error}
               rows={facebookFeedResult.data}
-              columns={["id", "title", "text", "facebook_url", "published"]}
+              columns={[
+                "id",
+                "title",
+                "text",
+                "facebook_url",
+                "cover_drive_file_id",
+                "published",
+              ]}
             />
           </div>
 
@@ -318,9 +337,9 @@ export default async function AdminPage() {
             <article className="soho-admin-card">
               <h2>Következő lépések</h2>
               <ul className="soho-admin-next-steps">
-                <li>Galéria képek után jöhet a közvetlen Drive-os képfeltöltés adminból.</li>
                 <li>Az albumválasztást később legördülő mezőre kötjük az élő gallery_albums listából.</li>
                 <li>A nyilvános oldalakat ezután már a Sheets adatokból tudjuk etetni mock helyett.</li>
+                <li>A következő kör lehet a szerkesztés és törlés adminból.</li>
               </ul>
             </article>
           </div>

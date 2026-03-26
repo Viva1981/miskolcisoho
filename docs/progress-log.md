@@ -109,3 +109,10 @@ Ez a fájl azért készült, hogy később is visszakövethető legyen:
 - Az admin új album mentésekor a rendszer automatikusan létrehoz egy almappát a `Soho_Content/gallery` alatt.
 - A mappa neve az album címe lesz, és ennek az azonosítója kerül be a `gallery_albums` sheet megfelelő mezőjébe.
 - Így a későbbi képfeltöltés már albumonként rendezett Drive struktúrába tud menni.
+
+## 2026-03-26 - Esemény és Facebook feed borítófeltöltés
+
+- Az esemény és Facebook feed admin űrlapok most már közvetlen képfeltöltést is tudnak.
+- Mindkét esetben a rendszer létrehozza a saját Drive almappát a megfelelő gyűjtőmappán belül.
+- A fájl feltöltése után a visszakapott `cover_drive_file_id` és `cover_drive_url` automatikusan bekerül a mentett sorba.
+- Így az admin felhasználónak már nem kell kézzel fájl azonosítót vagy Drive linket másolnia.
