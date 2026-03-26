@@ -80,6 +80,39 @@ export async function createAdminRow(
   };
 }
 
+export async function uploadAdminDriveFile(payload: {
+  folderId: string;
+  fileName: string;
+  mimeType: string;
+  base64: string;
+}) {
+  if (!isAppsScriptConfigured()) {
+    return {
+      ok: false as const,
+      error: "A képfeltöltés csak élő Apps Script kapcsolattal érhető el.",
+    };
+  }
+
+  const response = await callAppsScript({
+    action: "UPLOAD_DRIVE_FILE",
+    resource: "gallery_images",
+    payload,
+  });
+
+  if (!response.ok || !response.fileId || !response.fileUrl) {
+    return {
+      ok: false as const,
+      error: response.ok ? "A Drive feltöltés nem adott vissza fájl adatot." : response.error,
+    };
+  }
+
+  return {
+    ok: true as const,
+    fileId: response.fileId,
+    fileUrl: response.fileUrl,
+  };
+}
+
 export function parseAdminResource(value: string | null) {
   if (!value || !isAdminResource(value)) {
     return null;

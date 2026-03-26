@@ -96,3 +96,9 @@ Ez a fájl azért készült, hogy később is visszakövethető legyen:
 - Elkészült az első admin űrlap a `gallery_images` Sheethez.
 - A galériaképekhez most már külön rögzíthető az `album_id`, a Drive fájl azonosítója, a Drive URL, a képaláírás és a sorrend.
 - A következő lépés a közvetlen Drive-os képfeltöltés lesz, hogy a fájl ID-t és URL-t már ne kézzel kelljen bemásolni.
+
+## 2026-03-26 - Közvetlen Drive képfeltöltés adminból
+
+- A galéria kép űrlap most már közvetlenül képfájlt is fogad.
+- Mentéskor a rendszer először feltölti a fájlt a megadott Drive mappába, majd az ebből visszakapott `fileId` és `fileUrl` értékkel hozza létre a `gallery_images` sort.
+- Később ugyanezt a feltöltési mintát át tudjuk emelni az esemény és Facebook feed borítóképekre is.
