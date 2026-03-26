@@ -67,18 +67,31 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (resource === "events") {
-    const id = `evt_${Date.now()}`;
+  if (resource === "events" || resource === "facebook_feed") {
+    const idPrefix = resource === "events" ? "evt" : "feed";
     const response = await createAdminRow(resource, {
-      id,
-      title: body.payload.title?.trim() ?? "",
-      date: body.payload.date?.trim() ?? "",
-      time: body.payload.time?.trim() ?? "",
-      facebook_url: body.payload.facebook_url?.trim() ?? "",
-      cover_drive_file_id: body.payload.cover_drive_file_id?.trim() ?? "",
-      cover_drive_url: body.payload.cover_drive_url?.trim() ?? "",
-      published: body.payload.published?.trim() ?? "true",
-      sort_order: body.payload.sort_order?.trim() ?? "10",
+      ...(resource === "events"
+        ? {
+            id: `${idPrefix}_${Date.now()}`,
+            title: body.payload.title?.trim() ?? "",
+            date: body.payload.date?.trim() ?? "",
+            time: body.payload.time?.trim() ?? "",
+            facebook_url: body.payload.facebook_url?.trim() ?? "",
+            cover_drive_file_id: body.payload.cover_drive_file_id?.trim() ?? "",
+            cover_drive_url: body.payload.cover_drive_url?.trim() ?? "",
+            published: body.payload.published?.trim() ?? "true",
+            sort_order: body.payload.sort_order?.trim() ?? "10",
+          }
+        : {
+            id: `${idPrefix}_${Date.now()}`,
+            title: body.payload.title?.trim() ?? "",
+            text: body.payload.text?.trim() ?? "",
+            facebook_url: body.payload.facebook_url?.trim() ?? "",
+            cover_drive_file_id: body.payload.cover_drive_file_id?.trim() ?? "",
+            cover_drive_url: body.payload.cover_drive_url?.trim() ?? "",
+            published: body.payload.published?.trim() ?? "true",
+            sort_order: body.payload.sort_order?.trim() ?? "10",
+          }),
     });
 
     if (!response.ok) {

@@ -77,3 +77,9 @@ Ez a fájl azért készült, hogy később is visszakövethető legyen:
 - Az adminból most már új esemény sor hozható létre.
 - A mentés az Apps Scripten keresztül közvetlenül az `events` Sheetbe történik.
 - Sikeres mentés után az admin előnézet újratöltődik.
+
+## 2026-03-26 - Facebook feed űrlap
+
+- Elkészült a második működő admin űrlap a `facebook_feed` erőforráshoz.
+- Az adminból most már új Facebook feed kártya is létrehozható.
+- Az `events` és a `facebook_feed` mentés ugyanazt az API útvonalat és Apps Script hidat használja.
