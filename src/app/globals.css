@@ -896,6 +896,147 @@ textarea {
     linear-gradient(135deg, #49d19c, #176a5f 46%, #071411);
 }
 
+.soho-admin-shell {
+  padding: 0 1.5rem 4rem;
+}
+
+.soho-admin-wrap {
+  width: min(1380px, 100%);
+  margin: 0 auto;
+}
+
+.soho-admin-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+  gap: 1.5rem;
+  align-items: end;
+  padding-bottom: 2rem;
+}
+
+.soho-admin-head h1 {
+  margin: 0;
+  font-size: clamp(2.8rem, 5vw, 5rem);
+  text-transform: uppercase;
+  line-height: 0.92;
+}
+
+.soho-admin-head p,
+.soho-admin-section-copy p,
+.soho-admin-list,
+.soho-admin-link-list a,
+.soho-admin-footnote a {
+  font-family: var(--font-body), sans-serif;
+  letter-spacing: 0;
+}
+
+.soho-admin-head p,
+.soho-admin-section-copy p,
+.soho-admin-list {
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.7;
+}
+
+.soho-admin-grid,
+.soho-admin-section-list {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.soho-admin-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 1.25rem;
+}
+
+.soho-admin-card,
+.soho-admin-section-card {
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.soho-admin-card {
+  padding: 1.25rem;
+}
+
+.soho-admin-card h2,
+.soho-admin-section-card h2 {
+  margin: 0 0 1rem;
+  font-size: 2rem;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.soho-admin-link-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.soho-admin-link-list a {
+  min-height: 42px;
+  padding: 0 1rem;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.soho-admin-list {
+  margin: 0;
+  padding-left: 1.15rem;
+}
+
+.soho-admin-list li + li {
+  margin-top: 0.65rem;
+}
+
+.soho-admin-section-list {
+  margin-top: 1.25rem;
+}
+
+.soho-admin-section-card {
+  padding: 1.25rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.soho-admin-section-copy p {
+  margin: 0;
+}
+
+.soho-admin-tag-block {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.soho-admin-tag-block span {
+  min-height: 34px;
+  padding: 0 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 0;
+}
+
+.soho-admin-footnote {
+  margin-top: 1.5rem;
+}
+
+.soho-admin-footnote a {
+  min-height: 42px;
+  padding: 0 1rem;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #000000;
+  font-weight: 600;
+}
+
 @media (min-width: 1680px) {
   .soho-header,
   .soho-events-wrap,
@@ -1063,6 +1204,11 @@ textarea {
   .soho-gallery-image-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .soho-admin-head,
+  .soho-admin-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
@@ -1185,6 +1331,10 @@ textarea {
     padding: 0 1rem 3rem;
   }
 
+  .soho-admin-shell {
+    padding: 0 1rem 3rem;
+  }
+
   .soho-facebook-wrap h2,
   .soho-events-wrap h2 {
     margin-bottom: 1rem;
@@ -1201,6 +1351,15 @@ textarea {
 
   .soho-gallery-source-card {
     text-align: center;
+  }
+
+  .soho-admin-head {
+    text-align: center;
+  }
+
+  .soho-admin-footnote {
+    display: flex;
+    justify-content: center;
   }
 
   .soho-facebook-profile {

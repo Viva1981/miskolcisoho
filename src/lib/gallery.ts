@@ -19,10 +19,10 @@ export type GalleryAlbum = {
   images: GalleryImage[];
 };
 
-const DEFAULT_DRIVE_ROOT_FOLDER_ID = "1vBBD264DvsXfs3aeJkIk60gH5XAzY7Dx";
+import { getContentConfig } from "@/lib/content-config";
 
 export function getGalleryRootFolderId() {
-  return process.env.GOOGLE_DRIVE_ROOT_FOLDER_ID ?? DEFAULT_DRIVE_ROOT_FOLDER_ID;
+  return getContentConfig().driveRootFolderId;
 }
 
 export function isGoogleDriveLiveMode() {
