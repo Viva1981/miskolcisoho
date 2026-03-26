@@ -1231,6 +1231,28 @@ textarea {
   flex-wrap: wrap;
 }
 
+.soho-admin-cell-stack {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.soho-admin-inline-link {
+  color: #d0d60d;
+  text-decoration: underline;
+  text-underline-offset: 0.18rem;
+  word-break: break-word;
+}
+
+.soho-admin-thumb {
+  width: 100%;
+  max-width: 96px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+}
+
 .soho-admin-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -1260,6 +1282,16 @@ textarea {
   background: rgba(255, 255, 255, 0.03);
   color: #ffffff;
   padding: 0.95rem 1rem;
+}
+
+.soho-admin-form select {
+  width: 100%;
+  min-height: 52px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: #ffffff;
+  padding: 0 1rem;
 }
 
 .soho-admin-footnote {

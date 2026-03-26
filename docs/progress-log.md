@@ -128,3 +128,9 @@ Ez a fájl azért készült, hogy később is visszakövethető legyen:
 - A preview táblák most már soronként szerkesztés gombot is kaptak.
 - A szerkesztés egy admin modalon keresztül történik, és a módosításokat az Apps Script `UPDATE_ROW` művelet menti.
 - Így a legfontosabb mezők már közvetlenül a listanézetből karbantarthatók.
+
+## 2026-03-26 - Admin kényelmi fejlesztések
+
+- A galéria képfeltöltő űrlap már album legördülőből is tud dolgozni, és automatikusan kitölti a Drive mappa ID-t.
+- A preview táblákban a Drive fájlokhoz thumbnail előnézet jelenik meg, a link mezők pedig közvetlenül megnyithatók.
+- A listanézetből gyors publikálás váltás és sorrend léptetés is bekerült, így a napi szerkesztés sokkal gyorsabb lett.

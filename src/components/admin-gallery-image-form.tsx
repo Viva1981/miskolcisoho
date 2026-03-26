@@ -1,7 +1,9 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+
+import { readFileAsBase64 } from "@/lib/read-file-as-base64";
 
 type SubmitState =
   | { type: "idle" }
@@ -9,33 +11,19 @@ type SubmitState =
   | { type: "success"; message: string }
   | { type: "error"; message: string };
 
+type AlbumOption = {
+  id: string;
+  title: string;
+  driveFolderId: string;
+};
+
+type AdminGalleryImageFormProps = {
+  albumOptions: AlbumOption[];
+};
+
 const INITIAL_SORT_ORDER = "10";
 
-function readFileAsBase64(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      const result = reader.result;
-
-      if (typeof result !== "string") {
-        reject(new Error("Nem sikerült beolvasni a fájlt."));
-        return;
-      }
-
-      const [, base64 = ""] = result.split(",");
-      resolve(base64);
-    };
-
-    reader.onerror = () => {
-      reject(new Error("Nem sikerült beolvasni a fájlt."));
-    };
-
-    reader.readAsDataURL(file);
-  });
-}
-
-export function AdminGalleryImageForm() {
+export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormProps) {
   const router = useRouter();
   const [state, setState] = useState<SubmitState>({ type: "idle" });
   const [albumId, setAlbumId] = useState("");
@@ -45,6 +33,11 @@ export function AdminGalleryImageForm() {
   const [file, setFile] = useState<File | null>(null);
   const [fileInputKey, setFileInputKey] = useState(0);
 
+  const selectedAlbum = useMemo(
+    () => albumOptions.find((album) => album.id === albumId) ?? null,
+    [albumId, albumOptions],
+  );
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -52,6 +45,14 @@ export function AdminGalleryImageForm() {
       setState({
         type: "error",
         message: "Válassz ki egy képfájlt a feltöltéshez.",
+      });
+      return;
+    }
+
+    if (!folderId) {
+      setState({
+        type: "error",
+        message: "Válassz albumot vagy adj meg érvényes Drive mappa ID-t.",
       });
       return;
     }
@@ -150,21 +151,32 @@ export function AdminGalleryImageForm() {
         <div>
           <h2>Új galéria kép</h2>
           <p>
-            Ez az űrlap először feltölti a fájlt Drive-ba, majd létrehozza a `gallery_images` sort.
+            Az űrlap album alapján automatikusan kitölti a Drive mappát, feltölti a képet, majd
+            létrehozza a `gallery_images` sort.
           </p>
         </div>
       </div>
 
       <form className="soho-admin-form" onSubmit={handleSubmit}>
         <label>
-          <span>Album ID</span>
-          <input
-            type="text"
+          <span>Album</span>
+          <select
             value={albumId}
-            onChange={(event) => setAlbumId(event.target.value)}
-            placeholder="Például: album_1743000000000"
+            onChange={(event) => {
+              const nextAlbumId = event.target.value;
+              setAlbumId(nextAlbumId);
+              const nextAlbum = albumOptions.find((album) => album.id === nextAlbumId);
+              setFolderId(nextAlbum?.driveFolderId ?? "");
+            }}
             required
-          />
+          >
+            <option value="">Válassz albumot</option>
+            {albumOptions.map((album) => (
+              <option key={album.id} value={album.id}>
+                {album.title} ({album.id})
+              </option>
+            ))}
+          </select>
         </label>
 
         <label>
@@ -177,6 +189,12 @@ export function AdminGalleryImageForm() {
             required
           />
         </label>
+
+        {selectedAlbum ? (
+          <p className="soho-admin-form-message is-success">
+            Kiválasztott album: <strong>{selectedAlbum.title}</strong>
+          </p>
+        ) : null}
 
         <label>
           <span>Képfájl</span>

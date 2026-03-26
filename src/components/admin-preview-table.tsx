@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import type { AdminResource } from "@/lib/admin-resources";
 
-type AdminPreviewTableProps = {
+type Props = {
   title: string;
   resource: AdminResource;
   source: "mock" | "apps-script";
@@ -21,27 +21,43 @@ function fieldLabel(field: string) {
 }
 
 function fieldType(field: string) {
-  if (field === "published") {
-    return "checkbox";
-  }
-
-  if (field === "date" || field === "event_date") {
-    return "date";
-  }
-
-  if (field === "time") {
-    return "time";
-  }
-
-  if (field.endsWith("_url") || field === "facebook_url") {
-    return "url";
-  }
-
-  if (field === "description" || field === "text" || field === "caption") {
-    return "textarea";
-  }
-
+  if (field === "published") return "checkbox";
+  if (field === "date" || field === "event_date") return "date";
+  if (field === "time") return "time";
+  if (field.endsWith("_url") || field === "facebook_url") return "url";
+  if (field === "description" || field === "text" || field === "caption") return "textarea";
   return "text";
+}
+
+function driveThumbnail(fileId: string) {
+  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w240`;
+}
+
+function Cell({ column, value }: { column: string; value: string }) {
+  if (!value) return <>-</>;
+
+  if (column === "published") {
+    return <>{value === "true" ? "igen" : "nem"}</>;
+  }
+
+  if (column === "cover_drive_file_id" || column === "drive_file_id") {
+    return (
+      <div className="soho-admin-cell-stack">
+        <img className="soho-admin-thumb" src={driveThumbnail(value)} alt="" loading="lazy" />
+        <code>{value}</code>
+      </div>
+    );
+  }
+
+  if (column.endsWith("_url") || column === "facebook_url") {
+    return (
+      <a href={value} target="_blank" rel="noreferrer" className="soho-admin-inline-link">
+        megnyitás
+      </a>
+    );
+  }
+
+  return <>{value}</>;
 }
 
 export function AdminPreviewTable({
@@ -53,7 +69,7 @@ export function AdminPreviewTable({
   rows,
   columns,
   editableFields,
-}: AdminPreviewTableProps) {
+}: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [actionError, setActionError] = useState("");
@@ -63,98 +79,54 @@ export function AdminPreviewTable({
 
   const editingRow = rows.find((row) => row.id === editingRowId) ?? null;
 
-  async function handleDelete(id: string) {
-    const confirmed = window.confirm("Biztosan törölni szeretnéd ezt a sort?");
-
-    if (!confirmed) {
-      return;
-    }
-
+  async function runMutation(method: "PUT" | "DELETE", id: string, payload?: Record<string, string>) {
     setActionError("");
     setActiveRowId(id);
 
     const response = await fetch("/api/admin/content", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        resource,
-        id,
-      }),
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ resource, id, payload }),
     });
 
-    const result = (await response.json()) as {
-      ok: boolean;
-      error?: string;
-    };
+    const result = (await response.json()) as { ok: boolean; error?: string };
 
     if (!response.ok || !result.ok) {
-      setActionError(result.error ?? "Nem sikerült törölni a kiválasztott sort.");
+      setActionError(result.error ?? "Nem sikerült elmenteni a módosítást.");
       setActiveRowId("");
-      return;
+      return false;
     }
 
-    startTransition(() => {
-      router.refresh();
-    });
     setActiveRowId("");
+    startTransition(() => router.refresh());
+    return true;
+  }
+
+  async function handleDelete(id: string) {
+    if (!window.confirm("Biztosan törölni szeretnéd ezt a sort?")) return;
+    await runMutation("DELETE", id);
+  }
+
+  async function handleQuickUpdate(id: string, payload: Record<string, string>) {
+    await runMutation("PUT", id, payload);
   }
 
   async function handleUpdate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!editingRowId) return;
 
-    if (!editingRowId) {
-      return;
+    const success = await runMutation("PUT", editingRowId, formValues);
+    if (success) {
+      setEditingRowId("");
+      setFormValues({});
     }
-
-    setActionError("");
-    setActiveRowId(editingRowId);
-
-    const response = await fetch("/api/admin/content", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        resource,
-        id: editingRowId,
-        payload: formValues,
-      }),
-    });
-
-    const result = (await response.json()) as {
-      ok: boolean;
-      error?: string;
-    };
-
-    if (!response.ok || !result.ok) {
-      setActionError(result.error ?? "Nem sikerült elmenteni a módosításokat.");
-      setActiveRowId("");
-      return;
-    }
-
-    closeEditor();
-    setActiveRowId("");
-    startTransition(() => {
-      router.refresh();
-    });
-  }
-
-  function updateValue(field: string, value: string) {
-    setFormValues((current) => ({
-      ...current,
-      [field]: value,
-    }));
   }
 
   function openEditor(row: Record<string, string>) {
     const nextValues: Record<string, string> = {};
-
     editableFields.forEach((field) => {
       nextValues[field] = row[field] ?? "";
     });
-
     setActionError("");
     setFormValues(nextValues);
     setEditingRowId(row.id ?? "");
@@ -200,14 +172,62 @@ export function AdminPreviewTable({
             <tbody>
               {rows.slice(0, 5).map((row) => {
                 const rowId = row.id ?? `${title}-${JSON.stringify(row)}`;
+                const published = row.published ?? "false";
+                const sortOrder = Number.parseInt(row.sort_order ?? "0", 10) || 0;
 
                 return (
                   <tr key={rowId}>
                     {columns.map((column) => (
-                      <td key={column}>{row[column] || "-"}</td>
+                      <td key={column}>
+                        <Cell column={column} value={row[column] || ""} />
+                      </td>
                     ))}
                     <td>
                       <div className="soho-admin-row-actions">
+                        {"published" in row ? (
+                          <button
+                            type="button"
+                            className="soho-admin-row-action"
+                            onClick={() =>
+                              handleQuickUpdate(rowId, {
+                                published: published === "true" ? "false" : "true",
+                              })
+                            }
+                            disabled={isPending || activeRowId === rowId}
+                          >
+                            {published === "true" ? "publikált" : "rejtett"}
+                          </button>
+                        ) : null}
+
+                        {"sort_order" in row ? (
+                          <>
+                            <button
+                              type="button"
+                              className="soho-admin-row-action"
+                              onClick={() =>
+                                handleQuickUpdate(rowId, {
+                                  sort_order: String(Math.max(1, sortOrder - 10)),
+                                })
+                              }
+                              disabled={isPending || activeRowId === rowId}
+                            >
+                              sorrend -
+                            </button>
+                            <button
+                              type="button"
+                              className="soho-admin-row-action"
+                              onClick={() =>
+                                handleQuickUpdate(rowId, {
+                                  sort_order: String(sortOrder + 10),
+                                })
+                              }
+                              disabled={isPending || activeRowId === rowId}
+                            >
+                              sorrend +
+                            </button>
+                          </>
+                        ) : null}
+
                         <button
                           type="button"
                           className="soho-admin-row-action"
@@ -222,7 +242,7 @@ export function AdminPreviewTable({
                           onClick={() => handleDelete(rowId)}
                           disabled={isPending || activeRowId === rowId}
                         >
-                          {activeRowId === rowId ? "törlés..." : "törlés"}
+                          {activeRowId === rowId ? "folyamat..." : "törlés"}
                         </button>
                       </div>
                     </td>
@@ -268,7 +288,10 @@ export function AdminPreviewTable({
                         type="checkbox"
                         checked={value === "true"}
                         onChange={(event) =>
-                          updateValue(field, event.target.checked ? "true" : "false")
+                          setFormValues((current) => ({
+                            ...current,
+                            [field]: event.target.checked ? "true" : "false",
+                          }))
                         }
                       />
                     </label>
@@ -281,7 +304,9 @@ export function AdminPreviewTable({
                       <span>{fieldLabel(field)}</span>
                       <textarea
                         value={value}
-                        onChange={(event) => updateValue(field, event.target.value)}
+                        onChange={(event) =>
+                          setFormValues((current) => ({ ...current, [field]: event.target.value }))
+                        }
                         rows={4}
                       />
                     </label>
@@ -294,7 +319,9 @@ export function AdminPreviewTable({
                     <input
                       type={type}
                       value={value}
-                      onChange={(event) => updateValue(field, event.target.value)}
+                      onChange={(event) =>
+                        setFormValues((current) => ({ ...current, [field]: event.target.value }))
+                      }
                     />
                   </label>
                 );

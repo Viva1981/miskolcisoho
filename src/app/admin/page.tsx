@@ -85,6 +85,12 @@ export default async function AdminPage() {
       getAdminContent("gallery_images"),
     ]);
 
+  const galleryAlbumOptions = galleryAlbumsResult.data.map((album) => ({
+    id: album.id ?? "",
+    title: album.title ?? album.slug ?? album.id ?? "Névtelen album",
+    driveFolderId: album.drive_folder_id ?? "",
+  }));
+
   return (
     <main className="soho-landing">
       <SohoHeader />
@@ -177,6 +183,7 @@ export default async function AdminPage() {
                 "facebook_url",
                 "cover_drive_file_id",
                 "published",
+                "sort_order",
               ]}
               editableFields={[
                 "title",
@@ -208,6 +215,7 @@ export default async function AdminPage() {
                 "facebook_url",
                 "cover_drive_file_id",
                 "published",
+                "sort_order",
               ]}
               editableFields={[
                 "title",
@@ -231,7 +239,15 @@ export default async function AdminPage() {
               ok={galleryAlbumsResult.ok}
               error={galleryAlbumsResult.error}
               rows={galleryAlbumsResult.data}
-              columns={["id", "slug", "title", "event_date", "drive_folder_id", "published"]}
+              columns={[
+                "id",
+                "slug",
+                "title",
+                "event_date",
+                "drive_folder_id",
+                "published",
+                "sort_order",
+              ]}
               editableFields={[
                 "slug",
                 "title",
@@ -247,7 +263,7 @@ export default async function AdminPage() {
           </div>
 
           <div className="soho-admin-grid">
-            <AdminGalleryImageForm />
+            <AdminGalleryImageForm albumOptions={galleryAlbumOptions} />
 
             <AdminPreviewTable
               title="Galéria képek előnézet"
@@ -322,9 +338,9 @@ export default async function AdminPage() {
             <article className="soho-admin-card">
               <h2>Következő lépések</h2>
               <ul className="soho-admin-next-steps">
-                <li>Az albumválasztást később legördülő mezőre kötjük az élő gallery_albums listából.</li>
-                <li>A nyilvános oldalakat ezután már a Sheets adatokból tudjuk etetni mock helyett.</li>
-                <li>A következő kör lehet a preview képek és gyors linkek megjelenítése.</li>
+                <li>Az admin táblákban most már gyors publikálás és sorrend állítás is működik.</li>
+                <li>A previewk már kattintható linkeket és Drive thumbnail képeket mutatnak.</li>
+                <li>A következő kör lehet a tömeges rendezés vagy drag-and-drop sorrendezés.</li>
               </ul>
             </article>
           </div>
