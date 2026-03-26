@@ -10,7 +10,7 @@ const geistSans = Geist({
 
 export const metadata: Metadata = {
   title: "Miskolci SOHO",
-  description: "Miskolci SOHO klub landing oldal",
+  description: "Miskolci SOHO klub weboldal Google Drive-ra előkészített galériával",
 };
 
 export default function RootLayout({
