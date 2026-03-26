@@ -123,6 +123,7 @@ function EventCard({
 
 export function SohoEventsCarousel({ events }: SohoEventsCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const visibleDesktopCount = Math.min(3, Math.max(events.length, 1));
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 640px)");
@@ -149,11 +150,9 @@ export function SohoEventsCarousel({ events }: SohoEventsCarouselProps) {
     setActiveIndex((current) => (current + 1) % events.length);
   }
 
-  const desktopCards = [
-    events[activeIndex % events.length],
-    events[(activeIndex + 1) % events.length],
-    events[(activeIndex + 2) % events.length],
-  ];
+  const desktopCards = Array.from({ length: visibleDesktopCount }, (_, index) => {
+    return events[(activeIndex + index) % events.length];
+  });
   const mobileCard = events[activeIndex % events.length];
 
   return (

@@ -194,6 +194,7 @@ textarea {
 }
 
 .soho-events-desktop {
+  display: grid;
   position: relative;
   align-items: center;
 }
