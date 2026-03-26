@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { SohoHeader } from "@/components/soho-header";
+import { isAppsScriptConfigured } from "@/lib/apps-script";
 import {
   getContentConfig,
   getGoogleDriveFolderUrl,
@@ -65,6 +66,7 @@ const apiActions = [
 
 export default function AdminPage() {
   const config = getContentConfig();
+  const appsScriptReady = isAppsScriptConfigured();
 
   return (
     <main className="soho-landing">
@@ -128,11 +130,35 @@ export default function AdminPage() {
             </article>
 
             <article className="soho-admin-card">
+              <h2>Apps Script státusz</h2>
+              <p>
+                {appsScriptReady
+                  ? "A környezeti változók be vannak állítva, a projekt készen áll az élő Apps Script kapcsolatra."
+                  : "Még nincs beállítva a Web App URL vagy a shared secret, ezért most mock adatokkal dolgozik a projekt."}
+              </p>
+              <div className="soho-admin-tag-block">
+                <span>{appsScriptReady ? "apps-script-ready" : "mock-mode"}</span>
+              </div>
+            </article>
+          </div>
+
+          <div className="soho-admin-grid">
+            <article className="soho-admin-card">
               <h2>Apps Script műveletek</h2>
               <div className="soho-admin-tag-block">
                 {apiActions.map((action) => (
                   <span key={action}>{action}</span>
                 ))}
+              </div>
+            </article>
+
+            <article className="soho-admin-card">
+              <h2>Projekt napló</h2>
+              <div className="soho-admin-link-list">
+                <Link href="/api/admin/content?resource=events">API minta: events</Link>
+                <Link href="/api/admin/content?resource=facebook_feed">
+                  API minta: facebook_feed
+                </Link>
               </div>
             </article>
           </div>
@@ -158,15 +184,22 @@ export default function AdminPage() {
             <article className="soho-admin-card">
               <h2>Következő lépések</h2>
               <ul className="soho-admin-list">
-                <li>Apps Script Web App szerződés létrehozása</li>
+                <li>Apps Script Web App deploy</li>
                 <li>Valódi admin űrlapok eseményekhez, feedhez és galériához</li>
                 <li>Drive-alapú képfeltöltés adminból</li>
               </ul>
             </article>
 
             <article className="soho-admin-card">
-              <h2>Előnézet</h2>
+              <h2>Dokumentáció</h2>
               <div className="soho-admin-link-list">
+                <a
+                  href="https://docs.google.com/spreadsheets/d/1iakm8kyLYBM8v0V5PgFfLkF3gSAHLMIkdq-w7yIGcts/edit"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  events sheet
+                </a>
                 <Link href="/">Főoldal megnyitása</Link>
                 <Link href="/galeria">Galéria megnyitása</Link>
               </div>

@@ -55,3 +55,11 @@ Ez a fájl azért készült, hogy később is visszakövethető legyen:
 2. Admin CRUD alapok.
 3. Valós Google Sheet olvasás.
 4. Később adminból indított Drive képfeltöltés.
+
+## 2026-03-26 - Apps Script előkészítés
+
+- Elkészült a másolható Apps Script Web App első verziója.
+- Az Apps Script már a valós, különálló Google Sheet ID-khez van igazítva.
+- Bekerült egy Next.js proxy route: `/api/admin/content`.
+- Ez a route mock mód és élő Apps Script mód között is tud működni.
+- Az admin oldal most már jelzi, hogy mock vagy Apps Script állapotban van-e a projekt.
