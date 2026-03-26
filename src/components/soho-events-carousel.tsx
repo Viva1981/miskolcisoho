@@ -2,51 +2,11 @@
 
 import { useEffect, useState } from "react";
 
-type SohoEvent = {
-  id: string;
-  title: string;
-  date: string;
-  time: string;
-  accent: string;
-};
+import type { HomepageEvent } from "@/lib/content";
 
-const events: SohoEvent[] = [
-  {
-    id: "dummy-1",
-    title: "Húsvéti Vén Teenager Party",
-    date: "2026-04-03",
-    time: "20:00",
-    accent: "soho-event-art aqua",
-  },
-  {
-    id: "dummy-2",
-    title: "Csajpéntek",
-    date: "2026-04-10",
-    time: "22:00",
-    accent: "soho-event-art red",
-  },
-  {
-    id: "dummy-3",
-    title: "Nagy Bogi Lemezbemutató",
-    date: "2026-04-17",
-    time: "20:00",
-    accent: "soho-event-art amber",
-  },
-  {
-    id: "dummy-4",
-    title: "Soho Opening Night",
-    date: "2026-04-24",
-    time: "21:00",
-    accent: "soho-event-art violet",
-  },
-  {
-    id: "dummy-5",
-    title: "Retro City Lights",
-    date: "2026-05-01",
-    time: "22:30",
-    accent: "soho-event-art blue",
-  },
-] as const;
+type SohoEventsCarouselProps = {
+  events: HomepageEvent[];
+};
 
 function FacebookIcon() {
   return (
@@ -111,12 +71,12 @@ function ArrowRightIcon() {
   );
 }
 
-export function SohoEventsCarousel() {
+export function SohoEventsCarousel({ events }: SohoEventsCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 640px)");
-    if (mediaQuery.matches) {
+    if (mediaQuery.matches || events.length <= 1) {
       return;
     }
 
@@ -125,7 +85,11 @@ export function SohoEventsCarousel() {
     }, 5000);
 
     return () => window.clearInterval(interval);
-  }, []);
+  }, [events.length]);
+
+  if (events.length === 0) {
+    return null;
+  }
 
   function goPrevious() {
     setActiveIndex((current) => (current - 1 + events.length) % events.length);
@@ -160,7 +124,7 @@ export function SohoEventsCarousel() {
           <div className="soho-events-grid">
             {desktopCards.map((event) => (
               <article key={`${event.id}-desktop`} className="soho-event-card-v2">
-                <div className={event.accent}>
+                <div className={`soho-event-art ${event.accent}`}>
                   <span>DUMMY EVENT</span>
                   <strong>{event.title}</strong>
                 </div>
@@ -180,7 +144,7 @@ export function SohoEventsCarousel() {
                   <h3>{event.title}</h3>
 
                   <div className="soho-event-actions">
-                    <a href="#" aria-label={`${event.title} Facebook esemény`}>
+                    <a href={event.facebookUrl} aria-label={`${event.title} Facebook esemény`}>
                       <FacebookIcon />
                     </a>
                   </div>
@@ -201,7 +165,7 @@ export function SohoEventsCarousel() {
 
         <div className="soho-events-mobile">
           <article key={`${mobileCard.id}-mobile`} className="soho-event-card-v2">
-            <div className={mobileCard.accent}>
+            <div className={`soho-event-art ${mobileCard.accent}`}>
               <span>DUMMY EVENT</span>
               <strong>{mobileCard.title}</strong>
             </div>
@@ -221,7 +185,10 @@ export function SohoEventsCarousel() {
               <h3>{mobileCard.title}</h3>
 
               <div className="soho-event-actions">
-                <a href="#" aria-label={`${mobileCard.title} Facebook esemény`}>
+                <a
+                  href={mobileCard.facebookUrl}
+                  aria-label={`${mobileCard.title} Facebook esemény`}
+                >
                   <FacebookIcon />
                 </a>
               </div>

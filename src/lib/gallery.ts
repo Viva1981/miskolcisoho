@@ -1,3 +1,5 @@
+import { getContentConfig } from "@/lib/content-config";
+
 export type GalleryImage = {
   id: string;
   name: string;
@@ -18,8 +20,6 @@ export type GalleryAlbum = {
   rootFolderId: string;
   images: GalleryImage[];
 };
-
-import { getContentConfig } from "@/lib/content-config";
 
 export function getGalleryRootFolderId() {
   return getContentConfig().driveRootFolderId;
@@ -87,7 +87,7 @@ const mockAlbums: Omit<GalleryAlbum, "rootFolderId">[] = [
       { id: "img-6", name: "live-06.jpg", alt: "Live Session 6", tone: "emerald" },
     ],
   },
-];
+] as const;
 
 export async function getGalleryAlbums() {
   const rootFolderId = getGalleryRootFolderId();

@@ -3,62 +3,12 @@ import { Bebas_Neue } from "next/font/google";
 
 import { SohoEventsCarousel } from "@/components/soho-events-carousel";
 import { SohoHeader } from "@/components/soho-header";
+import { getFacebookFeedItems, getHomepageEvents } from "@/lib/content";
 
 const sohoDisplay = Bebas_Neue({
   subsets: ["latin"],
   weight: "400",
 });
-
-const facebookFeedItems = [
-  {
-    id: "event-1",
-    eyebrow: "Facebook event",
-    title: "Hétvégi nyitó est",
-    subtitle: "Kattintás után a valódi Facebook esemény nyílik meg.",
-    href: "https://fb.me/e/3lJC1LLFD",
-    tone: "lime",
-  },
-  {
-    id: "event-2",
-    eyebrow: "Következő buli",
-    title: "Soho night session",
-    subtitle: "Valódi event linkkel, saját dizájnképpel megjelenítve.",
-    href: "https://fb.me/e/8hWvC5sVa",
-    tone: "blue",
-  },
-  {
-    id: "post-1",
-    eyebrow: "Friss poszt",
-    title: "Klubpillanatok",
-    subtitle: "Poszt, teaser vagy aftermovie is bekerülhet ugyanebbe a rácsba.",
-    href: "https://www.facebook.com/permalink.php?story_fbid=pfbid0h1oLuAHyUKjYGaiPyFdr6Q98pMWwxuFWkqD39rHufsFwAP7oKP9mwKYNLPETbKCzl&id=61575425759586",
-    tone: "violet",
-  },
-  {
-    id: "post-2",
-    eyebrow: "Fotóalbum",
-    title: "Pénteki hangulat",
-    subtitle: "Később saját feltöltött 1:1 vagy 4:5 arányú borítóképpel.",
-    href: "https://www.facebook.com/profile.php?id=61575425759586&locale=hu_HU",
-    tone: "sunset",
-  },
-  {
-    id: "post-3",
-    eyebrow: "Kiemelt poszt",
-    title: "Line-up bejelentés",
-    subtitle: "A feed egységes marad, nem esik szét iframe-ek miatt.",
-    href: "https://www.facebook.com/profile.php?id=61575425759586&locale=hu_HU",
-    tone: "graphite",
-  },
-  {
-    id: "post-4",
-    eyebrow: "Kulisszák mögött",
-    title: "Backstage vibe",
-    subtitle: "Ez a blokk ideális lesz adminos vagy Drive-os adatforráshoz is.",
-    href: "https://www.facebook.com/profile.php?id=61575425759586&locale=hu_HU",
-    tone: "emerald",
-  },
-] as const;
 
 function FacebookFooterIcon() {
   return (
@@ -126,7 +76,12 @@ function FacebookCircleIcon() {
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const [homepageEvents, facebookFeedItems] = await Promise.all([
+    getHomepageEvents(),
+    getFacebookFeedItems(),
+  ]);
+
   return (
     <main className={`soho-landing ${sohoDisplay.className}`}>
       <SohoHeader />
@@ -150,7 +105,7 @@ export default function Home() {
         </div>
       </section>
 
-      <SohoEventsCarousel />
+      <SohoEventsCarousel events={homepageEvents} />
 
       <section id="facebook" className="soho-facebook-section">
         <div className="soho-facebook-wrap">

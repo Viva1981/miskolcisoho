@@ -55,6 +55,14 @@ const adminSections = [
   },
 ] as const;
 
+const apiActions = [
+  "GET_CONTENT",
+  "CREATE_ROW",
+  "UPDATE_ROW",
+  "DELETE_ROW",
+  "UPLOAD_DRIVE_FILE",
+] as const;
+
 export default function AdminPage() {
   const config = getContentConfig();
 
@@ -69,9 +77,9 @@ export default function AdminPage() {
               <span className="soho-gallery-kicker">Admin Architecture</span>
               <h1>Admin előkészítés</h1>
               <p>
-                Ez az első adminos alapváz a projekt tartalommodelljéhez. A következő lépés az
-                lesz, hogy a felület már ténylegesen a Sheet adatokat olvassa és írja, később
-                pedig a képfeltöltés is innen mehet a Drive-ba.
+                Ez már a végleges adatút szerinti admin alap: a főoldali események, a Facebook
+                feed és a galéria egy közös tartalommodellre készülnek, amelyet később Apps
+                Scripten keresztül a Google Sheetekből és Drive-ból fogunk olvasni és írni.
               </p>
             </div>
 
@@ -120,12 +128,12 @@ export default function AdminPage() {
             </article>
 
             <article className="soho-admin-card">
-              <h2>Következő lépések</h2>
-              <ul className="soho-admin-list">
-                <li>Apps Script API a 4 Sheet olvasásához és írásához</li>
-                <li>Valódi admin űrlapok eseményekhez, feedhez és galériához</li>
-                <li>Drive-alapú képfeltöltés adminból</li>
-              </ul>
+              <h2>Apps Script műveletek</h2>
+              <div className="soho-admin-tag-block">
+                {apiActions.map((action) => (
+                  <span key={action}>{action}</span>
+                ))}
+              </div>
             </article>
           </div>
 
@@ -146,8 +154,23 @@ export default function AdminPage() {
             ))}
           </div>
 
-          <div className="soho-admin-footnote">
-            <Link href="/galeria">Galéria előnézet megnyitása</Link>
+          <div className="soho-admin-grid soho-admin-grid-bottom">
+            <article className="soho-admin-card">
+              <h2>Következő lépések</h2>
+              <ul className="soho-admin-list">
+                <li>Apps Script Web App szerződés létrehozása</li>
+                <li>Valódi admin űrlapok eseményekhez, feedhez és galériához</li>
+                <li>Drive-alapú képfeltöltés adminból</li>
+              </ul>
+            </article>
+
+            <article className="soho-admin-card">
+              <h2>Előnézet</h2>
+              <div className="soho-admin-link-list">
+                <Link href="/">Főoldal megnyitása</Link>
+                <Link href="/galeria">Galéria megnyitása</Link>
+              </div>
+            </article>
           </div>
         </div>
       </section>
