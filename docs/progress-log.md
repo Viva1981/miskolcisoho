@@ -161,3 +161,10 @@ Ez a fájl azért készült, hogy később is visszakövethető legyen:
 
 - Az admin galéria album űrlap a helyes route-ra már átállt, de nem küldte át a szükséges `collectionName` mezőt.
 - A kérés most már a `gallery` gyűjtőmappába hozza létre az új album saját almappáját.
+
+## 2026-03-27 - Publikus teljesítmény gyorsítás
+
+- Kiderült, hogy a főoldal és a galéria minden betöltésnél élő, cache nélküli Apps Script lekéréseket várt meg.
+- A publikus `events`, `facebook_feed`, `gallery_albums` és `gallery_images` adatforrások most már 60 másodperces szerveroldali cache-t kapnak.
+- A főoldal és a galéria route-ok kikerültek a kényszerített `force-dynamic` módból, helyette ISR jellegű `revalidate = 60` működik.
+- Ettől a felhasználói navigáció és az oldalfrissítés érezhetően gyorsabb kell legyen, miközben a tartalom továbbra is rövid időn belül frissül.

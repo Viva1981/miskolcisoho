@@ -1,5 +1,7 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
+
 import { getAdminContent } from "@/lib/admin-content";
 import { getContentConfig } from "@/lib/content-config";
 import { getDriveThumbnailUrl } from "@/lib/content";
@@ -111,11 +113,23 @@ function toSortOrder(value: string | undefined, fallback: number) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+const getCachedGalleryAlbumsContent = unstable_cache(
+  async () => getAdminContent("gallery_albums"),
+  ["public-gallery-albums-content"],
+  { revalidate: 60 },
+);
+
+const getCachedGalleryImagesContent = unstable_cache(
+  async () => getAdminContent("gallery_images"),
+  ["public-gallery-images-content"],
+  { revalidate: 60 },
+);
+
 export async function getGalleryAlbums() {
   const rootFolderId = getGalleryRootFolderId();
   const [albumsResult, imagesResult] = await Promise.all([
-    getAdminContent("gallery_albums"),
-    getAdminContent("gallery_images"),
+    getCachedGalleryAlbumsContent(),
+    getCachedGalleryImagesContent(),
   ]);
 
   if (!albumsResult.ok || !imagesResult.ok || albumsResult.source === "mock") {

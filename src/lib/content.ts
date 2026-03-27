@@ -1,5 +1,7 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
+
 import { getAdminContent } from "@/lib/admin-content";
 
 export type AccentTone =
@@ -135,8 +137,20 @@ export function getDrivePreviewUrl(fileId: string | undefined) {
   return `https://drive.google.com/file/d/${encodeURIComponent(normalized)}/view`;
 }
 
+const getCachedEventsContent = unstable_cache(
+  async () => getAdminContent("events"),
+  ["public-events-content"],
+  { revalidate: 60 },
+);
+
+const getCachedFacebookFeedContent = unstable_cache(
+  async () => getAdminContent("facebook_feed"),
+  ["public-facebook-feed-content"],
+  { revalidate: 60 },
+);
+
 export async function getHomepageEvents() {
-  const result = await getAdminContent("events");
+  const result = await getCachedEventsContent();
 
   if (!result.ok || result.source === "mock") {
     return mockHomepageEvents;
@@ -159,7 +173,7 @@ export async function getHomepageEvents() {
 }
 
 export async function getFacebookFeedItems() {
-  const result = await getAdminContent("facebook_feed");
+  const result = await getCachedFacebookFeedContent();
 
   if (!result.ok || result.source === "mock") {
     return mockFacebookFeedItems;

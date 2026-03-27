@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SohoHeader } from "@/components/soho-header";
 import { getGalleryAlbums, getGalleryRootFolderId, isGoogleDriveLiveMode } from "@/lib/gallery";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function GaleriaPage() {
   const albums = await getGalleryAlbums();

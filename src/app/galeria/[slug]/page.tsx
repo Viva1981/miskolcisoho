@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { SohoHeader } from "@/components/soho-header";
 import { getGalleryAlbum } from "@/lib/gallery";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 type AlbumPageProps = {
   params: Promise<{

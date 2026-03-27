@@ -5,7 +5,7 @@ import { SohoEventsCarousel } from "@/components/soho-events-carousel";
 import { SohoHeader } from "@/components/soho-header";
 import { getFacebookFeedItems, getHomepageEvents } from "@/lib/content";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const sohoDisplay = Bebas_Neue({
   subsets: ["latin"],
