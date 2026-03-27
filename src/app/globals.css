@@ -324,6 +324,8 @@ textarea {
 }
 
 .soho-events-arrow {
+  position: absolute;
+  top: clamp(180px, 18vw, 230px);
   width: 64px;
   height: 64px;
   display: inline-flex;
@@ -336,16 +338,17 @@ textarea {
   z-index: 3;
 }
 
+.soho-events-arrow.left {
+  left: -14px;
+}
+
+.soho-events-arrow.right {
+  right: -14px;
+}
+
 .soho-events-arrow svg {
   width: 30px;
   height: 30px;
-}
-
-.soho-events-nav {
-  display: flex;
-  justify-content: center;
-  gap: 0.9rem;
-  margin-top: 1rem;
 }
 
 .soho-events-mobile {

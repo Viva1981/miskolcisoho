@@ -162,6 +162,17 @@ export function SohoEventsCarousel({ events }: SohoEventsCarouselProps) {
         <h2>Közelgő események</h2>
 
         <div className="soho-events-desktop">
+          {events.length > 1 ? (
+            <button
+              type="button"
+              className="soho-events-arrow left"
+              aria-label="Előző események"
+              onClick={goPrevious}
+            >
+              <ArrowLeftIcon />
+            </button>
+          ) : null}
+
           <div className="soho-events-grid">
             {desktopCards.map((event) => (
               <EventCard key={`${event.id}-desktop`} event={event} />
@@ -169,25 +180,14 @@ export function SohoEventsCarousel({ events }: SohoEventsCarouselProps) {
           </div>
 
           {events.length > 1 ? (
-            <div className="soho-events-nav">
-              <button
-                type="button"
-                className="soho-events-arrow"
-                aria-label="Előző események"
-                onClick={goPrevious}
-              >
-                <ArrowLeftIcon />
-              </button>
-
-              <button
-                type="button"
-                className="soho-events-arrow"
-                aria-label="Következő események"
-                onClick={goNext}
-              >
-                <ArrowRightIcon />
-              </button>
-            </div>
+            <button
+              type="button"
+              className="soho-events-arrow right"
+              aria-label="Következő események"
+              onClick={goNext}
+            >
+              <ArrowRightIcon />
+            </button>
           ) : null}
         </div>
 

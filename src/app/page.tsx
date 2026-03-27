@@ -103,6 +103,14 @@ export default async function Home() {
             <a href="#esemenyek" className="soho-pill-button">
               Eseményeink
             </a>
+            <a
+              href="https://www.facebook.com/profile.php?id=61575425759586&locale=hu_HU"
+              target="_blank"
+              rel="noreferrer"
+              className="soho-pill-button"
+            >
+              Facebook
+            </a>
           </div>
         </div>
       </section>
