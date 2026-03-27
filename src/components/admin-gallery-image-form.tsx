@@ -30,7 +30,7 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
   const [folderId, setFolderId] = useState("");
   const [caption, setCaption] = useState("");
   const [sortOrder, setSortOrder] = useState(INITIAL_SORT_ORDER);
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [fileInputKey, setFileInputKey] = useState(0);
 
   const selectedAlbum = useMemo(
@@ -41,10 +41,10 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!file) {
+    if (files.length === 0) {
       setState({
         type: "error",
-        message: "Válassz ki egy képfájlt a feltöltéshez.",
+        message: "Valassz ki legalabb egy kepfajlt a feltolteshez.",
       });
       return;
     }
@@ -52,95 +52,107 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
     if (!folderId) {
       setState({
         type: "error",
-        message: "Válassz albumot vagy adj meg érvényes Drive mappa ID-t.",
+        message: "Valassz albumot vagy adj meg ervenyes Drive mappa ID-t.",
       });
       return;
     }
 
     try {
-      setState({ type: "saving", message: "Kép feltöltése Drive-ba..." });
-      const base64 = await readFileAsBase64(file);
+      const baseSortOrder = Number.parseInt(sortOrder, 10);
+      const normalizedSortOrder = Number.isFinite(baseSortOrder) ? baseSortOrder : 10;
 
-      const uploadResponse = await fetch("/api/admin/upload-drive-file", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          folderId,
-          fileName: file.name,
-          mimeType: file.type || "application/octet-stream",
-          base64,
-        }),
-      });
-
-      const uploadResult = (await uploadResponse.json()) as {
-        ok: boolean;
-        fileId?: string;
-        fileUrl?: string;
-        error?: string;
-      };
-
-      if (
-        !uploadResponse.ok ||
-        !uploadResult.ok ||
-        !uploadResult.fileId ||
-        !uploadResult.fileUrl
-      ) {
+      for (const [index, file] of files.entries()) {
         setState({
-          type: "error",
-          message: uploadResult.error ?? "Nem sikerült feltölteni a képet a Drive-ba.",
+          type: "saving",
+          message: `${index + 1}/${files.length} kep feltoltese Drive-ba...`,
         });
-        return;
-      }
 
-      setState({ type: "saving", message: "Galéria kép mentése a sheetbe..." });
+        const base64 = await readFileAsBase64(file);
 
-      const response = await fetch("/api/admin/content", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          resource: "gallery_images",
-          payload: {
-            album_id: albumId,
-            drive_file_id: uploadResult.fileId,
-            drive_file_url: uploadResult.fileUrl,
-            caption,
-            sort_order: sortOrder || INITIAL_SORT_ORDER,
+        const uploadResponse = await fetch("/api/admin/upload-drive-file", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        }),
-      });
-
-      const result = (await response.json()) as {
-        ok: boolean;
-        error?: string;
-      };
-
-      if (!response.ok || !result.ok) {
-        setState({
-          type: "error",
-          message: result.error ?? "Nem sikerült elmenteni a galéria képet.",
+          body: JSON.stringify({
+            folderId,
+            fileName: file.name,
+            mimeType: file.type || "application/octet-stream",
+            base64,
+          }),
         });
-        return;
+
+        const uploadResult = (await uploadResponse.json()) as {
+          ok: boolean;
+          fileId?: string;
+          fileUrl?: string;
+          error?: string;
+        };
+
+        if (
+          !uploadResponse.ok ||
+          !uploadResult.ok ||
+          !uploadResult.fileId ||
+          !uploadResult.fileUrl
+        ) {
+          setState({
+            type: "error",
+            message: uploadResult.error ?? "Nem sikerult feltolteni az egyik kepet a Drive-ba.",
+          });
+          return;
+        }
+
+        setState({
+          type: "saving",
+          message: `${index + 1}/${files.length} kep mentese a sheetbe...`,
+        });
+
+        const response = await fetch("/api/admin/content", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            resource: "gallery_images",
+            payload: {
+              album_id: albumId,
+              drive_file_id: uploadResult.fileId,
+              drive_file_url: uploadResult.fileUrl,
+              caption: caption.trim(),
+              sort_order: String(normalizedSortOrder + index),
+            },
+          }),
+        });
+
+        const result = (await response.json()) as {
+          ok: boolean;
+          error?: string;
+        };
+
+        if (!response.ok || !result.ok) {
+          setState({
+            type: "error",
+            message: result.error ?? "Nem sikerult elmenteni az egyik galeria kepet.",
+          });
+          return;
+        }
       }
 
       setAlbumId("");
       setFolderId("");
       setCaption("");
       setSortOrder(INITIAL_SORT_ORDER);
-      setFile(null);
+      setFiles([]);
       setFileInputKey((current) => current + 1);
       setState({
         type: "success",
-        message: "A kép feltöltődött a Drive-ba, és bekerült a gallery_images sheetbe.",
+        message: `${files.length} kep sikeresen feltoltodott a Drive-ba es bekerult a gallery_images sheetbe.`,
       });
       router.refresh();
     } catch (error) {
       setState({
         type: "error",
-        message: error instanceof Error ? error.message : "Ismeretlen hiba történt.",
+        message: error instanceof Error ? error.message : "Ismeretlen hiba tortent.",
       });
     }
   }
@@ -149,10 +161,10 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
     <article className="soho-admin-card soho-admin-form-card">
       <div className="soho-admin-preview-head">
         <div>
-          <h2>Új galéria kép</h2>
+          <h2>Uj galeria kepek</h2>
           <p>
-            Az űrlap album alapján automatikusan kitölti a Drive mappát, feltölti a képet, majd
-            létrehozza a `gallery_images` sort.
+            Az urlap album alapjan automatikusan kitolti a Drive mappat, tobb kepet is feltolt
+            egyszerre, majd letrehozza a megfelelo `gallery_images` sorokat.
           </p>
         </div>
       </div>
@@ -170,7 +182,7 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
             }}
             required
           >
-            <option value="">Válassz albumot</option>
+            <option value="">Valassz albumot</option>
             {albumOptions.map((album) => (
               <option key={album.id} value={album.id}>
                 {album.title} ({album.id})
@@ -185,41 +197,47 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
             type="text"
             value={folderId}
             onChange={(event) => setFolderId(event.target.value)}
-            placeholder="Például: 1AbCdEf..."
+            placeholder="Peldaul: 1AbCdEf..."
             required
           />
         </label>
 
         {selectedAlbum ? (
           <p className="soho-admin-form-message is-success">
-            Kiválasztott album: <strong>{selectedAlbum.title}</strong>
+            Kivalasztott album: <strong>{selectedAlbum.title}</strong>
           </p>
         ) : null}
 
         <label>
-          <span>Képfájl</span>
+          <span>Kepfajlok</span>
           <input
             key={fileInputKey}
             type="file"
             accept="image/*"
-            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+            multiple
+            onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
             required
           />
         </label>
 
+        {files.length > 0 ? (
+          <p className="soho-admin-form-message is-success">
+            Kivalasztott kepek: <strong>{files.length} db</strong>
+          </p>
+        ) : null}
+
         <label>
-          <span>Képaláírás</span>
+          <span>Kozos kepalairas</span>
           <input
             type="text"
             value={caption}
             onChange={(event) => setCaption(event.target.value)}
-            placeholder="Rövid képleírás vagy caption"
-            required
+            placeholder="Opcionális, minden feltoltott kephez ugyanaz kerul"
           />
         </label>
 
         <label>
-          <span>Sorrend</span>
+          <span>Kezdo sorrend</span>
           <input
             type="number"
             min="1"
@@ -232,7 +250,7 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
 
         <div className="soho-admin-form-actions">
           <button type="submit" disabled={state.type === "saving"}>
-            {state.type === "saving" ? state.message : "Galéria kép feltöltése és mentése"}
+            {state.type === "saving" ? state.message : "Galeria kepek feltoltese es mentese"}
           </button>
         </div>
 
