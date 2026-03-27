@@ -1,3 +1,4 @@
+import { revalidatePath, revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 import {
@@ -143,6 +144,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    revalidatePublicContent(resource);
+
     return NextResponse.json({
       ok: true,
       source: response.source,
@@ -199,6 +202,8 @@ export async function DELETE(request: NextRequest) {
       { status: 502 },
     );
   }
+
+  revalidatePublicContent(resource);
 
   return NextResponse.json({
     ok: true,
@@ -259,6 +264,8 @@ export async function PUT(request: NextRequest) {
     );
   }
 
+  revalidatePublicContent(resource);
+
   return NextResponse.json({
     ok: true,
     source: response.source,
@@ -273,4 +280,29 @@ function slugify(value: string) {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+function revalidatePublicContent(
+  resource: "events" | "facebook_feed" | "gallery_albums" | "gallery_images",
+) {
+  if (resource === "events") {
+    revalidateTag("public-events-content", "max");
+    revalidatePath("/");
+    return;
+  }
+
+  if (resource === "facebook_feed") {
+    revalidateTag("public-facebook-feed-content", "max");
+    revalidatePath("/");
+    return;
+  }
+
+  if (resource === "gallery_albums") {
+    revalidateTag("public-gallery-albums-content", "max");
+    revalidatePath("/galeria");
+    return;
+  }
+
+  revalidateTag("public-gallery-images-content", "max");
+  revalidatePath("/galeria");
 }

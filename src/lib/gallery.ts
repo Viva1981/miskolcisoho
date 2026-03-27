@@ -128,13 +128,13 @@ function toSortOrder(value: string | undefined, fallback: number) {
 const getCachedGalleryAlbumsContent = unstable_cache(
   async () => getAdminContent("gallery_albums"),
   ["public-gallery-albums-content"],
-  { revalidate: 60 },
+  { revalidate: 60, tags: ["public-gallery-albums-content"] },
 );
 
 const getCachedGalleryImagesContent = unstable_cache(
   async () => getAdminContent("gallery_images"),
   ["public-gallery-images-content"],
-  { revalidate: 60 },
+  { revalidate: 60, tags: ["public-gallery-images-content"] },
 );
 
 export async function getGalleryAlbums() {

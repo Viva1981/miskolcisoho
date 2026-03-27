@@ -140,13 +140,13 @@ export function getDrivePreviewUrl(fileId: string | undefined) {
 const getCachedEventsContent = unstable_cache(
   async () => getAdminContent("events"),
   ["public-events-content"],
-  { revalidate: 60 },
+  { revalidate: 60, tags: ["public-events-content"] },
 );
 
 const getCachedFacebookFeedContent = unstable_cache(
   async () => getAdminContent("facebook_feed"),
   ["public-facebook-feed-content"],
-  { revalidate: 60 },
+  { revalidate: 60, tags: ["public-facebook-feed-content"] },
 );
 
 export async function getHomepageEvents() {
