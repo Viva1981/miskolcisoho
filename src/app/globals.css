@@ -802,27 +802,6 @@ textarea {
   color: rgba(255, 255, 255, 0.92);
 }
 
-.soho-gallery-card-mark {
-  position: absolute;
-  left: 50%;
-  bottom: 0.9rem;
-  z-index: 2;
-  width: 52px;
-  height: 52px;
-  display: grid;
-  place-items: center;
-  transform: translateX(-50%);
-  border-radius: 14px;
-  background: rgba(0, 0, 0, 0.84);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-}
-
-.soho-gallery-card-mark-image {
-  width: 26px;
-  height: 26px;
-  object-fit: contain;
-}
-
 .soho-gallery-album-copy h2,
 .soho-gallery-image-meta h2 {
   margin: 0;

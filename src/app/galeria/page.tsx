@@ -36,19 +36,11 @@ export default async function GaleriaPage() {
                       loading="lazy"
                     />
                   ) : null}
-
-                  <div className="soho-gallery-card-mark">
-                    <img
-                      src="/branding/soho_logo.png"
-                      alt=""
-                      className="soho-gallery-card-mark-image"
-                    />
-                  </div>
                 </div>
 
                 <div className="soho-gallery-album-card-body">
                   <h2>{formatAlbumHeading(album.title, album.eventDate)}</h2>
-                  <p>{formatAlbumTags(album.tags)}</p>
+                  <p>{album.description}</p>
                 </div>
               </Link>
             ))}
@@ -61,20 +53,5 @@ export default async function GaleriaPage() {
 
 function formatAlbumHeading(title: string, eventDate: string) {
   const cleanDate = eventDate ? eventDate.replaceAll("-", ".") : "";
-  return cleanDate
-    ? `${title} | ${cleanDate}. Miskolc, Soho`
-    : `${title} | Miskolc, Soho`;
-}
-
-function formatAlbumTags(tags: string[]) {
-  const normalized = Array.from(
-    new Set(
-      tags
-        .map((tag) => tag.trim().toLowerCase())
-        .filter(Boolean)
-        .concat(["miskolc", "soho"]),
-    ),
-  );
-
-  return normalized.map((tag) => `#${tag}`).join(", ");
+  return cleanDate ? `${title} | ${cleanDate}.` : title;
 }
