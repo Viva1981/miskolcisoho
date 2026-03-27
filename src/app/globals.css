@@ -1248,7 +1248,7 @@ textarea {
 .soho-admin-item-thumb,
 .soho-admin-item-placeholder {
   width: 100%;
-  height: 112px;
+  height: 84px;
   border-radius: 14px;
   object-fit: cover;
 }
@@ -1264,7 +1264,7 @@ textarea {
 .soho-admin-item-copy {
   display: grid;
   gap: 0.25rem;
-  padding: 0.8rem 0.85rem 0.85rem;
+  padding: 0.65rem 0.75rem 0.75rem;
 }
 
 .soho-admin-item-copy strong,
@@ -1274,20 +1274,20 @@ textarea {
 }
 
 .soho-admin-item-copy strong {
-  font-size: 0.98rem;
+  font-size: 0.92rem;
   color: #ffffff;
 }
 
 .soho-admin-item-copy span {
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: rgba(255, 255, 255, 0.7);
 }
 
 .soho-admin-item-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
-  padding: 0 0.85rem 0.85rem;
+  gap: 0.4rem;
+  padding: 0 0.75rem 0.75rem;
 }
 
 .soho-admin-album-picker {

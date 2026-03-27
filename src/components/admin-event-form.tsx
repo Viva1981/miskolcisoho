@@ -11,9 +11,13 @@ type SubmitState =
   | { type: "success"; message: string }
   | { type: "error"; message: string };
 
+type AdminEventFormProps = {
+  onSuccess?: () => Promise<void> | void;
+};
+
 const INITIAL_SORT_ORDER = "10";
 
-export function AdminEventForm() {
+export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
   const router = useRouter();
   const [state, setState] = useState<SubmitState>({ type: "idle" });
   const [title, setTitle] = useState("");
@@ -147,6 +151,11 @@ export function AdminEventForm() {
         type: "success",
         message: "Az esemény és a borítóképe sikeresen bekerült a rendszerbe.",
       });
+
+      if (onSuccess) {
+        await onSuccess();
+      }
+
       router.refresh();
     } catch (error) {
       setState({

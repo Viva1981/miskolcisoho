@@ -1,11 +1,7 @@
 import Link from "next/link";
 
-import { AdminEventForm } from "@/components/admin-event-form";
-import { AdminFacebookFeedForm } from "@/components/admin-facebook-feed-form";
-import { AdminGalleryWorkspace } from "@/components/admin-gallery-workspace";
-import { AdminPreviewTable } from "@/components/admin-preview-table";
+import { AdminDashboard } from "@/components/admin-dashboard";
 import { SohoHeader } from "@/components/soho-header";
-import { getAdminContent } from "@/lib/admin-content";
 import { isAppsScriptConfigured } from "@/lib/apps-script";
 import {
   getContentConfig,
@@ -13,14 +9,9 @@ import {
   getGoogleSheetUrl,
 } from "@/lib/content-config";
 
-export default async function AdminPage() {
+export default function AdminPage() {
   const config = getContentConfig();
   const appsScriptReady = isAppsScriptConfigured();
-  const [eventsResult, facebookFeedResult, galleryAlbumsResult] = await Promise.all([
-    getAdminContent("events"),
-    getAdminContent("facebook_feed"),
-    getAdminContent("gallery_albums"),
-  ]);
 
   return (
     <main className="soho-landing">
@@ -65,104 +56,13 @@ export default async function AdminPage() {
             <article className="soho-admin-card">
               <h2>Fontos tudnivaló</h2>
               <p className="soho-admin-muted">
-                A publikus oldal automatikusan frissül mentés után. A galéria képei most már csak
-                albumválasztás után töltődnek be, ezért az admin újratöltése is gyorsabb lett.
+                Az admin váz most már azonnal betölt, a tartalmi listák pedig külön kérésben érkeznek
+                meg. Ettől az első oldalbetöltés és az újratöltés is érezhetően gyorsabb lesz.
               </p>
             </article>
           </div>
 
-          <section className="soho-admin-section">
-            <div className="soho-admin-section-header">
-              <div>
-                <span className="soho-gallery-kicker">Főoldal</span>
-                <h2>Események</h2>
-                <p>Új esemény létrehozása, borítókép feltöltése és a meglévő események kezelése.</p>
-              </div>
-            </div>
-
-            <div className="soho-admin-grid">
-              <AdminEventForm />
-
-              <AdminPreviewTable
-                title="Létező események"
-                resource="events"
-                source={eventsResult.source}
-                ok={eventsResult.ok}
-                error={eventsResult.error}
-                rows={eventsResult.data}
-                columns={[
-                  "id",
-                  "title",
-                  "date",
-                  "time",
-                  "facebook_url",
-                  "cover_drive_file_id",
-                  "published",
-                  "sort_order",
-                ]}
-                editableFields={[
-                  "title",
-                  "date",
-                  "time",
-                  "facebook_url",
-                  "cover_drive_file_id",
-                  "cover_drive_url",
-                  "published",
-                  "sort_order",
-                ]}
-              />
-            </div>
-          </section>
-
-          <section className="soho-admin-section">
-            <div className="soho-admin-section-header">
-              <div>
-                <span className="soho-gallery-kicker">Főoldal</span>
-                <h2>Facebook blokk</h2>
-                <p>A „Kövess minket Facebookon” rész elemei képpel, szöveggel és hivatkozással.</p>
-              </div>
-            </div>
-
-            <div className="soho-admin-grid">
-              <AdminFacebookFeedForm />
-
-              <AdminPreviewTable
-                title="Facebook elemek"
-                resource="facebook_feed"
-                source={facebookFeedResult.source}
-                ok={facebookFeedResult.ok}
-                error={facebookFeedResult.error}
-                rows={facebookFeedResult.data}
-                columns={[
-                  "id",
-                  "title",
-                  "text",
-                  "facebook_url",
-                  "cover_drive_file_id",
-                  "published",
-                  "sort_order",
-                ]}
-                editableFields={[
-                  "title",
-                  "text",
-                  "facebook_url",
-                  "cover_drive_file_id",
-                  "cover_drive_url",
-                  "published",
-                  "sort_order",
-                ]}
-              />
-            </div>
-          </section>
-
-          <AdminGalleryWorkspace
-            albumsResult={{
-              ok: galleryAlbumsResult.ok,
-              source: galleryAlbumsResult.source,
-              error: galleryAlbumsResult.error,
-              rows: galleryAlbumsResult.data,
-            }}
-          />
+          <AdminDashboard />
 
           <details className="soho-admin-details">
             <summary>Haladó nézet és rendszerinformációk</summary>

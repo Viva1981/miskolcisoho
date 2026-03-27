@@ -11,9 +11,13 @@ type SubmitState =
   | { type: "success"; message: string }
   | { type: "error"; message: string };
 
+type AdminFacebookFeedFormProps = {
+  onSuccess?: () => Promise<void> | void;
+};
+
 const INITIAL_SORT_ORDER = "10";
 
-export function AdminFacebookFeedForm() {
+export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps) {
   const router = useRouter();
   const [state, setState] = useState<SubmitState>({ type: "idle" });
   const [title, setTitle] = useState("");
@@ -144,6 +148,11 @@ export function AdminFacebookFeedForm() {
         type: "success",
         message: "A Facebook elem és a borítóképe sikeresen bekerült a rendszerbe.",
       });
+
+      if (onSuccess) {
+        await onSuccess();
+      }
+
       router.refresh();
     } catch (error) {
       setState({

@@ -11,9 +11,13 @@ type SubmitState =
   | { type: "success"; message: string }
   | { type: "error"; message: string };
 
+type AdminGalleryAlbumFormProps = {
+  onSuccess?: () => Promise<void> | void;
+};
+
 const INITIAL_SORT_ORDER = "10";
 
-export function AdminGalleryAlbumForm() {
+export function AdminGalleryAlbumForm({ onSuccess }: AdminGalleryAlbumFormProps) {
   const router = useRouter();
   const [state, setState] = useState<SubmitState>({ type: "idle" });
   const [title, setTitle] = useState("");
@@ -148,6 +152,11 @@ export function AdminGalleryAlbumForm() {
         type: "success",
         message: "A galéria album, a saját mappa és a dedikált borítókép sikeresen létrejött.",
       });
+
+      if (onSuccess) {
+        await onSuccess();
+      }
+
       router.refresh();
     } catch (error) {
       setState({

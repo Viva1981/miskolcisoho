@@ -13,9 +13,10 @@ type AdminGalleryWorkspaceProps = {
     error?: string;
     rows: Record<string, string>[];
   };
+  onAlbumsChange?: () => Promise<void> | void;
 };
 
-export function AdminGalleryWorkspace({ albumsResult }: AdminGalleryWorkspaceProps) {
+export function AdminGalleryWorkspace({ albumsResult, onAlbumsChange }: AdminGalleryWorkspaceProps) {
   const [selectedAlbumId, setSelectedAlbumId] = useState(albumsResult.rows[0]?.id ?? "");
   const [galleryImagesResult, setGalleryImagesResult] = useState<{
     ok: boolean;
@@ -155,7 +156,7 @@ export function AdminGalleryWorkspace({ albumsResult }: AdminGalleryWorkspacePro
       </div>
 
       <div className="soho-admin-grid">
-        <AdminGalleryAlbumForm />
+        <AdminGalleryAlbumForm onSuccess={onAlbumsChange} />
 
         <AdminPreviewTable
           title="Galéria albumok"
@@ -176,6 +177,7 @@ export function AdminGalleryWorkspace({ albumsResult }: AdminGalleryWorkspacePro
             "published",
             "sort_order",
           ]}
+          onChange={onAlbumsChange}
         />
       </div>
 
