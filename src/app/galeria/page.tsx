@@ -1,14 +1,12 @@
 import Link from "next/link";
 
 import { SohoHeader } from "@/components/soho-header";
-import { getGalleryAlbums, getGalleryRootFolderId, isGoogleDriveLiveMode } from "@/lib/gallery";
+import { getGalleryAlbums } from "@/lib/gallery";
 
 export const revalidate = 60;
 
 export default async function GaleriaPage() {
   const albums = await getGalleryAlbums();
-  const driveRootFolderId = getGalleryRootFolderId();
-  const isLiveMode = isGoogleDriveLiveMode();
 
   return (
     <main className="soho-landing">
@@ -16,21 +14,8 @@ export default async function GaleriaPage() {
 
       <section className="soho-gallery-shell">
         <div className="soho-gallery-wrap">
-          <div className="soho-gallery-head">
-            <div>
-              <span className="soho-gallery-kicker">Google Drive Ready</span>
-              <h1>Galéria</h1>
-              <p>
-                A galériaoldal most már a valódi album rekordokat és a hozzájuk feltöltött képeket
-                olvassa. Az adminban létrehozott albumok és képek közvetlenül itt jelennek meg.
-              </p>
-            </div>
-
-            <div className="soho-gallery-source-card">
-              <strong>Forrás</strong>
-              <span>{isLiveMode ? "Google Drive live mód" : "Google Drive mock mód"}</span>
-              <code>{driveRootFolderId}</code>
-            </div>
+          <div className="soho-gallery-page-title">
+            <h1>Galeria</h1>
           </div>
 
           <div className="soho-gallery-album-grid">
@@ -51,26 +36,19 @@ export default async function GaleriaPage() {
                       loading="lazy"
                     />
                   ) : null}
-                  <div className="soho-gallery-cover-overlay">
-                    <span>{album.eventDate}</span>
-                    <strong>{album.title}</strong>
+
+                  <div className="soho-gallery-card-mark">
+                    <img
+                      src="/branding/soho_logo.png"
+                      alt=""
+                      className="soho-gallery-card-mark-image"
+                    />
                   </div>
                 </div>
 
-                <div className="soho-gallery-album-copy">
-                  <h2>{album.title}</h2>
-                  <p>{album.description}</p>
-
-                  <div className="soho-gallery-tag-row">
-                    {album.tags.map((tag) => (
-                      <span key={tag}>{tag}</span>
-                    ))}
-                  </div>
-
-                  <div className="soho-gallery-meta-row">
-                    <span>{album.images.length} kép</span>
-                    <span>Drive album</span>
-                  </div>
+                <div className="soho-gallery-album-card-body">
+                  <h2>{formatAlbumHeading(album.title, album.eventDate)}</h2>
+                  <p>{formatAlbumTags(album.tags)}</p>
                 </div>
               </Link>
             ))}
@@ -79,4 +57,24 @@ export default async function GaleriaPage() {
       </section>
     </main>
   );
+}
+
+function formatAlbumHeading(title: string, eventDate: string) {
+  const cleanDate = eventDate ? eventDate.replaceAll("-", ".") : "";
+  return cleanDate
+    ? `${title} | ${cleanDate}. Miskolc, Soho`
+    : `${title} | Miskolc, Soho`;
+}
+
+function formatAlbumTags(tags: string[]) {
+  const normalized = Array.from(
+    new Set(
+      tags
+        .map((tag) => tag.trim().toLowerCase())
+        .filter(Boolean)
+        .concat(["miskolc", "soho"]),
+    ),
+  );
+
+  return normalized.map((tag) => `#${tag}`).join(", ");
 }

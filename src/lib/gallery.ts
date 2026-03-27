@@ -40,7 +40,7 @@ const mockAlbums: Omit<GalleryAlbum, "rootFolderId">[] = [
     eventDate: "2026.04.24.",
     tags: ["soho", "opening", "miskolc"],
     description:
-      "Főkártyaadatokhoz és képlistához előkészített mintaalbum. Később a Google Drive mappából és egy metaadat-listából fog összeállni.",
+      "Fokartyaadatokhoz es keplistahoz elokeszitett mintaalbum. Kesobb a Google Drive mappabol es egy metadata-listabol fog osszeallni.",
     coverTone: "lime",
     driveFolderId: "drive-folder-opening-night",
     images: [
@@ -56,7 +56,7 @@ const mockAlbums: Omit<GalleryAlbum, "rootFolderId">[] = [
     eventDate: "2026.05.01.",
     tags: ["citylights", "party", "soho"],
     description:
-      "A listaoldal Rockwell-szerű kártyákat mutat, az albumoldal pedig külön képrácsot. Ez a második mintaalbum már a későbbi paginált galériaszerkezetet készíti elő.",
+      "A listaoldal Rockwell-szeru kartyakat mutat, az albumoldal pedig kulon kepracsot. Ez a masodik mintaalbum mar a kesobbi paginalt galeria-szerkezetet kesziti elo.",
     coverTone: "blue",
     driveFolderId: "drive-folder-city-lights",
     images: [
@@ -72,7 +72,7 @@ const mockAlbums: Omit<GalleryAlbum, "rootFolderId">[] = [
     eventDate: "2026.05.15.",
     tags: ["live", "concert", "soho"],
     description:
-      "A teljes adatút úgy készül, hogy a főkártya metaadatai és a képek külön is jöhessenek Google Drive-ból vagy később adminfelületről.",
+      "A teljes adatut ugy keszul, hogy a fokartya metadatai es a kepek kulon is johessenek Google Drive-bol vagy kesobb adminfeluletrol.",
     coverTone: "violet",
     driveFolderId: "drive-folder-live-session",
     images: [
@@ -102,6 +102,18 @@ function slugify(value: string) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+function buildAlbumTags(title: string) {
+  const words = title
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((part) => part.length >= 3)
+    .slice(0, 2);
+
+  return Array.from(new Set([...words, "miskolc", "soho"]));
 }
 
 function isPublished(value: string | undefined) {
@@ -143,16 +155,17 @@ export async function getGalleryAlbums() {
     .filter((row) => isPublished(row.published))
     .sort((a, b) => toSortOrder(a.sort_order, 9999) - toSortOrder(b.sort_order, 9999));
 
-  const publishedImages = imagesResult.data
-    .sort((a, b) => toSortOrder(a.sort_order, 9999) - toSortOrder(b.sort_order, 9999));
+  const publishedImages = imagesResult.data.sort(
+    (a, b) => toSortOrder(a.sort_order, 9999) - toSortOrder(b.sort_order, 9999),
+  );
 
   const albums = publishedAlbums.map((row, albumIndex) => {
     const albumImages = publishedImages
       .filter((image) => image.album_id === row.id)
       .map((image, imageIndex) => ({
         id: image.id || `${row.id}-image-${imageIndex + 1}`,
-        name: image.drive_file_id ? `Kép ${imageIndex + 1}` : `Galéria kép ${imageIndex + 1}`,
-        alt: image.caption || row.title || `Galéria kép ${imageIndex + 1}`,
+        name: image.drive_file_id ? `Kep ${imageIndex + 1}` : `Galeria kep ${imageIndex + 1}`,
+        alt: image.caption || row.title || `Galeria kep ${imageIndex + 1}`,
         caption: image.caption || "",
         tone: getTone(imageIndex),
         imageUrl: getDriveThumbnailUrl(image.drive_file_id, 1600),
@@ -162,10 +175,10 @@ export async function getGalleryAlbums() {
     return {
       id: row.id || `album-${albumIndex + 1}`,
       slug: row.slug || slugify(row.title || `album-${albumIndex + 1}`),
-      title: row.title || `Galéria ${albumIndex + 1}`,
+      title: row.title || `Galeria ${albumIndex + 1}`,
       eventDate: row.event_date || "",
-      tags: ["soho", "galéria"],
-      description: row.description || "Soho galéria album.",
+      tags: buildAlbumTags(row.title || `album-${albumIndex + 1}`),
+      description: row.description || "Soho galeria album.",
       coverTone: getTone(albumIndex),
       driveFolderId: row.drive_folder_id || "",
       rootFolderId,
