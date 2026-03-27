@@ -30,13 +30,13 @@ export function AdminFacebookFeedForm() {
     if (!file) {
       setState({
         type: "error",
-        message: "Válassz ki egy borítóképet a Facebook feed elemhez.",
+        message: "Válassz ki egy borítóképet a Facebook elemhez.",
       });
       return;
     }
 
     try {
-      setState({ type: "saving", message: "Feed mappa létrehozása a Drive-ban..." });
+      setState({ type: "saving", message: "Facebook mappa létrehozása a Drive-ban..." });
 
       const folderResponse = await fetch("/api/admin/create-drive-folder", {
         method: "POST",
@@ -58,12 +58,12 @@ export function AdminFacebookFeedForm() {
       if (!folderResponse.ok || !folderResult.ok || !folderResult.folderId) {
         setState({
           type: "error",
-          message: folderResult.error ?? "Nem sikerült létrehozni a feed mappáját.",
+          message: folderResult.error ?? "Nem sikerült létrehozni a Facebook elem mappáját.",
         });
         return;
       }
 
-      setState({ type: "saving", message: "Borítókép feltöltése Drive-ba..." });
+      setState({ type: "saving", message: "Borítókép feltöltése a Drive-ba..." });
       const base64 = await readFileAsBase64(file);
 
       const uploadResponse = await fetch("/api/admin/upload-drive-file", {
@@ -94,12 +94,12 @@ export function AdminFacebookFeedForm() {
       ) {
         setState({
           type: "error",
-          message: uploadResult.error ?? "Nem sikerült feltölteni a feed borítóképét.",
+          message: uploadResult.error ?? "Nem sikerült feltölteni a Facebook elem borítóképét.",
         });
         return;
       }
 
-      setState({ type: "saving", message: "Facebook feed elem mentése a sheetbe..." });
+      setState({ type: "saving", message: "Facebook elem mentése..." });
 
       const response = await fetch("/api/admin/content", {
         method: "POST",
@@ -128,7 +128,7 @@ export function AdminFacebookFeedForm() {
       if (!response.ok || !result.ok) {
         setState({
           type: "error",
-          message: result.error ?? "Nem sikerült elmenteni a Facebook feed elemet.",
+          message: result.error ?? "Nem sikerült elmenteni a Facebook elemet.",
         });
         return;
       }
@@ -142,7 +142,7 @@ export function AdminFacebookFeedForm() {
       setFileInputKey((current) => current + 1);
       setState({
         type: "success",
-        message: "A Facebook feed elem és a borítóképe sikeresen bekerült a rendszerbe.",
+        message: "A Facebook elem és a borítóképe sikeresen bekerült a rendszerbe.",
       });
       router.refresh();
     } catch (error) {
@@ -157,8 +157,11 @@ export function AdminFacebookFeedForm() {
     <article className="soho-admin-card soho-admin-form-card">
       <div className="soho-admin-preview-head">
         <div>
-          <h2>Új Facebook feed elem</h2>
-          <p>Az űrlap létrehozza a feed elem saját Drive mappáját, feltölti a borítóképet, majd menti a `facebook_feed` sort.</p>
+          <h2>Új Facebook elem</h2>
+          <p>
+            Itt tudsz új kártyát létrehozni a főoldali Facebook blokkhoz képpel, szöveggel és
+            linkkel.
+          </p>
         </div>
       </div>
 
@@ -175,12 +178,12 @@ export function AdminFacebookFeedForm() {
         </label>
 
         <label>
-          <span>Szöveg</span>
+          <span>Leírás</span>
           <input
             type="text"
             value={text}
             onChange={(event) => setText(event.target.value)}
-            placeholder="Rövid leírás a feed kártyához"
+            placeholder="Rövid leírás a kártyához"
             required
           />
         </label>
@@ -232,7 +235,7 @@ export function AdminFacebookFeedForm() {
 
         <div className="soho-admin-form-actions">
           <button type="submit" disabled={state.type === "saving"}>
-            {state.type === "saving" ? state.message : "Facebook feed elem létrehozása"}
+            {state.type === "saving" ? state.message : "Facebook elem létrehozása"}
           </button>
         </div>
 

@@ -44,7 +44,7 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
     if (files.length === 0) {
       setState({
         type: "error",
-        message: "Valassz ki legalabb egy kepfajlt a feltolteshez.",
+        message: "Válassz ki legalább egy képfájlt a feltöltéshez.",
       });
       return;
     }
@@ -52,7 +52,7 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
     if (!folderId) {
       setState({
         type: "error",
-        message: "Valassz albumot vagy adj meg ervenyes Drive mappa ID-t.",
+        message: "Válassz albumot vagy adj meg érvényes Drive mappa ID-t.",
       });
       return;
     }
@@ -64,7 +64,7 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
       for (const [index, file] of files.entries()) {
         setState({
           type: "saving",
-          message: `${index + 1}/${files.length} kep feltoltese Drive-ba...`,
+          message: `${index + 1}/${files.length} kép feltöltése a Drive-ba...`,
         });
 
         const base64 = await readFileAsBase64(file);
@@ -97,14 +97,14 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
         ) {
           setState({
             type: "error",
-            message: uploadResult.error ?? "Nem sikerult feltolteni az egyik kepet a Drive-ba.",
+            message: uploadResult.error ?? "Nem sikerült feltölteni az egyik képet a Drive-ba.",
           });
           return;
         }
 
         setState({
           type: "saving",
-          message: `${index + 1}/${files.length} kep mentese a sheetbe...`,
+          message: `${index + 1}/${files.length} kép mentése a rendszerbe...`,
         });
 
         const response = await fetch("/api/admin/content", {
@@ -132,7 +132,7 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
         if (!response.ok || !result.ok) {
           setState({
             type: "error",
-            message: result.error ?? "Nem sikerult elmenteni az egyik galeria kepet.",
+            message: result.error ?? "Nem sikerült elmenteni az egyik galéria képet.",
           });
           return;
         }
@@ -146,13 +146,13 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
       setFileInputKey((current) => current + 1);
       setState({
         type: "success",
-        message: `${files.length} kep sikeresen feltoltodott a Drive-ba es bekerult a gallery_images sheetbe.`,
+        message: `${files.length} kép sikeresen feltöltődött a Drive-ba és bekerült a galériába.`,
       });
       router.refresh();
     } catch (error) {
       setState({
         type: "error",
-        message: error instanceof Error ? error.message : "Ismeretlen hiba tortent.",
+        message: error instanceof Error ? error.message : "Ismeretlen hiba történt.",
       });
     }
   }
@@ -161,10 +161,10 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
     <article className="soho-admin-card soho-admin-form-card">
       <div className="soho-admin-preview-head">
         <div>
-          <h2>Uj galeria kepek</h2>
+          <h2>Galéria képek feltöltése</h2>
           <p>
-            Az urlap album alapjan automatikusan kitolti a Drive mappat, tobb kepet is feltolt
-            egyszerre, majd letrehozza a megfelelo `gallery_images` sorokat.
+            Válaszd ki, melyik albumhoz szeretnél képeket adni, majd jelölj ki egy vagy több fájlt
+            egyszerre.
           </p>
         </div>
       </div>
@@ -182,7 +182,7 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
             }}
             required
           >
-            <option value="">Valassz albumot</option>
+            <option value="">Válassz albumot</option>
             {albumOptions.map((album) => (
               <option key={album.id} value={album.id}>
                 {album.title} ({album.id})
@@ -197,19 +197,19 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
             type="text"
             value={folderId}
             onChange={(event) => setFolderId(event.target.value)}
-            placeholder="Peldaul: 1AbCdEf..."
+            placeholder="Például: 1AbCdEf..."
             required
           />
         </label>
 
         {selectedAlbum ? (
           <p className="soho-admin-form-message is-success">
-            Kivalasztott album: <strong>{selectedAlbum.title}</strong>
+            Kiválasztott album: <strong>{selectedAlbum.title}</strong>
           </p>
         ) : null}
 
         <label>
-          <span>Kepfajlok</span>
+          <span>Képfájlok</span>
           <input
             key={fileInputKey}
             type="file"
@@ -222,22 +222,22 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
 
         {files.length > 0 ? (
           <p className="soho-admin-form-message is-success">
-            Kivalasztott kepek: <strong>{files.length} db</strong>
+            Kiválasztott képek: <strong>{files.length} db</strong>
           </p>
         ) : null}
 
         <label>
-          <span>Kozos kepalairas</span>
+          <span>Közös képaláírás</span>
           <input
             type="text"
             value={caption}
             onChange={(event) => setCaption(event.target.value)}
-            placeholder="Opcionális, minden feltoltott kephez ugyanaz kerul"
+            placeholder="Opcionális, minden feltöltött képre ugyanaz kerül"
           />
         </label>
 
         <label>
-          <span>Kezdo sorrend</span>
+          <span>Kezdő sorrend</span>
           <input
             type="number"
             min="1"
@@ -250,7 +250,7 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
 
         <div className="soho-admin-form-actions">
           <button type="submit" disabled={state.type === "saving"}>
-            {state.type === "saving" ? state.message : "Galeria kepek feltoltese es mentese"}
+            {state.type === "saving" ? state.message : "Képek feltöltése"}
           </button>
         </div>
 

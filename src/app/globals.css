@@ -1045,6 +1045,10 @@ textarea {
   padding-bottom: 2rem;
 }
 
+.soho-admin-head-clean {
+  padding-bottom: 1.25rem;
+}
+
 .soho-admin-head h1 {
   margin: 0;
   font-size: clamp(2.2rem, 4vw, 3.8rem);
@@ -1079,6 +1083,40 @@ textarea {
   margin-bottom: 1.25rem;
 }
 
+.soho-admin-quickstart,
+.soho-admin-section {
+  margin-bottom: 1.5rem;
+}
+
+.soho-admin-section-header {
+  margin-bottom: 1rem;
+}
+
+.soho-admin-section-header h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 2.6vw, 2.6rem);
+  text-transform: uppercase;
+  line-height: 0.98;
+}
+
+.soho-admin-section-header p,
+.soho-admin-muted,
+.soho-admin-step-list,
+.soho-admin-summary-card p,
+.soho-admin-details summary,
+.soho-admin-code {
+  font-family: var(--font-body), sans-serif;
+  letter-spacing: 0;
+}
+
+.soho-admin-section-header p,
+.soho-admin-muted,
+.soho-admin-summary-card p {
+  margin: 0.45rem 0 0;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.7;
+}
+
 .soho-admin-card,
 .soho-admin-section-card {
   border-radius: 24px;
@@ -1088,6 +1126,17 @@ textarea {
 
 .soho-admin-card {
   padding: 1.25rem;
+}
+
+.soho-admin-summary-card {
+  padding: 1.25rem;
+  border-radius: 24px;
+  border: 1px solid rgba(208, 214, 13, 0.18);
+  background: rgba(208, 214, 13, 0.06);
+}
+
+.soho-admin-summary-card h2 {
+  margin: 0 0 0.75rem;
 }
 
 .soho-admin-card h2,
@@ -1110,6 +1159,17 @@ textarea {
   align-items: center;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
+}
+
+.soho-admin-step-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.7;
+}
+
+.soho-admin-step-list li + li {
+  margin-top: 0.55rem;
 }
 
 .soho-admin-list {
@@ -1424,6 +1484,33 @@ textarea {
   background: rgba(255, 255, 255, 0.03);
   color: #ffffff;
   padding: 0 1rem;
+}
+
+.soho-admin-code {
+  display: block;
+  margin-top: 0.85rem;
+  color: #d0d60d;
+  overflow-wrap: anywhere;
+}
+
+.soho-admin-details {
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 1.15rem 1.25rem 0;
+}
+
+.soho-admin-details summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 1.2rem;
+  color: #ffffff;
+  padding-bottom: 1.15rem;
+}
+
+.soho-admin-details[open] summary {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 1.25rem;
 }
 
 .soho-admin-footnote {

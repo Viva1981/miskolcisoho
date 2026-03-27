@@ -31,13 +31,13 @@ export function AdminGalleryAlbumForm() {
     if (!coverFile) {
       setState({
         type: "error",
-        message: "Valassz ki egy dedikalt boritokept az albumhoz.",
+        message: "Válassz ki egy dedikált borítóképet az albumhoz.",
       });
       return;
     }
 
     try {
-      setState({ type: "saving", message: "Galeria mappa letrehozasa a Drive-ban..." });
+      setState({ type: "saving", message: "Galéria mappa létrehozása a Drive-ban..." });
 
       const folderResponse = await fetch("/api/admin/create-drive-folder", {
         method: "POST",
@@ -59,12 +59,12 @@ export function AdminGalleryAlbumForm() {
       if (!folderResponse.ok || !folderResult.ok || !folderResult.folderId) {
         setState({
           type: "error",
-          message: folderResult.error ?? "Nem sikerult letrehozni a galeria mappat a Drive-ban.",
+          message: folderResult.error ?? "Nem sikerült létrehozni a galéria mappát a Drive-ban.",
         });
         return;
       }
 
-      setState({ type: "saving", message: "Album boritokep feltoltese Drive-ba..." });
+      setState({ type: "saving", message: "Album borítókép feltöltése a Drive-ba..." });
       const base64 = await readFileAsBase64(coverFile);
 
       const uploadResponse = await fetch("/api/admin/upload-drive-file", {
@@ -95,12 +95,12 @@ export function AdminGalleryAlbumForm() {
       ) {
         setState({
           type: "error",
-          message: uploadResult.error ?? "Nem sikerult feltolteni az album boritokepet.",
+          message: uploadResult.error ?? "Nem sikerült feltölteni az album borítóképét.",
         });
         return;
       }
 
-      setState({ type: "saving", message: "Galeria album mentese a sheetbe..." });
+      setState({ type: "saving", message: "Galéria album mentése..." });
 
       const response = await fetch("/api/admin/content", {
         method: "POST",
@@ -131,7 +131,7 @@ export function AdminGalleryAlbumForm() {
       if (!response.ok || !result.ok) {
         setState({
           type: "error",
-          message: result.error ?? "Nem sikerult elmenteni a galeria albumot.",
+          message: result.error ?? "Nem sikerült elmenteni a galéria albumot.",
         });
         return;
       }
@@ -146,13 +146,13 @@ export function AdminGalleryAlbumForm() {
       setFileInputKey((current) => current + 1);
       setState({
         type: "success",
-        message: "A galeria album, a sajat mappa es a dedikalt boritokep sikeresen letrejott.",
+        message: "A galéria album, a saját mappa és a dedikált borítókép sikeresen létrejött.",
       });
       router.refresh();
     } catch (error) {
       setState({
         type: "error",
-        message: error instanceof Error ? error.message : "Ismeretlen hiba tortent.",
+        message: error instanceof Error ? error.message : "Ismeretlen hiba történt.",
       });
     }
   }
@@ -161,23 +161,22 @@ export function AdminGalleryAlbumForm() {
     <article className="soho-admin-card soho-admin-form-card">
       <div className="soho-admin-preview-head">
         <div>
-          <h2>Uj galeria album</h2>
+          <h2>Új galéria album</h2>
           <p>
-            Az urlap letrehozza az album sajat Drive mappajat, feltolti a dedikalt boritokept, majd
-            elmenti a `gallery_albums` sort. A boritokep nem jelenik meg automatikusan az album
-            belso kepelistajaban.
+            Hozd létre az albumot névvel, dátummal és borítóképpel. A rendszer automatikusan elkészíti az
+            album saját Drive mappáját.
           </p>
         </div>
       </div>
 
       <form className="soho-admin-form" onSubmit={handleSubmit}>
         <label>
-          <span>Cim</span>
+          <span>Album neve</span>
           <input
             type="text"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            placeholder="Peldaul: Soho Opening Night"
+            placeholder="Például: Soho Opening Night"
             required
           />
         </label>
@@ -189,12 +188,12 @@ export function AdminGalleryAlbumForm() {
               type="text"
               value={slug}
               onChange={(event) => setSlug(event.target.value)}
-              placeholder="Ha ures, automatikusan keszul"
+              placeholder="Ha üres, automatikusan készül"
             />
           </label>
 
           <label>
-            <span>Esemeny datuma</span>
+            <span>Esemény dátuma</span>
             <input
               type="date"
               value={eventDate}
@@ -205,18 +204,18 @@ export function AdminGalleryAlbumForm() {
         </div>
 
         <label>
-          <span>Leiras</span>
+          <span>Leírás</span>
           <input
             type="text"
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder="Rovid leiras az albumkartyahoz"
+            placeholder="Rövid leírás az albumkártyához"
             required
           />
         </label>
 
         <label>
-          <span>Dedikalt boritokep</span>
+          <span>Dedikált borítókép</span>
           <input
             key={fileInputKey}
             type="file"
@@ -240,7 +239,7 @@ export function AdminGalleryAlbumForm() {
           </label>
 
           <label className="soho-admin-checkbox">
-            <span>Publikalt</span>
+            <span>Publikált</span>
             <input
               type="checkbox"
               checked={published}
@@ -251,7 +250,7 @@ export function AdminGalleryAlbumForm() {
 
         <div className="soho-admin-form-actions">
           <button type="submit" disabled={state.type === "saving"}>
-            {state.type === "saving" ? state.message : "Galeria album letrehozasa"}
+            {state.type === "saving" ? state.message : "Galéria album létrehozása"}
           </button>
         </div>
 

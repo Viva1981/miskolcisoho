@@ -16,8 +16,29 @@ type Props = {
   editableFields: string[];
 };
 
+const FIELD_LABELS: Record<string, string> = {
+  id: "Azonosító",
+  title: "Cím",
+  text: "Leírás",
+  description: "Leírás",
+  caption: "Képaláírás",
+  date: "Dátum",
+  event_date: "Esemény dátuma",
+  time: "Időpont",
+  facebook_url: "Facebook link",
+  cover_drive_file_id: "Borítókép fájl",
+  cover_drive_url: "Borítókép link",
+  drive_folder_id: "Drive mappa",
+  drive_file_id: "Kép fájl",
+  drive_file_url: "Kép link",
+  published: "Publikált",
+  sort_order: "Sorrend",
+  album_id: "Album",
+  slug: "Slug",
+};
+
 function fieldLabel(field: string) {
-  return field.replaceAll("_", " ");
+  return FIELD_LABELS[field] ?? field.replaceAll("_", " ");
 }
 
 function fieldType(field: string) {
@@ -52,7 +73,7 @@ function Cell({ column, value }: { column: string; value: string }) {
   if (column.endsWith("_url") || column === "facebook_url") {
     return (
       <a href={value} target="_blank" rel="noreferrer" className="soho-admin-inline-link">
-        megnyitás
+        Megnyitás
       </a>
     );
   }
@@ -143,30 +164,27 @@ export function AdminPreviewTable({
         <div>
           <h2>{title}</h2>
           <p>
-            Forrás: <strong>{source}</strong>
+            Forrás: <strong>{source === "apps-script" ? "élő kapcsolat" : source}</strong>
           </p>
         </div>
         <span className={`soho-admin-status-chip ${ok ? "is-ok" : "is-error"}`}>
-          {ok ? "kapcsolódva" : "hiba"}
+          {ok ? "Kapcsolódva" : "Hiba"}
         </span>
       </div>
 
       {!ok ? (
         <p className="soho-admin-error">{error ?? "Ismeretlen hiba."}</p>
       ) : rows.length === 0 ? (
-        <p className="soho-admin-empty">
-          Még nincs adat ebben a forrásban. Ez jó tesztállapot: az élő kapcsolat működik, csak a
-          sheet még üres.
-        </p>
+        <p className="soho-admin-empty">Még nincs adat ebben a blokkban.</p>
       ) : (
         <div className="soho-admin-table-wrap">
           <table className="soho-admin-table">
             <thead>
               <tr>
                 {columns.map((column) => (
-                  <th key={column}>{column}</th>
+                  <th key={column}>{fieldLabel(column)}</th>
                 ))}
-                <th>művelet</th>
+                <th>Művelet</th>
               </tr>
             </thead>
             <tbody>
@@ -195,7 +213,7 @@ export function AdminPreviewTable({
                             }
                             disabled={isPending || activeRowId === rowId}
                           >
-                            {published === "true" ? "publikált" : "rejtett"}
+                            {published === "true" ? "Publikált" : "Rejtett"}
                           </button>
                         ) : null}
 
@@ -211,7 +229,7 @@ export function AdminPreviewTable({
                               }
                               disabled={isPending || activeRowId === rowId}
                             >
-                              sorrend -
+                              Sorrend -
                             </button>
                             <button
                               type="button"
@@ -223,7 +241,7 @@ export function AdminPreviewTable({
                               }
                               disabled={isPending || activeRowId === rowId}
                             >
-                              sorrend +
+                              Sorrend +
                             </button>
                           </>
                         ) : null}
@@ -234,7 +252,7 @@ export function AdminPreviewTable({
                           onClick={() => openEditor(row)}
                           disabled={isPending || activeRowId === rowId}
                         >
-                          szerkesztés
+                          Szerkesztés
                         </button>
                         <button
                           type="button"
@@ -242,7 +260,7 @@ export function AdminPreviewTable({
                           onClick={() => handleDelete(rowId)}
                           disabled={isPending || activeRowId === rowId}
                         >
-                          {activeRowId === rowId ? "folyamat..." : "törlés"}
+                          {activeRowId === rowId ? "Folyamat..." : "Törlés"}
                         </button>
                       </div>
                     </td>
@@ -267,11 +285,11 @@ export function AdminPreviewTable({
               <div>
                 <h2>Sor szerkesztése</h2>
                 <p>
-                  ID: <strong>{editingRow.id}</strong>
+                  Azonosító: <strong>{editingRow.id}</strong>
                 </p>
               </div>
               <button type="button" className="soho-admin-row-action" onClick={closeEditor}>
-                bezárás
+                Bezárás
               </button>
             </div>
 
@@ -329,7 +347,7 @@ export function AdminPreviewTable({
 
               <div className="soho-admin-form-actions">
                 <button type="submit" disabled={isPending || activeRowId === editingRow.id}>
-                  {activeRowId === editingRow.id ? "mentés..." : "módosítás mentése"}
+                  {activeRowId === editingRow.id ? "Mentés..." : "Módosítás mentése"}
                 </button>
               </div>
             </form>

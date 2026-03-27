@@ -37,7 +37,7 @@ export function AdminEventForm() {
     }
 
     try {
-      setState({ type: "saving", message: "Esemény mappa létrehozása a Drive-ban..." });
+      setState({ type: "saving", message: "Eseménymappa létrehozása a Drive-ban..." });
 
       const folderResponse = await fetch("/api/admin/create-drive-folder", {
         method: "POST",
@@ -64,7 +64,7 @@ export function AdminEventForm() {
         return;
       }
 
-      setState({ type: "saving", message: "Borítókép feltöltése Drive-ba..." });
+      setState({ type: "saving", message: "Borítókép feltöltése a Drive-ba..." });
       const base64 = await readFileAsBase64(file);
 
       const uploadResponse = await fetch("/api/admin/upload-drive-file", {
@@ -100,7 +100,7 @@ export function AdminEventForm() {
         return;
       }
 
-      setState({ type: "saving", message: "Esemény mentése a sheetbe..." });
+      setState({ type: "saving", message: "Esemény mentése..." });
 
       const response = await fetch("/api/admin/content", {
         method: "POST",
@@ -161,7 +161,10 @@ export function AdminEventForm() {
       <div className="soho-admin-preview-head">
         <div>
           <h2>Új esemény</h2>
-          <p>Az űrlap létrehozza az esemény saját Drive mappáját, feltölti a borítóképet, majd menti az `events` sort.</p>
+          <p>
+            Add meg az esemény fő adatait, válassz borítóképet, és a rendszer automatikusan létrehozza a
+            szükséges Drive mappát is.
+          </p>
         </div>
       </div>
 
@@ -184,7 +187,7 @@ export function AdminEventForm() {
           </label>
 
           <label>
-            <span>Idő</span>
+            <span>Időpont</span>
             <input type="time" value={time} onChange={(event) => setTime(event.target.value)} required />
           </label>
         </div>

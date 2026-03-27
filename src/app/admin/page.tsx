@@ -14,66 +14,6 @@ import {
   getGoogleSheetUrl,
 } from "@/lib/content-config";
 
-const adminSections = [
-  {
-    id: "events",
-    title: "Főoldali események",
-    description:
-      "Ezek adják a hero alatti eseménykártyákat. Cím, dátum, idő, Facebook link és borítókép is innen jön.",
-    fields: [
-      "title",
-      "date",
-      "time",
-      "facebook_url",
-      "cover_drive_file_id",
-      "cover_drive_url",
-      "published",
-      "sort_order",
-    ],
-  },
-  {
-    id: "facebook-feed",
-    title: "Kövess minket Facebookon",
-    description:
-      "A feed kártyák címe, szövege, borítója és a Facebook link is külön kezelhető adatsorként van tárolva.",
-    fields: [
-      "title",
-      "text",
-      "facebook_url",
-      "cover_drive_file_id",
-      "cover_drive_url",
-      "published",
-      "sort_order",
-    ],
-  },
-  {
-    id: "gallery",
-    title: "Galéria albumok",
-    description:
-      "A galéria kétszintű: album metaadatok külön, az albumon belüli képek külön. Ezért később jól skálázható marad az admin.",
-    fields: [
-      "title",
-      "slug",
-      "event_date",
-      "description",
-      "drive_folder_id",
-      "cover_drive_file_id",
-      "cover_drive_url",
-      "published",
-      "sort_order",
-    ],
-  },
-] as const;
-
-const apiActions = [
-  "GET_CONTENT",
-  "CREATE_ROW",
-  "UPDATE_ROW",
-  "DELETE_ROW",
-  "CREATE_DRIVE_FOLDER",
-  "UPLOAD_DRIVE_FILE",
-] as const;
-
 export default async function AdminPage() {
   const config = getContentConfig();
   const appsScriptReady = isAppsScriptConfigured();
@@ -97,253 +37,277 @@ export default async function AdminPage() {
 
       <section className="soho-admin-shell">
         <div className="soho-admin-wrap">
-          <div className="soho-admin-head">
+          <div className="soho-admin-head soho-admin-head-clean">
             <div>
-              <span className="soho-gallery-kicker">Admin Architecture</span>
-              <h1>Admin előkészítés</h1>
+              <span className="soho-gallery-kicker">Tartalomkezelő</span>
+              <h1>Admin felület</h1>
               <p>
-                Ez már a végleges adatút szerinti admin alap: a főoldali események, a Facebook
-                feed és a galéria egy közös tartalommodellre készülnek, amelyet Apps Scripten
-                keresztül a Google Sheetekből és Drive-ból olvasunk és írunk.
+                Itt tudod kezelni a főoldali eseményeket, a Facebook blokkot és a galériákat. A
+                cél az, hogy minden fontos művelet néhány egyértelmű lépésből álljon, technikai
+                háttértudás nélkül is.
               </p>
             </div>
 
-            <div className="soho-gallery-source-card">
-              <strong>Drive gyökér</strong>
-              <a
-                href={getGoogleDriveFolderUrl(config.driveRootFolderId)}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Soho_Content mappa
-              </a>
-              <code>{config.driveRootFolderId}</code>
-            </div>
-          </div>
-
-          <div className="soho-admin-grid">
-            <article className="soho-admin-card">
-              <h2>Kapcsolt sheetek</h2>
-              <div className="soho-admin-link-list">
-                <a href={getGoogleSheetUrl(config.sheets.events)} target="_blank" rel="noreferrer">
-                  events
-                </a>
-                <a
-                  href={getGoogleSheetUrl(config.sheets.facebookFeed)}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  facebook_feed
-                </a>
-                <a
-                  href={getGoogleSheetUrl(config.sheets.galleryAlbums)}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  gallery_albums
-                </a>
-                <a
-                  href={getGoogleSheetUrl(config.sheets.galleryImages)}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  gallery_images
-                </a>
-              </div>
-            </article>
-
-            <article className="soho-admin-card">
-              <h2>Apps Script státusz</h2>
+            <article className="soho-admin-summary-card">
+              <h2>Kapcsolódás</h2>
               <p>
                 {appsScriptReady
-                  ? "A környezeti változók be vannak állítva, a projekt készen áll az élő Apps Script kapcsolatra."
-                  : "Még nincs beállítva a Web App URL vagy a shared secret, ezért most mock adatokkal dolgozik a projekt."}
+                  ? "A rendszer élő Google Drive és Google Sheets kapcsolattal működik."
+                  : "Az élő kapcsolat még nincs teljesen beállítva, ezért a felület nem tud menteni."}
               </p>
-              <div className="soho-admin-tag-block">
-                <span>{appsScriptReady ? "apps-script-ready" : "mock-mode"}</span>
-              </div>
+              <span className={`soho-admin-status-chip ${appsScriptReady ? "is-ok" : "is-error"}`}>
+                {appsScriptReady ? "Kapcsolódva" : "Nincs kapcsolat"}
+              </span>
             </article>
           </div>
 
-          <div className="soho-admin-grid">
-            <AdminEventForm />
-
-            <AdminPreviewTable
-              title="Events előnézet"
-              resource="events"
-              source={eventsResult.source}
-              ok={eventsResult.ok}
-              error={eventsResult.error}
-              rows={eventsResult.data}
-              columns={[
-                "id",
-                "title",
-                "date",
-                "time",
-                "facebook_url",
-                "cover_drive_file_id",
-                "published",
-                "sort_order",
-              ]}
-              editableFields={[
-                "title",
-                "date",
-                "time",
-                "facebook_url",
-                "cover_drive_file_id",
-                "cover_drive_url",
-                "published",
-                "sort_order",
-              ]}
-            />
-          </div>
-
-          <div className="soho-admin-grid">
-            <AdminFacebookFeedForm />
-
-            <AdminPreviewTable
-              title="Facebook feed előnézet"
-              resource="facebook_feed"
-              source={facebookFeedResult.source}
-              ok={facebookFeedResult.ok}
-              error={facebookFeedResult.error}
-              rows={facebookFeedResult.data}
-              columns={[
-                "id",
-                "title",
-                "text",
-                "facebook_url",
-                "cover_drive_file_id",
-                "published",
-                "sort_order",
-              ]}
-              editableFields={[
-                "title",
-                "text",
-                "facebook_url",
-                "cover_drive_file_id",
-                "cover_drive_url",
-                "published",
-                "sort_order",
-              ]}
-            />
-          </div>
-
-          <div className="soho-admin-grid">
-            <AdminGalleryAlbumForm />
-
-            <AdminPreviewTable
-              title="Galéria albumok előnézet"
-              resource="gallery_albums"
-              source={galleryAlbumsResult.source}
-              ok={galleryAlbumsResult.ok}
-              error={galleryAlbumsResult.error}
-              rows={galleryAlbumsResult.data}
-              columns={[
-                "id",
-                "slug",
-                "title",
-                "event_date",
-                "drive_folder_id",
-                "published",
-                "sort_order",
-              ]}
-              editableFields={[
-                "slug",
-                "title",
-                "event_date",
-                "description",
-                "drive_folder_id",
-                "cover_drive_file_id",
-                "cover_drive_url",
-                "published",
-                "sort_order",
-              ]}
-            />
-          </div>
-
-          <div className="soho-admin-grid">
-            <AdminGalleryImageForm albumOptions={galleryAlbumOptions} />
-
-            <AdminPreviewTable
-              title="Galéria képek előnézet"
-              resource="gallery_images"
-              source={galleryImagesResult.source}
-              ok={galleryImagesResult.ok}
-              error={galleryImagesResult.error}
-              rows={galleryImagesResult.data}
-              columns={[
-                "id",
-                "album_id",
-                "drive_file_id",
-                "drive_file_url",
-                "caption",
-                "sort_order",
-              ]}
-              editableFields={[
-                "album_id",
-                "drive_file_id",
-                "drive_file_url",
-                "caption",
-                "sort_order",
-              ]}
-            />
-          </div>
-
-          <div className="soho-admin-grid">
+          <div className="soho-admin-quickstart">
             <article className="soho-admin-card">
-              <h2>API teszt linkek</h2>
-              <div className="soho-admin-link-list">
-                <Link href="/api/admin/content?resource=events">API minta: events</Link>
-                <Link href="/api/admin/content?resource=facebook_feed">
-                  API minta: facebook_feed
-                </Link>
-                <Link href="/api/admin/content?resource=gallery_albums">
-                  API minta: gallery_albums
-                </Link>
-                <Link href="/api/admin/content?resource=gallery_images">
-                  API minta: gallery_images
-                </Link>
-              </div>
+              <h2>Gyors indulás</h2>
+              <ol className="soho-admin-step-list">
+                <li>Eseményhez vagy Facebook kártyához először töltsd ki az űrlapot.</li>
+                <li>Galériánál előbb hozz létre egy albumot, utána tölts fel képeket hozzá.</li>
+                <li>A jobb oldali listákban azonnal szerkesztheted, rejtheted vagy törölheted a tartalmat.</li>
+              </ol>
             </article>
 
             <article className="soho-admin-card">
-              <h2>Adatmodell pillanatkép</h2>
-              <div className="soho-admin-section-list">
-                {adminSections.map((section) => (
-                  <div key={section.id} className="soho-admin-section-item">
-                    <h3>{section.title}</h3>
-                    <p>{section.description}</p>
-                    <ul>
-                      {section.fields.map((field) => (
-                        <li key={field}>{field}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
+              <h2>Fontos tudnivaló</h2>
+              <p className="soho-admin-muted">
+                A mentés után a publikus oldal automatikusan frissül. Ha több galériaképet töltesz
+                fel egyszerre, a rendszer egymás után végigfut rajtuk.
+              </p>
             </article>
           </div>
 
-          <div className="soho-admin-grid">
-            <article className="soho-admin-card">
-              <h2>Apps Script műveletek</h2>
-              <div className="soho-admin-tag-block">
-                {apiActions.map((action) => (
-                  <span key={action}>{action}</span>
-                ))}
+          <section className="soho-admin-section">
+            <div className="soho-admin-section-header">
+              <div>
+                <span className="soho-gallery-kicker">Főoldal</span>
+                <h2>Események</h2>
+                <p>Új esemény létrehozása, borítókép feltöltése és a meglévő események kezelése.</p>
               </div>
-            </article>
+            </div>
 
-            <article className="soho-admin-card">
-              <h2>Következő lépések</h2>
-              <ul className="soho-admin-next-steps">
-                <li>Az admin táblákban most már gyors publikálás és sorrend állítás is működik.</li>
-                <li>A previewk már kattintható linkeket és Drive thumbnail képeket mutatnak.</li>
-                <li>A következő kör lehet a tömeges rendezés vagy drag-and-drop sorrendezés.</li>
-              </ul>
-            </article>
-          </div>
+            <div className="soho-admin-grid">
+              <AdminEventForm />
+
+              <AdminPreviewTable
+                title="Létező események"
+                resource="events"
+                source={eventsResult.source}
+                ok={eventsResult.ok}
+                error={eventsResult.error}
+                rows={eventsResult.data}
+                columns={[
+                  "id",
+                  "title",
+                  "date",
+                  "time",
+                  "facebook_url",
+                  "cover_drive_file_id",
+                  "published",
+                  "sort_order",
+                ]}
+                editableFields={[
+                  "title",
+                  "date",
+                  "time",
+                  "facebook_url",
+                  "cover_drive_file_id",
+                  "cover_drive_url",
+                  "published",
+                  "sort_order",
+                ]}
+              />
+            </div>
+          </section>
+
+          <section className="soho-admin-section">
+            <div className="soho-admin-section-header">
+              <div>
+                <span className="soho-gallery-kicker">Főoldal</span>
+                <h2>Facebook blokk</h2>
+                <p>A “Kövess minket Facebookon” rész elemei képpel, szöveggel és hivatkozással.</p>
+              </div>
+            </div>
+
+            <div className="soho-admin-grid">
+              <AdminFacebookFeedForm />
+
+              <AdminPreviewTable
+                title="Facebook elemek"
+                resource="facebook_feed"
+                source={facebookFeedResult.source}
+                ok={facebookFeedResult.ok}
+                error={facebookFeedResult.error}
+                rows={facebookFeedResult.data}
+                columns={[
+                  "id",
+                  "title",
+                  "text",
+                  "facebook_url",
+                  "cover_drive_file_id",
+                  "published",
+                  "sort_order",
+                ]}
+                editableFields={[
+                  "title",
+                  "text",
+                  "facebook_url",
+                  "cover_drive_file_id",
+                  "cover_drive_url",
+                  "published",
+                  "sort_order",
+                ]}
+              />
+            </div>
+          </section>
+
+          <section className="soho-admin-section">
+            <div className="soho-admin-section-header">
+              <div>
+                <span className="soho-gallery-kicker">Galéria</span>
+                <h2>Albumok és képek</h2>
+                <p>
+                  Először hozz létre egy új albumot borítóképpel, utána töltsd fel hozzá a galéria
+                  képeit.
+                </p>
+              </div>
+            </div>
+
+            <div className="soho-admin-grid">
+              <AdminGalleryAlbumForm />
+
+              <AdminPreviewTable
+                title="Galéria albumok"
+                resource="gallery_albums"
+                source={galleryAlbumsResult.source}
+                ok={galleryAlbumsResult.ok}
+                error={galleryAlbumsResult.error}
+                rows={galleryAlbumsResult.data}
+                columns={[
+                  "id",
+                  "slug",
+                  "title",
+                  "event_date",
+                  "drive_folder_id",
+                  "published",
+                  "sort_order",
+                ]}
+                editableFields={[
+                  "slug",
+                  "title",
+                  "event_date",
+                  "description",
+                  "drive_folder_id",
+                  "cover_drive_file_id",
+                  "cover_drive_url",
+                  "published",
+                  "sort_order",
+                ]}
+              />
+            </div>
+
+            <div className="soho-admin-grid">
+              <AdminGalleryImageForm albumOptions={galleryAlbumOptions} />
+
+              <AdminPreviewTable
+                title="Galéria képek"
+                resource="gallery_images"
+                source={galleryImagesResult.source}
+                ok={galleryImagesResult.ok}
+                error={galleryImagesResult.error}
+                rows={galleryImagesResult.data}
+                columns={[
+                  "id",
+                  "album_id",
+                  "drive_file_id",
+                  "drive_file_url",
+                  "caption",
+                  "sort_order",
+                ]}
+                editableFields={[
+                  "album_id",
+                  "drive_file_id",
+                  "drive_file_url",
+                  "caption",
+                  "sort_order",
+                ]}
+              />
+            </div>
+          </section>
+
+          <details className="soho-admin-details">
+            <summary>Haladó nézet és rendszerinformációk</summary>
+
+            <div className="soho-admin-grid">
+              <article className="soho-admin-card">
+                <h2>Kapcsolt táblák</h2>
+                <div className="soho-admin-link-list">
+                  <a href={getGoogleSheetUrl(config.sheets.events)} target="_blank" rel="noreferrer">
+                    events
+                  </a>
+                  <a
+                    href={getGoogleSheetUrl(config.sheets.facebookFeed)}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    facebook_feed
+                  </a>
+                  <a
+                    href={getGoogleSheetUrl(config.sheets.galleryAlbums)}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    gallery_albums
+                  </a>
+                  <a
+                    href={getGoogleSheetUrl(config.sheets.galleryImages)}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    gallery_images
+                  </a>
+                </div>
+              </article>
+
+              <article className="soho-admin-card">
+                <h2>Drive gyökér</h2>
+                <div className="soho-admin-link-list">
+                  <a
+                    href={getGoogleDriveFolderUrl(config.driveRootFolderId)}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Soho_Content mappa megnyitása
+                  </a>
+                </div>
+                <code className="soho-admin-code">{config.driveRootFolderId}</code>
+              </article>
+            </div>
+
+            <div className="soho-admin-grid">
+              <article className="soho-admin-card">
+                <h2>API teszt linkek</h2>
+                <div className="soho-admin-link-list">
+                  <Link href="/api/admin/content?resource=events">events</Link>
+                  <Link href="/api/admin/content?resource=facebook_feed">facebook_feed</Link>
+                  <Link href="/api/admin/content?resource=gallery_albums">gallery_albums</Link>
+                  <Link href="/api/admin/content?resource=gallery_images">gallery_images</Link>
+                </div>
+              </article>
+
+              <article className="soho-admin-card">
+                <h2>Segítség</h2>
+                <ul className="soho-admin-step-list">
+                  <li>Ha valami nem jelenik meg az oldalon, frissíts rá egyszer az adminra is.</li>
+                  <li>Galéria képnél az album kiválasztása automatikusan kitölti a Drive mappát.</li>
+                  <li>A táblákban a publikálás és a sorrend gyorsgombokkal is módosítható.</li>
+                </ul>
+              </article>
+            </div>
+          </details>
         </div>
       </section>
     </main>
