@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState, useTransition } from "react";
+import { FormEvent, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import type { AdminResource } from "@/lib/admin-resources";
@@ -51,34 +51,41 @@ function fieldType(field: string) {
 }
 
 function driveThumbnail(fileId: string) {
-  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w240`;
+  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
 }
 
-function Cell({ column, value }: { column: string; value: string }) {
-  if (!value) return <>-</>;
+function getImageId(row: Record<string, string>) {
+  return row.cover_drive_file_id || row.drive_file_id || "";
+}
 
-  if (column === "published") {
-    return <>{value === "true" ? "igen" : "nem"}</>;
+function getCardTitle(row: Record<string, string>, resource: AdminResource) {
+  if (resource === "gallery_images") {
+    return row.caption || row.id || "Galéria kép";
   }
 
-  if (column === "cover_drive_file_id" || column === "drive_file_id") {
-    return (
-      <div className="soho-admin-cell-stack">
-        <img className="soho-admin-thumb" src={driveThumbnail(value)} alt="" loading="lazy" />
-        <code>{value}</code>
-      </div>
-    );
+  return row.title || row.id || "Névtelen elem";
+}
+
+function getCardSubtitle(row: Record<string, string>, resource: AdminResource) {
+  if (resource === "events") {
+    const date = row.date || "";
+    const time = row.time || "";
+    return [date, time].filter(Boolean).join(" • ");
   }
 
-  if (column.endsWith("_url") || column === "facebook_url") {
-    return (
-      <a href={value} target="_blank" rel="noreferrer" className="soho-admin-inline-link">
-        Megnyitás
-      </a>
-    );
+  if (resource === "gallery_albums") {
+    return row.event_date || "";
   }
 
-  return <>{value}</>;
+  if (resource === "gallery_images") {
+    return row.album_id || "";
+  }
+
+  return row.facebook_url ? "Facebook elem" : "";
+}
+
+function formatPublished(value: string | undefined) {
+  return value === "true" ? "Publikált" : "Rejtett";
 }
 
 export function AdminPreviewTable({
@@ -88,7 +95,6 @@ export function AdminPreviewTable({
   ok,
   error,
   rows,
-  columns,
   editableFields,
 }: Props) {
   const router = useRouter();
@@ -99,6 +105,7 @@ export function AdminPreviewTable({
   const [formValues, setFormValues] = useState<Record<string, string>>({});
 
   const editingRow = rows.find((row) => row.id === editingRowId) ?? null;
+  const previewRows = useMemo(() => rows.slice(0, 12), [rows]);
 
   async function runMutation(method: "PUT" | "DELETE", id: string, payload?: Record<string, string>) {
     setActionError("");
@@ -124,7 +131,7 @@ export function AdminPreviewTable({
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Biztosan törölni szeretnéd ezt a sort?")) return;
+    if (!window.confirm("Biztosan törölni szeretnéd ezt az elemet?")) return;
     await runMutation("DELETE", id);
   }
 
@@ -168,7 +175,7 @@ export function AdminPreviewTable({
           </p>
         </div>
         <span className={`soho-admin-status-chip ${ok ? "is-ok" : "is-error"}`}>
-          {ok ? "Kapcsolódva" : "Hiba"}
+          {ok ? `${rows.length} elem` : "Hiba"}
         </span>
       </div>
 
@@ -177,98 +184,103 @@ export function AdminPreviewTable({
       ) : rows.length === 0 ? (
         <p className="soho-admin-empty">Még nincs adat ebben a blokkban.</p>
       ) : (
-        <div className="soho-admin-table-wrap">
-          <table className="soho-admin-table">
-            <thead>
-              <tr>
-                {columns.map((column) => (
-                  <th key={column}>{fieldLabel(column)}</th>
-                ))}
-                <th>Művelet</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.slice(0, 5).map((row) => {
-                const rowId = row.id ?? `${title}-${JSON.stringify(row)}`;
-                const published = row.published ?? "false";
-                const sortOrder = Number.parseInt(row.sort_order ?? "0", 10) || 0;
+        <div className="soho-admin-card-grid">
+          {previewRows.map((row) => {
+            const rowId = row.id ?? `${title}-${JSON.stringify(row)}`;
+            const imageId = getImageId(row);
+            const sortOrder = Number.parseInt(row.sort_order ?? "0", 10) || 0;
 
-                return (
-                  <tr key={rowId}>
-                    {columns.map((column) => (
-                      <td key={column}>
-                        <Cell column={column} value={row[column] || ""} />
-                      </td>
-                    ))}
-                    <td>
-                      <div className="soho-admin-row-actions">
-                        {"published" in row ? (
-                          <button
-                            type="button"
-                            className="soho-admin-row-action"
-                            onClick={() =>
-                              handleQuickUpdate(rowId, {
-                                published: published === "true" ? "false" : "true",
-                              })
-                            }
-                            disabled={isPending || activeRowId === rowId}
-                          >
-                            {published === "true" ? "Publikált" : "Rejtett"}
-                          </button>
-                        ) : null}
+            return (
+              <article key={rowId} className="soho-admin-item-card">
+                <button
+                  type="button"
+                  className="soho-admin-item-hitbox"
+                  onClick={() => openEditor(row)}
+                >
+                  <div className="soho-admin-item-media">
+                    {imageId ? (
+                      <img
+                        className="soho-admin-item-thumb"
+                        src={driveThumbnail(imageId)}
+                        alt=""
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="soho-admin-item-placeholder">Nincs kép</div>
+                    )}
+                  </div>
 
-                        {"sort_order" in row ? (
-                          <>
-                            <button
-                              type="button"
-                              className="soho-admin-row-action"
-                              onClick={() =>
-                                handleQuickUpdate(rowId, {
-                                  sort_order: String(Math.max(1, sortOrder - 10)),
-                                })
-                              }
-                              disabled={isPending || activeRowId === rowId}
-                            >
-                              Sorrend -
-                            </button>
-                            <button
-                              type="button"
-                              className="soho-admin-row-action"
-                              onClick={() =>
-                                handleQuickUpdate(rowId, {
-                                  sort_order: String(sortOrder + 10),
-                                })
-                              }
-                              disabled={isPending || activeRowId === rowId}
-                            >
-                              Sorrend +
-                            </button>
-                          </>
-                        ) : null}
+                  <div className="soho-admin-item-copy">
+                    <strong>{getCardTitle(row, resource)}</strong>
+                    {getCardSubtitle(row, resource) ? <span>{getCardSubtitle(row, resource)}</span> : null}
+                  </div>
+                </button>
 
-                        <button
-                          type="button"
-                          className="soho-admin-row-action"
-                          onClick={() => openEditor(row)}
-                          disabled={isPending || activeRowId === rowId}
-                        >
-                          Szerkesztés
-                        </button>
-                        <button
-                          type="button"
-                          className="soho-admin-row-action"
-                          onClick={() => handleDelete(rowId)}
-                          disabled={isPending || activeRowId === rowId}
-                        >
-                          {activeRowId === rowId ? "Folyamat..." : "Törlés"}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                <div className="soho-admin-item-actions">
+                  {"published" in row ? (
+                    <button
+                      type="button"
+                      className="soho-admin-row-action"
+                      onClick={() =>
+                        handleQuickUpdate(rowId, {
+                          published: row.published === "true" ? "false" : "true",
+                        })
+                      }
+                      disabled={isPending || activeRowId === rowId}
+                    >
+                      {formatPublished(row.published)}
+                    </button>
+                  ) : null}
+
+                  {"sort_order" in row ? (
+                    <>
+                      <button
+                        type="button"
+                        className="soho-admin-row-action"
+                        onClick={() =>
+                          handleQuickUpdate(rowId, {
+                            sort_order: String(Math.max(1, sortOrder - 10)),
+                          })
+                        }
+                        disabled={isPending || activeRowId === rowId}
+                      >
+                        Sorrend -
+                      </button>
+                      <button
+                        type="button"
+                        className="soho-admin-row-action"
+                        onClick={() =>
+                          handleQuickUpdate(rowId, {
+                            sort_order: String(sortOrder + 10),
+                          })
+                        }
+                        disabled={isPending || activeRowId === rowId}
+                      >
+                        Sorrend +
+                      </button>
+                    </>
+                  ) : null}
+
+                  <button
+                    type="button"
+                    className="soho-admin-row-action"
+                    onClick={() => openEditor(row)}
+                    disabled={isPending || activeRowId === rowId}
+                  >
+                    Szerkesztés
+                  </button>
+                  <button
+                    type="button"
+                    className="soho-admin-row-action"
+                    onClick={() => handleDelete(rowId)}
+                    disabled={isPending || activeRowId === rowId}
+                  >
+                    {activeRowId === rowId ? "Folyamat..." : "Törlés"}
+                  </button>
+                </div>
+              </article>
+            );
+          })}
         </div>
       )}
 
@@ -283,7 +295,7 @@ export function AdminPreviewTable({
           >
             <div className="soho-admin-preview-head">
               <div>
-                <h2>Sor szerkesztése</h2>
+                <h2>Szerkesztés</h2>
                 <p>
                   Azonosító: <strong>{editingRow.id}</strong>
                 </p>
