@@ -37,6 +37,7 @@ textarea {
   background: #000000;
   color: #ffffff;
   letter-spacing: 0.035em;
+  font-family: var(--font-display), sans-serif;
 }
 
 .soho-header {
