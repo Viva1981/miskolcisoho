@@ -67,17 +67,6 @@ function MailIcon() {
   );
 }
 
-function FacebookCircleIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c5.24 0 9.53-4.03 9.95-9.16h-7.03v3.3h-2.74v-3.3H9.96v-2.7h2.22V8.08c0-2.2 1.31-3.42 3.31-3.42.96 0 1.97.17 1.97.17v2.16h-1.11c-1.09 0-1.43.68-1.43 1.37v1.78h2.43l-.39 2.7h-2.04V22c5.01-1.4 8.67-6 8.67-11.01C22 6.48 17.52 2 12 2Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
 export default async function Home() {
   const [homepageEvents, facebookFeedItems] = await Promise.all([
     getHomepageEvents(),
@@ -131,11 +120,7 @@ export default async function Home() {
             />
 
             <div className="soho-facebook-profile-copy">
-              <strong>soho.miskolc</strong>
-              <span>
-                A Miskolci Soho Facebook tartalmai itt jelennek meg saját rácsos megjelenéssel.
-                Az adminban feltöltött képek, szövegek és linkek közvetlenül erre a blokkra érkeznek.
-              </span>
+              <strong>soho miskolc</strong>
             </div>
           </div>
 
@@ -147,6 +132,7 @@ export default async function Home() {
                 target="_blank"
                 rel="noreferrer"
                 className="soho-facebook-card link"
+                aria-label={item.title}
               >
                 <div className={`soho-facebook-thumb ${item.tone} ${item.coverImageUrl ? "has-image" : ""}`}>
                   {item.coverImageUrl ? (
@@ -157,20 +143,6 @@ export default async function Home() {
                       loading="lazy"
                     />
                   ) : null}
-                  <div className="soho-facebook-thumb-overlay">
-                    <span>{item.eyebrow}</span>
-                    <strong>{item.title}</strong>
-                  </div>
-                </div>
-
-                <div className="soho-facebook-card-copy">
-                  <p>{item.subtitle}</p>
-                  <div className="soho-facebook-link-row">
-                    <span className="soho-facebook-link-badge">
-                      <FacebookCircleIcon />
-                      <em>Facebook</em>
-                    </span>
-                  </div>
                 </div>
               </a>
             ))}

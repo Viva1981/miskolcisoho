@@ -381,10 +381,11 @@ textarea {
 .soho-facebook-avatar {
   width: 76px;
   height: 76px;
-  border-radius: 999px;
-  object-fit: cover;
-  background: #ffffff;
-  padding: 0.4rem;
+  border-radius: 18px;
+  object-fit: contain;
+  background: #000000;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .soho-facebook-profile-copy strong,
@@ -393,7 +394,6 @@ textarea {
   text-transform: uppercase;
 }
 
-.soho-facebook-profile-copy span,
 .soho-facebook-card-copy p,
 .soho-footer-brand p,
 .soho-footer-block a,
@@ -402,7 +402,6 @@ textarea {
   letter-spacing: 0;
 }
 
-.soho-facebook-profile-copy span,
 .soho-facebook-card-copy p {
   color: rgba(255, 255, 255, 0.9);
   line-height: 1.6;
@@ -422,7 +421,7 @@ textarea {
 }
 
 .soho-facebook-card.link {
-  display: grid;
+  display: block;
   transition:
     transform 180ms ease,
     border-color 180ms ease,
@@ -437,23 +436,11 @@ textarea {
 
 .soho-facebook-thumb {
   aspect-ratio: 1 / 1;
-  padding: 1rem 1rem 1.15rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  padding: 0;
+  display: block;
   background: linear-gradient(135deg, #3c6df0, #162344 62%, #090c14);
   position: relative;
   overflow: hidden;
-}
-
-.soho-facebook-thumb span {
-  font-size: 0.92rem;
-  letter-spacing: 0.18em;
-}
-
-.soho-facebook-thumb strong {
-  max-width: 8ch;
-  line-height: 0.95;
 }
 
 .soho-facebook-thumb-image {
@@ -464,7 +451,6 @@ textarea {
   object-fit: cover;
 }
 
-.soho-facebook-thumb-overlay,
 .soho-gallery-cover-overlay {
   position: relative;
   z-index: 1;
@@ -472,56 +458,6 @@ textarea {
   min-height: 100%;
   flex-direction: column;
   justify-content: space-between;
-}
-
-.soho-facebook-thumb.has-image::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.14), rgba(0, 0, 0, 0.78));
-}
-
-.soho-facebook-card-copy {
-  padding: 1rem 1rem 1.1rem;
-  display: grid;
-  gap: 0.9rem;
-}
-
-.soho-facebook-card-copy p {
-  margin: 0;
-  min-height: 3.2em;
-}
-
-.soho-facebook-link-row {
-  grid-auto-flow: column;
-  justify-content: start;
-}
-
-.soho-facebook-link-badge {
-  min-width: 138px;
-  min-height: 48px;
-  padding: 0 1rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  border-radius: 999px;
-  background: #ffffff;
-  color: #000000;
-  font-size: 1rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.soho-facebook-link-badge svg {
-  width: 20px;
-  height: 20px;
-  flex: 0 0 auto;
-}
-
-.soho-facebook-link-badge em {
-  font-style: normal;
-  line-height: 1;
 }
 
 .soho-facebook-thumb.lime {
