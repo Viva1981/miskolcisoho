@@ -91,10 +91,6 @@ function EventCard({
             loading={mobile ? "eager" : "lazy"}
           />
         ) : null}
-        <div className="soho-event-art-overlay">
-          <span>{event.coverImageUrl ? "Facebook event" : "Dummy event"}</span>
-          <strong>{event.title}</strong>
-        </div>
       </div>
 
       <div className="soho-event-body">
@@ -112,7 +108,12 @@ function EventCard({
         <h3>{event.title}</h3>
 
         <div className="soho-event-actions">
-          <a href={event.facebookUrl} target="_blank" rel="noreferrer" aria-label={`${event.title} Facebook esemény`}>
+          <a
+            href={event.facebookUrl}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`${event.title} Facebook esemény`}
+          >
             <FacebookIcon />
           </a>
         </div>
@@ -161,50 +162,58 @@ export function SohoEventsCarousel({ events }: SohoEventsCarouselProps) {
         <h2>Közelgő események</h2>
 
         <div className="soho-events-desktop">
-          <button
-            type="button"
-            className="soho-events-arrow left"
-            aria-label="Előző események"
-            onClick={goPrevious}
-          >
-            <ArrowLeftIcon />
-          </button>
-
           <div className="soho-events-grid">
             {desktopCards.map((event) => (
               <EventCard key={`${event.id}-desktop`} event={event} />
             ))}
           </div>
 
-          <button
-            type="button"
-            className="soho-events-arrow right"
-            aria-label="Következő események"
-            onClick={goNext}
-          >
-            <ArrowRightIcon />
-          </button>
+          {events.length > 1 ? (
+            <div className="soho-events-nav">
+              <button
+                type="button"
+                className="soho-events-arrow"
+                aria-label="Előző események"
+                onClick={goPrevious}
+              >
+                <ArrowLeftIcon />
+              </button>
+
+              <button
+                type="button"
+                className="soho-events-arrow"
+                aria-label="Következő események"
+                onClick={goNext}
+              >
+                <ArrowRightIcon />
+              </button>
+            </div>
+          ) : null}
         </div>
 
         <div className="soho-events-mobile">
           <EventCard key={`${mobileCard.id}-mobile`} event={mobileCard} mobile />
 
-          <button
-            type="button"
-            className="soho-events-arrow left"
-            aria-label="Előző esemény"
-            onClick={goPrevious}
-          >
-            <ArrowLeftIcon />
-          </button>
-          <button
-            type="button"
-            className="soho-events-arrow right"
-            aria-label="Következő esemény"
-            onClick={goNext}
-          >
-            <ArrowRightIcon />
-          </button>
+          {events.length > 1 ? (
+            <>
+              <button
+                type="button"
+                className="soho-events-arrow left"
+                aria-label="Előző esemény"
+                onClick={goPrevious}
+              >
+                <ArrowLeftIcon />
+              </button>
+              <button
+                type="button"
+                className="soho-events-arrow right"
+                aria-label="Következő esemény"
+                onClick={goNext}
+              >
+                <ArrowRightIcon />
+              </button>
+            </>
+          ) : null}
         </div>
       </div>
     </section>
