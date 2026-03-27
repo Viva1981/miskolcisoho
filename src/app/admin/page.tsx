@@ -2,8 +2,7 @@ import Link from "next/link";
 
 import { AdminEventForm } from "@/components/admin-event-form";
 import { AdminFacebookFeedForm } from "@/components/admin-facebook-feed-form";
-import { AdminGalleryAlbumForm } from "@/components/admin-gallery-album-form";
-import { AdminGalleryImageForm } from "@/components/admin-gallery-image-form";
+import { AdminGalleryWorkspace } from "@/components/admin-gallery-workspace";
 import { AdminPreviewTable } from "@/components/admin-preview-table";
 import { SohoHeader } from "@/components/soho-header";
 import { getAdminContent } from "@/lib/admin-content";
@@ -17,19 +16,11 @@ import {
 export default async function AdminPage() {
   const config = getContentConfig();
   const appsScriptReady = isAppsScriptConfigured();
-  const [eventsResult, facebookFeedResult, galleryAlbumsResult, galleryImagesResult] =
-    await Promise.all([
-      getAdminContent("events"),
-      getAdminContent("facebook_feed"),
-      getAdminContent("gallery_albums"),
-      getAdminContent("gallery_images"),
-    ]);
-
-  const galleryAlbumOptions = galleryAlbumsResult.data.map((album) => ({
-    id: album.id ?? "",
-    title: album.title ?? album.slug ?? album.id ?? "Névtelen album",
-    driveFolderId: album.drive_folder_id ?? "",
-  }));
+  const [eventsResult, facebookFeedResult, galleryAlbumsResult] = await Promise.all([
+    getAdminContent("events"),
+    getAdminContent("facebook_feed"),
+    getAdminContent("gallery_albums"),
+  ]);
 
   return (
     <main className="soho-landing">
@@ -42,8 +33,8 @@ export default async function AdminPage() {
               <span className="soho-gallery-kicker">Tartalomkezelő</span>
               <h1>Admin felület</h1>
               <p>
-                Itt tudod kezelni a főoldali eseményeket, a Facebook blokkot és a galériákat. A
-                cél az, hogy minden fontos művelet néhány egyértelmű lépésből álljon, technikai
+                Itt tudod kezelni a főoldali eseményeket, a Facebook blokkot és a galériákat. A cél
+                az, hogy minden fontos művelet néhány egyértelmű lépésből álljon, technikai
                 háttértudás nélkül is.
               </p>
             </div>
@@ -66,7 +57,7 @@ export default async function AdminPage() {
               <h2>Gyors indulás</h2>
               <ol className="soho-admin-step-list">
                 <li>Eseményhez vagy Facebook kártyához először töltsd ki az űrlapot.</li>
-                <li>Galériánál előbb hozz létre egy albumot, utána tölts fel képeket hozzá.</li>
+                <li>Galériánál előbb hozz létre egy albumot, utána válaszd ki és tölts fel képeket hozzá.</li>
                 <li>A jobb oldali listákban azonnal szerkesztheted, rejtheted vagy törölheted a tartalmat.</li>
               </ol>
             </article>
@@ -74,8 +65,8 @@ export default async function AdminPage() {
             <article className="soho-admin-card">
               <h2>Fontos tudnivaló</h2>
               <p className="soho-admin-muted">
-                A mentés után a publikus oldal automatikusan frissül. Ha több galériaképet töltesz
-                fel egyszerre, a rendszer egymás után végigfut rajtuk.
+                A publikus oldal automatikusan frissül mentés után. A galéria képei most már csak
+                albumválasztás után töltődnek be, ezért az admin újratöltése is gyorsabb lett.
               </p>
             </article>
           </div>
@@ -128,7 +119,7 @@ export default async function AdminPage() {
               <div>
                 <span className="soho-gallery-kicker">Főoldal</span>
                 <h2>Facebook blokk</h2>
-                <p>A “Kövess minket Facebookon” rész elemei képpel, szöveggel és hivatkozással.</p>
+                <p>A „Kövess minket Facebookon” rész elemei képpel, szöveggel és hivatkozással.</p>
               </div>
             </div>
 
@@ -164,79 +155,14 @@ export default async function AdminPage() {
             </div>
           </section>
 
-          <section className="soho-admin-section">
-            <div className="soho-admin-section-header">
-              <div>
-                <span className="soho-gallery-kicker">Galéria</span>
-                <h2>Albumok és képek</h2>
-                <p>
-                  Először hozz létre egy új albumot borítóképpel, utána töltsd fel hozzá a galéria
-                  képeit.
-                </p>
-              </div>
-            </div>
-
-            <div className="soho-admin-grid">
-              <AdminGalleryAlbumForm />
-
-              <AdminPreviewTable
-                title="Galéria albumok"
-                resource="gallery_albums"
-                source={galleryAlbumsResult.source}
-                ok={galleryAlbumsResult.ok}
-                error={galleryAlbumsResult.error}
-                rows={galleryAlbumsResult.data}
-                columns={[
-                  "id",
-                  "slug",
-                  "title",
-                  "event_date",
-                  "drive_folder_id",
-                  "published",
-                  "sort_order",
-                ]}
-                editableFields={[
-                  "slug",
-                  "title",
-                  "event_date",
-                  "description",
-                  "drive_folder_id",
-                  "cover_drive_file_id",
-                  "cover_drive_url",
-                  "published",
-                  "sort_order",
-                ]}
-              />
-            </div>
-
-            <div className="soho-admin-grid">
-              <AdminGalleryImageForm albumOptions={galleryAlbumOptions} />
-
-              <AdminPreviewTable
-                title="Galéria képek"
-                resource="gallery_images"
-                source={galleryImagesResult.source}
-                ok={galleryImagesResult.ok}
-                error={galleryImagesResult.error}
-                rows={galleryImagesResult.data}
-                columns={[
-                  "id",
-                  "album_id",
-                  "drive_file_id",
-                  "drive_file_url",
-                  "caption",
-                  "sort_order",
-                ]}
-                editableFields={[
-                  "album_id",
-                  "drive_file_id",
-                  "drive_file_url",
-                  "caption",
-                  "sort_order",
-                ]}
-              />
-            </div>
-          </section>
+          <AdminGalleryWorkspace
+            albumsResult={{
+              ok: galleryAlbumsResult.ok,
+              source: galleryAlbumsResult.source,
+              error: galleryAlbumsResult.error,
+              rows: galleryAlbumsResult.data,
+            }}
+          />
 
           <details className="soho-admin-details">
             <summary>Haladó nézet és rendszerinformációk</summary>
@@ -303,7 +229,7 @@ export default async function AdminPage() {
                 <ul className="soho-admin-step-list">
                   <li>Ha valami nem jelenik meg az oldalon, frissíts rá egyszer az adminra is.</li>
                   <li>Galéria képnél az album kiválasztása automatikusan kitölti a Drive mappát.</li>
-                  <li>A táblákban a publikálás és a sorrend gyorsgombokkal is módosítható.</li>
+                  <li>A gyorsgombokkal publikálást és sorrendet is tudsz módosítani.</li>
                 </ul>
               </article>
             </div>

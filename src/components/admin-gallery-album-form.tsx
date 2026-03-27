@@ -163,8 +163,8 @@ export function AdminGalleryAlbumForm() {
         <div>
           <h2>Új galéria album</h2>
           <p>
-            Hozd létre az albumot névvel, dátummal és borítóképpel. A rendszer automatikusan elkészíti az
-            album saját Drive mappáját.
+            Hozd létre az albumot névvel, dátummal és borítóképpel. A rendszer automatikusan
+            elkészíti az album saját Drive mappáját.
           </p>
         </div>
       </div>

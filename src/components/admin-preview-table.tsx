@@ -14,6 +14,7 @@ type Props = {
   rows: Record<string, string>[];
   columns: string[];
   editableFields: string[];
+  onChange?: () => Promise<void> | void;
 };
 
 const FIELD_LABELS: Record<string, string> = {
@@ -96,6 +97,7 @@ export function AdminPreviewTable({
   error,
   rows,
   editableFields,
+  onChange,
 }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -126,6 +128,11 @@ export function AdminPreviewTable({
     }
 
     setActiveRowId("");
+
+    if (onChange) {
+      await onChange();
+    }
+
     startTransition(() => router.refresh());
     return true;
   }

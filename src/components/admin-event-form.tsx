@@ -162,8 +162,8 @@ export function AdminEventForm() {
         <div>
           <h2>Új esemény</h2>
           <p>
-            Add meg az esemény fő adatait, válassz borítóképet, és a rendszer automatikusan létrehozza a
-            szükséges Drive mappát is.
+            Add meg az esemény fő adatait, válassz borítóképet, és a rendszer automatikusan
+            létrehozza a szükséges Drive mappát is.
           </p>
         </div>
       </div>

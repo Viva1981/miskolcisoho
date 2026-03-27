@@ -19,40 +19,48 @@ type AlbumOption = {
 
 type AdminGalleryImageFormProps = {
   albumOptions: AlbumOption[];
+  selectedAlbumId?: string;
+  onAlbumChange?: (albumId: string) => void;
+  onSuccess?: () => Promise<void> | void;
 };
 
 const INITIAL_SORT_ORDER = "10";
 
-export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormProps) {
+export function AdminGalleryImageForm({
+  albumOptions,
+  selectedAlbumId = "",
+  onAlbumChange,
+  onSuccess,
+}: AdminGalleryImageFormProps) {
   const router = useRouter();
   const [state, setState] = useState<SubmitState>({ type: "idle" });
-  const [albumId, setAlbumId] = useState("");
-  const [folderId, setFolderId] = useState("");
   const [caption, setCaption] = useState("");
   const [sortOrder, setSortOrder] = useState(INITIAL_SORT_ORDER);
   const [files, setFiles] = useState<File[]>([]);
   const [fileInputKey, setFileInputKey] = useState(0);
 
   const selectedAlbum = useMemo(
-    () => albumOptions.find((album) => album.id === albumId) ?? null,
-    [albumId, albumOptions],
+    () => albumOptions.find((album) => album.id === selectedAlbumId) ?? null,
+    [albumOptions, selectedAlbumId],
   );
+
+  const folderId = selectedAlbum?.driveFolderId ?? "";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!selectedAlbumId || !folderId) {
+      setState({
+        type: "error",
+        message: "Először válassz ki egy galéria albumot.",
+      });
+      return;
+    }
 
     if (files.length === 0) {
       setState({
         type: "error",
         message: "Válassz ki legalább egy képfájlt a feltöltéshez.",
-      });
-      return;
-    }
-
-    if (!folderId) {
-      setState({
-        type: "error",
-        message: "Válassz albumot vagy adj meg érvényes Drive mappa ID-t.",
       });
       return;
     }
@@ -115,7 +123,7 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
           body: JSON.stringify({
             resource: "gallery_images",
             payload: {
-              album_id: albumId,
+              album_id: selectedAlbumId,
               drive_file_id: uploadResult.fileId,
               drive_file_url: uploadResult.fileUrl,
               caption: caption.trim(),
@@ -138,8 +146,6 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
         }
       }
 
-      setAlbumId("");
-      setFolderId("");
       setCaption("");
       setSortOrder(INITIAL_SORT_ORDER);
       setFiles([]);
@@ -148,6 +154,11 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
         type: "success",
         message: `${files.length} kép sikeresen feltöltődött a Drive-ba és bekerült a galériába.`,
       });
+
+      if (onSuccess) {
+        await onSuccess();
+      }
+
       router.refresh();
     } catch (error) {
       setState({
@@ -173,13 +184,8 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
         <label>
           <span>Album</span>
           <select
-            value={albumId}
-            onChange={(event) => {
-              const nextAlbumId = event.target.value;
-              setAlbumId(nextAlbumId);
-              const nextAlbum = albumOptions.find((album) => album.id === nextAlbumId);
-              setFolderId(nextAlbum?.driveFolderId ?? "");
-            }}
+            value={selectedAlbumId}
+            onChange={(event) => onAlbumChange?.(event.target.value)}
             required
           >
             <option value="">Válassz albumot</option>
@@ -193,13 +199,7 @@ export function AdminGalleryImageForm({ albumOptions }: AdminGalleryImageFormPro
 
         <label>
           <span>Drive mappa ID</span>
-          <input
-            type="text"
-            value={folderId}
-            onChange={(event) => setFolderId(event.target.value)}
-            placeholder="Például: 1AbCdEf..."
-            required
-          />
+          <input type="text" value={folderId} readOnly placeholder="Automatikusan kitöltve" />
         </label>
 
         {selectedAlbum ? (
