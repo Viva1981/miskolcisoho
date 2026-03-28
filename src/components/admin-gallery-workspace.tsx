@@ -228,7 +228,7 @@ export function AdminGalleryWorkspace({
           error={galleryImagesResult.loading ? "Képek betöltése..." : galleryImagesResult.error}
           rows={filteredImageRows}
           columns={["id", "album_id", "drive_file_id", "drive_file_url", "caption", "sort_order"]}
-          editableFields={["album_id", "drive_file_id", "drive_file_url", "caption", "sort_order"]}
+          editableFields={["album_id", "drive_file_id", "drive_file_url", "sort_order"]}
           onChange={loadImages}
         />
       </div>

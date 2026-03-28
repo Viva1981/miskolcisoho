@@ -62,7 +62,7 @@ function getImageId(row: Record<string, string>) {
 
 function getCardTitle(row: Record<string, string>, resource: AdminResource) {
   if (resource === "gallery_images") {
-    return row.caption || row.id || "Galéria kép";
+    return "Galéria kép";
   }
 
   return row.title || row.id || "Névtelen elem";
@@ -80,7 +80,7 @@ function getCardSubtitle(row: Record<string, string>, resource: AdminResource) {
   }
 
   if (resource === "gallery_images") {
-    return row.album_id || "";
+    return "";
   }
 
   return row.facebook_url ? "Facebook elem" : "";

@@ -34,17 +34,15 @@ export function AdminGalleryImageForm({
 }: AdminGalleryImageFormProps) {
   const router = useRouter();
   const [state, setState] = useState<SubmitState>({ type: "idle" });
-  const [caption, setCaption] = useState("");
   const [sortOrder, setSortOrder] = useState(INITIAL_SORT_ORDER);
   const [files, setFiles] = useState<File[]>([]);
   const [fileInputKey, setFileInputKey] = useState(0);
 
-  const selectedAlbum = useMemo(
-    () => albumOptions.find((album) => album.id === selectedAlbumId) ?? null,
-    [albumOptions, selectedAlbumId],
-  );
-
-  const folderId = selectedAlbum?.driveFolderId ?? "";
+  const folderId =
+    useMemo(
+      () => albumOptions.find((album) => album.id === selectedAlbumId)?.driveFolderId ?? "",
+      [albumOptions, selectedAlbumId],
+    );
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -126,7 +124,7 @@ export function AdminGalleryImageForm({
               album_id: selectedAlbumId,
               drive_file_id: uploadResult.fileId,
               drive_file_url: uploadResult.fileUrl,
-              caption: caption.trim(),
+              caption: "",
               sort_order: String(normalizedSortOrder + index),
             },
           }),
@@ -146,7 +144,6 @@ export function AdminGalleryImageForm({
         }
       }
 
-      setCaption("");
       setSortOrder(INITIAL_SORT_ORDER);
       setFiles([]);
       setFileInputKey((current) => current + 1);
@@ -198,17 +195,6 @@ export function AdminGalleryImageForm({
         </label>
 
         <label>
-          <span>Drive mappa ID</span>
-          <input type="text" value={folderId} readOnly placeholder="Automatikusan kitöltve" />
-        </label>
-
-        {selectedAlbum ? (
-          <p className="soho-admin-form-message is-success">
-            Kiválasztott album: <strong>{selectedAlbum.title}</strong>
-          </p>
-        ) : null}
-
-        <label>
           <span>Képfájlok</span>
           <input
             key={fileInputKey}
@@ -225,16 +211,6 @@ export function AdminGalleryImageForm({
             Kiválasztott képek: <strong>{files.length} db</strong>
           </p>
         ) : null}
-
-        <label>
-          <span>Közös képaláírás</span>
-          <input
-            type="text"
-            value={caption}
-            onChange={(event) => setCaption(event.target.value)}
-            placeholder="Opcionális, minden feltöltött képre ugyanaz kerül"
-          />
-        </label>
 
         <label>
           <span>Kezdő sorrend</span>
