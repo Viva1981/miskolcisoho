@@ -16,8 +16,65 @@ const bebasNeue = Bebas_Neue({
 });
 
 export const metadata: Metadata = {
-  title: "Miskolci SOHO",
-  description: "Miskolci SOHO klub weboldal Google Drive-ra előkészített galériával",
+  metadataBase: new URL("https://miskolcisoho.vercel.app"),
+  title: {
+    default: "Miskolc Soho",
+    template: "%s | Miskolc Soho",
+  },
+  description:
+    "Miskolc Soho: események, galéria és közösségi élet Miskolc szívében. Nézd meg a közelgő bulikat, a friss tartalmakat és a galériákat.",
+  applicationName: "Miskolc Soho",
+  keywords: [
+    "Miskolc Soho",
+    "Soho Miskolc",
+    "miskolci programok",
+    "miskolci események",
+    "miskolci szórakozóhely",
+    "Miskolc klub",
+    "Miskolc galéria",
+    "Soho események",
+  ],
+  icons: {
+    icon: [
+      {
+        url: "/branding/soho_logo.png",
+        type: "image/png",
+      },
+    ],
+    shortcut: ["/branding/soho_logo.png"],
+    apple: [
+      {
+        url: "/branding/soho_logo.png",
+      },
+    ],
+  },
+  openGraph: {
+    type: "website",
+    locale: "hu_HU",
+    url: "https://miskolcisoho.vercel.app",
+    siteName: "Miskolc Soho",
+    title: "Miskolc Soho",
+    description:
+      "Események, galéria és közösségi élet Miskolcon. Kövesd a Miskolc Soho friss programjait és tartalmait.",
+    images: [
+      {
+        url: "/branding/soho_logo.png",
+        width: 1500,
+        height: 820,
+        alt: "Miskolc Soho logó",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Miskolc Soho",
+    description:
+      "Események, galéria és közösségi élet Miskolcon. Kövesd a Miskolc Soho friss programjait és tartalmait.",
+    images: ["/branding/soho_logo.png"],
+  },
+  alternates: {
+    canonical: "https://miskolcisoho.vercel.app",
+  },
 };
 
 export default function RootLayout({
