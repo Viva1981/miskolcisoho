@@ -108,6 +108,19 @@ function moveId(order: string[], draggedId: string, targetId: string) {
   return next;
 }
 
+function sortRows(rows: Record<string, string>[]) {
+  return [...rows].sort((left, right) => {
+    const leftOrder = Number.parseInt(left.sort_order ?? "", 10);
+    const rightOrder = Number.parseInt(right.sort_order ?? "", 10);
+
+    if (Number.isFinite(leftOrder) && Number.isFinite(rightOrder) && leftOrder !== rightOrder) {
+      return leftOrder - rightOrder;
+    }
+
+    return (left.title ?? left.id ?? "").localeCompare(right.title ?? right.id ?? "", "hu");
+  });
+}
+
 export function AdminPreviewTable({
   title,
   resource,
@@ -130,8 +143,8 @@ export function AdminPreviewTable({
   const [isReordering, setIsReordering] = useState(false);
   const dropHandledRef = useRef(false);
 
-  const editingRow = rows.find((row) => row.id === editingRowId) ?? null;
-  const baseRows = useMemo(() => rows, [rows]);
+  const baseRows = useMemo(() => sortRows(rows), [rows]);
+  const editingRow = baseRows.find((row) => row.id === editingRowId) ?? null;
 
   const displayRows = useMemo(() => {
     if (!dragOrder) {
