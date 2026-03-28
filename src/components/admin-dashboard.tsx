@@ -157,7 +157,7 @@ export function AdminDashboard() {
 
   return (
     <>
-      <details className="soho-admin-section-toggle" open>
+      <details className="soho-admin-section-toggle">
         <summary>
           <span className="soho-gallery-kicker">Főoldal</span>
           <h2>Események</h2>
@@ -204,7 +204,7 @@ export function AdminDashboard() {
         </div>
       </details>
 
-      <details className="soho-admin-section-toggle" open>
+      <details className="soho-admin-section-toggle">
         <summary>
           <span className="soho-gallery-kicker">Főoldal</span>
           <h2>Facebook blokk</h2>
@@ -243,7 +243,7 @@ export function AdminDashboard() {
         </div>
       </details>
 
-      <details className="soho-admin-section-toggle" open>
+      <details className="soho-admin-section-toggle">
         <summary>
           <span className="soho-gallery-kicker">Galéria</span>
           <h2>Albumok és képek</h2>

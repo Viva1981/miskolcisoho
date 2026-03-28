@@ -148,18 +148,7 @@ export function AdminGalleryWorkspace({
   }, [activeAlbumId, galleryImagesResult.rows]);
 
   return (
-    <section className="soho-admin-section">
-      <div className="soho-admin-section-header">
-        <div>
-          <span className="soho-gallery-kicker">Galéria</span>
-          <h2>Albumok és képek</h2>
-          <p>
-            Először hozz létre egy albumot borítóképpel, utána válaszd ki a listából, és tölts fel
-            hozzá képeket.
-          </p>
-        </div>
-      </div>
-
+    <>
       <div className="soho-admin-grid">
         <AdminGalleryAlbumForm onSuccess={onAlbumsChange} />
 
@@ -232,6 +221,6 @@ export function AdminGalleryWorkspace({
           onChange={loadImages}
         />
       </div>
-    </section>
+    </>
   );
 }
