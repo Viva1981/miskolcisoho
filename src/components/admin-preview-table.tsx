@@ -177,15 +177,20 @@ export function AdminPreviewTable({
   const [draggingRowId, setDraggingRowId] = useState("");
   const [isReordering, setIsReordering] = useState(false);
   const [replacementFile, setReplacementFile] = useState<File | null>(null);
-  const [imageActionState, setImageActionState] = useState<"idle" | "deleting" | "replacing">("idle");
+  const [imageActionState, setImageActionState] = useState<"idle" | "deleting">("idle");
+  const [imageRemovalRequested, setImageRemovalRequested] = useState(false);
   const dropHandledRef = useRef(false);
 
   const baseRows = useMemo(() => sortRows(rows), [rows]);
   const editingRow = baseRows.find((row) => row.id === editingRowId) ?? null;
   const imageFieldConfig = getImageFieldConfig(resource);
+  const originalImageId =
+    editingRow && imageFieldConfig ? editingRow[imageFieldConfig.idField] ?? "" : "";
   const currentImageId =
     editingRow && imageFieldConfig
-      ? formValues[imageFieldConfig.idField] ?? editingRow[imageFieldConfig.idField] ?? ""
+      ? imageRemovalRequested
+        ? ""
+        : formValues[imageFieldConfig.idField] ?? editingRow[imageFieldConfig.idField] ?? ""
       : "";
   const visibleEditableFields = useMemo(
     () =>
@@ -305,10 +310,139 @@ export function AdminPreviewTable({
     event.preventDefault();
     if (!editingRowId) return;
 
-    const success = await runMutation("PUT", editingRowId, formValues);
+    const nextPayload = { ...formValues };
+
+    if (imageFieldConfig && resource !== "gallery_images") {
+      const requiredImage = true;
+
+      if (imageRemovalRequested && !replacementFile && requiredImage) {
+        setActionError("Ehhez az elemhez kötelező a kép. Tölts fel újat, mielőtt mentesz.");
+        return;
+      }
+
+      if (!originalImageId && !replacementFile && requiredImage) {
+        setActionError("Ehhez az elemhez kötelező a kép. Tölts fel egy új képet.");
+        return;
+      }
+
+      if (replacementFile) {
+        setActionError("");
+
+        const base64 = await readFileAsBase64(replacementFile);
+        let uploadedImage: { fileId: string; fileUrl: string } | null = null;
+
+        if (originalImageId) {
+          const replaceResponse = await fetch("/api/admin/replace-drive-file", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              oldFileId: originalImageId,
+              fileName: replacementFile.name,
+              mimeType: replacementFile.type || "application/octet-stream",
+              base64,
+            }),
+          });
+
+          const replaceResult = (await replaceResponse.json()) as {
+            ok: boolean;
+            fileId?: string;
+            fileUrl?: string;
+            error?: string;
+          };
+
+          if (!replaceResponse.ok || !replaceResult.ok || !replaceResult.fileId || !replaceResult.fileUrl) {
+            setActionError(replaceResult.error ?? "Nem sikerült feltölteni az új képet.");
+            return;
+          }
+
+          uploadedImage = {
+            fileId: replaceResult.fileId,
+            fileUrl: replaceResult.fileUrl,
+          };
+        } else {
+          let folderId = editingRow?.drive_folder_id ?? formValues.drive_folder_id ?? "";
+
+          if (!folderId && (resource === "events" || resource === "facebook_feed")) {
+            const collectionName = resource === "events" ? "events" : "facebook_feed";
+            const folderName = formValues.title?.trim() || editingRow?.title?.trim() || editingRowId;
+
+            const folderResponse = await fetch("/api/admin/create-drive-folder", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                collectionName,
+                folderName,
+              }),
+            });
+
+            const folderResult = (await folderResponse.json()) as {
+              ok: boolean;
+              folderId?: string;
+              error?: string;
+            };
+
+            if (!folderResponse.ok || !folderResult.ok || !folderResult.folderId) {
+              setActionError(folderResult.error ?? "Nem sikerült létrehozni a kép új mappáját.");
+              return;
+            }
+
+            folderId = folderResult.folderId;
+          }
+
+          if (!folderId) {
+            setActionError("Nem található a képhez tartozó Drive mappa.");
+            return;
+          }
+
+          const uploadResponse = await fetch("/api/admin/upload-drive-file", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              folderId,
+              fileName: replacementFile.name,
+              mimeType: replacementFile.type || "application/octet-stream",
+              base64,
+            }),
+          });
+
+          const uploadResult = (await uploadResponse.json()) as {
+            ok: boolean;
+            fileId?: string;
+            fileUrl?: string;
+            error?: string;
+          };
+
+          if (!uploadResponse.ok || !uploadResult.ok || !uploadResult.fileId || !uploadResult.fileUrl) {
+            setActionError(uploadResult.error ?? "Nem sikerült feltölteni az új képet.");
+            return;
+          }
+
+          uploadedImage = {
+            fileId: uploadResult.fileId,
+            fileUrl: uploadResult.fileUrl,
+          };
+        }
+
+        nextPayload[imageFieldConfig.idField] = uploadedImage.fileId;
+        nextPayload[imageFieldConfig.urlField] = uploadedImage.fileUrl;
+      } else if (imageRemovalRequested) {
+        nextPayload[imageFieldConfig.idField] = "";
+        nextPayload[imageFieldConfig.urlField] = "";
+      }
+    }
+
+    const success = await runMutation("PUT", editingRowId, nextPayload);
     if (success) {
       setEditingRowId("");
       setFormValues({});
+      setReplacementFile(null);
+      setImageRemovalRequested(false);
     }
   }
 
@@ -320,6 +454,8 @@ export function AdminPreviewTable({
     setActionError("");
     setFormValues(nextValues);
     setEditingRowId(row.id ?? "");
+    setReplacementFile(null);
+    setImageRemovalRequested(false);
   }
 
   function closeEditor() {
@@ -327,115 +463,62 @@ export function AdminPreviewTable({
     setFormValues({});
     setReplacementFile(null);
     setImageActionState("idle");
+    setImageRemovalRequested(false);
   }
 
   async function handleDeleteImage() {
-    if (!editingRowId || !imageFieldConfig || !currentImageId) {
+    if (!editingRowId || !imageFieldConfig || !originalImageId) {
       return;
     }
 
-    if (!window.confirm("Biztosan törölni szeretnéd ezt a képet?")) {
-      return;
-    }
-
-    try {
-      setActionError("");
-      setImageActionState("deleting");
-
-      const deleteResponse = await fetch("/api/admin/delete-drive-file", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fileId: currentImageId,
-        }),
-      });
-
-      const deleteResult = (await deleteResponse.json()) as {
-        ok: boolean;
-        error?: string;
-      };
-
-      if (!deleteResponse.ok || !deleteResult.ok) {
-        setActionError(deleteResult.error ?? "Nem sikerült törölni a képet a Drive-ból.");
-        setImageActionState("idle");
+    if (resource === "gallery_images") {
+      if (!window.confirm("Biztosan törölni szeretnéd ezt a galéria képet?")) {
         return;
       }
 
-      const success = await runMutation("PUT", editingRowId, {
-        [imageFieldConfig.idField]: "",
-        [imageFieldConfig.urlField]: "",
-      });
+      try {
+        setActionError("");
+        setImageActionState("deleting");
 
-      if (success) {
-        setFormValues((current) => ({
-          ...current,
-          [imageFieldConfig.idField]: "",
-          [imageFieldConfig.urlField]: "",
-        }));
+        const deleteResponse = await fetch("/api/admin/delete-drive-file", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            fileId: originalImageId,
+          }),
+        });
+
+        const deleteResult = (await deleteResponse.json()) as {
+          ok: boolean;
+          error?: string;
+        };
+
+        if (!deleteResponse.ok || !deleteResult.ok) {
+          setActionError(deleteResult.error ?? "Nem sikerült törölni a képet a Drive-ból.");
+          return;
+        }
+
+        const success = await runMutation("DELETE", editingRowId);
+        if (success) {
+          closeEditor();
+        }
+      } catch (error) {
+        setActionError(error instanceof Error ? error.message : "Ismeretlen hiba történt.");
+      } finally {
+        setImageActionState("idle");
       }
-    } catch (error) {
-      setActionError(error instanceof Error ? error.message : "Ismeretlen hiba történt.");
-    } finally {
-      setImageActionState("idle");
-    }
-  }
-
-  async function handleReplaceImage() {
-    if (!editingRowId || !imageFieldConfig || !currentImageId || !replacementFile) {
       return;
     }
 
-    try {
-      setActionError("");
-      setImageActionState("replacing");
-      const base64 = await readFileAsBase64(replacementFile);
-
-      const replaceResponse = await fetch("/api/admin/replace-drive-file", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          oldFileId: currentImageId,
-          fileName: replacementFile.name,
-          mimeType: replacementFile.type || "application/octet-stream",
-          base64,
-        }),
-      });
-
-      const replaceResult = (await replaceResponse.json()) as {
-        ok: boolean;
-        fileId?: string;
-        fileUrl?: string;
-        error?: string;
-      };
-
-      if (!replaceResponse.ok || !replaceResult.ok || !replaceResult.fileId || !replaceResult.fileUrl) {
-        setActionError(replaceResult.error ?? "Nem sikerült kicserélni a képet.");
-        setImageActionState("idle");
-        return;
-      }
-
-      const success = await runMutation("PUT", editingRowId, {
-        [imageFieldConfig.idField]: replaceResult.fileId,
-        [imageFieldConfig.urlField]: replaceResult.fileUrl,
-      });
-
-      if (success) {
-        setFormValues((current) => ({
-          ...current,
-          [imageFieldConfig.idField]: replaceResult.fileId ?? "",
-          [imageFieldConfig.urlField]: replaceResult.fileUrl ?? "",
-        }));
-        setReplacementFile(null);
-      }
-    } catch (error) {
-      setActionError(error instanceof Error ? error.message : "Ismeretlen hiba történt.");
-    } finally {
-      setImageActionState("idle");
+    if (!window.confirm("Biztosan törölni szeretnéd a jelenlegi képet? A mentéshez új képet kell majd feltöltened.")) {
+      return;
     }
+
+    setActionError("");
+    setImageRemovalRequested(true);
+    setReplacementFile(null);
   }
 
   function handleDragStart(event: DragEvent<HTMLElement>, rowId: string) {
@@ -642,7 +725,9 @@ export function AdminPreviewTable({
             <form className="soho-admin-form" onSubmit={handleUpdate}>
               {imageFieldConfig ? (
                 <div className="soho-admin-image-tools">
-                  <span className="soho-admin-image-tools-label">Képkezelés</span>
+                  <span className="soho-admin-image-tools-label">
+                    {resource === "gallery_images" ? "Galéria kép" : "Borítókép"}
+                  </span>
 
                   {currentImageId ? (
                     <div className="soho-admin-image-tools-preview">
@@ -653,14 +738,22 @@ export function AdminPreviewTable({
                         loading="lazy"
                       />
                     </div>
+                  ) : imageRemovalRequested ? (
+                    <p className="soho-admin-muted">
+                      A jelenlegi kép törlésre lett jelölve. A mentéshez tölts fel új képet.
+                    </p>
                   ) : (
-                    <p className="soho-admin-muted">Ehhez az elemhez jelenleg nincs feltöltött kép.</p>
+                    <p className="soho-admin-muted">
+                      {resource === "gallery_images"
+                        ? "Ehhez a galéria elemhez jelenleg nincs kép."
+                        : "Ehhez az elemhez jelenleg nincs feltöltött kép. A mentéshez tölts fel újat."}
+                    </p>
                   )}
 
-                  {currentImageId ? (
+                  {resource !== "gallery_images" ? (
                     <>
                       <label>
-                        <span>Új kép kiválasztása</span>
+                        <span>Új borítókép</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -672,21 +765,24 @@ export function AdminPreviewTable({
                         <button
                           type="button"
                           className="soho-admin-row-action"
-                          onClick={() => void handleReplaceImage()}
-                          disabled={!replacementFile || imageActionState !== "idle"}
-                        >
-                          {imageActionState === "replacing" ? "Csere..." : "Kép cseréje"}
-                        </button>
-                        <button
-                          type="button"
-                          className="soho-admin-row-action"
                           onClick={() => void handleDeleteImage()}
-                          disabled={imageActionState !== "idle"}
+                          disabled={!originalImageId || imageActionState !== "idle" || imageRemovalRequested}
                         >
-                          {imageActionState === "deleting" ? "Törlés..." : "Kép törlése"}
+                          {imageActionState === "deleting" ? "Törlés..." : "Borítókép törlése"}
                         </button>
                       </div>
                     </>
+                  ) : currentImageId ? (
+                    <div className="soho-admin-row-actions">
+                      <button
+                        type="button"
+                        className="soho-admin-row-action"
+                        onClick={() => void handleDeleteImage()}
+                        disabled={imageActionState !== "idle"}
+                      >
+                        {imageActionState === "deleting" ? "Törlés..." : "Galéria kép törlése"}
+                      </button>
+                    </div>
                   ) : null}
                 </div>
               ) : null}
