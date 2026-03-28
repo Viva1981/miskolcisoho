@@ -40,6 +40,10 @@ function doPost(e) {
         return handleUpdateRow(body);
       case "DELETE_ROW":
         return handleDeleteRow(body);
+      case "DELETE_DRIVE_FILE":
+        return handleDeleteDriveFile(body);
+      case "REPLACE_DRIVE_FILE":
+        return handleReplaceDriveFile(body);
       case "UPLOAD_DRIVE_FILE":
         return handleUploadDriveFile(body);
       case "CREATE_DRIVE_FOLDER":
@@ -142,6 +146,62 @@ function handleDeleteRow(body) {
   return jsonResponse({
     ok: true,
     data: getSheetRows(sheet),
+  });
+}
+
+function handleDeleteDriveFile(body) {
+  const payload = body.payload || {};
+  const fileId = payload.fileId;
+
+  if (!fileId) {
+    return jsonResponse({
+      ok: false,
+      error: "Missing fileId.",
+    });
+  }
+
+  const file = DriveApp.getFileById(fileId);
+  file.setTrashed(true);
+
+  return jsonResponse({
+    ok: true,
+  });
+}
+
+function handleReplaceDriveFile(body) {
+  const payload = body.payload || {};
+  const oldFileId = payload.oldFileId;
+  const fileName = payload.fileName;
+  const mimeType = payload.mimeType;
+  const base64 = payload.base64;
+
+  if (!oldFileId || !fileName || !mimeType || !base64) {
+    return jsonResponse({
+      ok: false,
+      error: "Missing replace payload fields.",
+    });
+  }
+
+  const oldFile = DriveApp.getFileById(oldFileId);
+  const parents = oldFile.getParents();
+
+  if (!parents.hasNext()) {
+    return jsonResponse({
+      ok: false,
+      error: "The original file has no parent folder.",
+    });
+  }
+
+  const folder = parents.next();
+  const blob = Utilities.newBlob(Utilities.base64Decode(base64), mimeType, fileName);
+  const newFile = folder.createFile(blob);
+  newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  oldFile.setTrashed(true);
+
+  return jsonResponse({
+    ok: true,
+    fileId: newFile.getId(),
+    fileUrl: newFile.getUrl(),
   });
 }
 

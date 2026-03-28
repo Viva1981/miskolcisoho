@@ -1714,6 +1714,24 @@ textarea {
   flex-wrap: wrap;
 }
 
+.soho-admin-image-tools {
+  display: grid;
+  gap: 0.8rem;
+  padding: 0.25rem 0 0.5rem;
+}
+
+.soho-admin-image-tools-label {
+  color: #d0d60d;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.soho-admin-image-tools-preview {
+  width: fit-content;
+}
+
 .soho-admin-cell-stack {
   display: grid;
   gap: 0.5rem;

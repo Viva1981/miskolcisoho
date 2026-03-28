@@ -4,6 +4,7 @@ import { DragEvent, FormEvent, useMemo, useRef, useState, useTransition } from "
 import { useRouter } from "next/navigation";
 
 import type { AdminResource } from "@/lib/admin-resources";
+import { readFileAsBase64 } from "@/lib/read-file-as-base64";
 
 type Props = {
   title: string;
@@ -56,6 +57,24 @@ function fieldType(field: string) {
 
 function driveThumbnail(fileId: string) {
   return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
+}
+
+function getImageFieldConfig(resource: AdminResource) {
+  if (resource === "events" || resource === "facebook_feed" || resource === "gallery_albums") {
+    return {
+      idField: "cover_drive_file_id",
+      urlField: "cover_drive_url",
+    } as const;
+  }
+
+  if (resource === "gallery_images") {
+    return {
+      idField: "drive_file_id",
+      urlField: "drive_file_url",
+    } as const;
+  }
+
+  return null;
 }
 
 function getImageId(row: Record<string, string>) {
@@ -157,10 +176,28 @@ export function AdminPreviewTable({
   const [dragOrder, setDragOrder] = useState<string[] | null>(null);
   const [draggingRowId, setDraggingRowId] = useState("");
   const [isReordering, setIsReordering] = useState(false);
+  const [replacementFile, setReplacementFile] = useState<File | null>(null);
+  const [imageActionState, setImageActionState] = useState<"idle" | "deleting" | "replacing">("idle");
   const dropHandledRef = useRef(false);
 
   const baseRows = useMemo(() => sortRows(rows), [rows]);
   const editingRow = baseRows.find((row) => row.id === editingRowId) ?? null;
+  const imageFieldConfig = getImageFieldConfig(resource);
+  const currentImageId =
+    editingRow && imageFieldConfig
+      ? formValues[imageFieldConfig.idField] ?? editingRow[imageFieldConfig.idField] ?? ""
+      : "";
+  const visibleEditableFields = useMemo(
+    () =>
+      editableFields.filter(
+        (field) =>
+          field !== "cover_drive_file_id" &&
+          field !== "cover_drive_url" &&
+          field !== "drive_file_id" &&
+          field !== "drive_file_url",
+      ),
+    [editableFields],
+  );
 
   const displayRows = useMemo(() => {
     if (!dragOrder) {
@@ -288,6 +325,117 @@ export function AdminPreviewTable({
   function closeEditor() {
     setEditingRowId("");
     setFormValues({});
+    setReplacementFile(null);
+    setImageActionState("idle");
+  }
+
+  async function handleDeleteImage() {
+    if (!editingRowId || !imageFieldConfig || !currentImageId) {
+      return;
+    }
+
+    if (!window.confirm("Biztosan törölni szeretnéd ezt a képet?")) {
+      return;
+    }
+
+    try {
+      setActionError("");
+      setImageActionState("deleting");
+
+      const deleteResponse = await fetch("/api/admin/delete-drive-file", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fileId: currentImageId,
+        }),
+      });
+
+      const deleteResult = (await deleteResponse.json()) as {
+        ok: boolean;
+        error?: string;
+      };
+
+      if (!deleteResponse.ok || !deleteResult.ok) {
+        setActionError(deleteResult.error ?? "Nem sikerült törölni a képet a Drive-ból.");
+        setImageActionState("idle");
+        return;
+      }
+
+      const success = await runMutation("PUT", editingRowId, {
+        [imageFieldConfig.idField]: "",
+        [imageFieldConfig.urlField]: "",
+      });
+
+      if (success) {
+        setFormValues((current) => ({
+          ...current,
+          [imageFieldConfig.idField]: "",
+          [imageFieldConfig.urlField]: "",
+        }));
+      }
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "Ismeretlen hiba történt.");
+    } finally {
+      setImageActionState("idle");
+    }
+  }
+
+  async function handleReplaceImage() {
+    if (!editingRowId || !imageFieldConfig || !currentImageId || !replacementFile) {
+      return;
+    }
+
+    try {
+      setActionError("");
+      setImageActionState("replacing");
+      const base64 = await readFileAsBase64(replacementFile);
+
+      const replaceResponse = await fetch("/api/admin/replace-drive-file", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          oldFileId: currentImageId,
+          fileName: replacementFile.name,
+          mimeType: replacementFile.type || "application/octet-stream",
+          base64,
+        }),
+      });
+
+      const replaceResult = (await replaceResponse.json()) as {
+        ok: boolean;
+        fileId?: string;
+        fileUrl?: string;
+        error?: string;
+      };
+
+      if (!replaceResponse.ok || !replaceResult.ok || !replaceResult.fileId || !replaceResult.fileUrl) {
+        setActionError(replaceResult.error ?? "Nem sikerült kicserélni a képet.");
+        setImageActionState("idle");
+        return;
+      }
+
+      const success = await runMutation("PUT", editingRowId, {
+        [imageFieldConfig.idField]: replaceResult.fileId,
+        [imageFieldConfig.urlField]: replaceResult.fileUrl,
+      });
+
+      if (success) {
+        setFormValues((current) => ({
+          ...current,
+          [imageFieldConfig.idField]: replaceResult.fileId ?? "",
+          [imageFieldConfig.urlField]: replaceResult.fileUrl ?? "",
+        }));
+        setReplacementFile(null);
+      }
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "Ismeretlen hiba történt.");
+    } finally {
+      setImageActionState("idle");
+    }
   }
 
   function handleDragStart(event: DragEvent<HTMLElement>, rowId: string) {
@@ -492,7 +640,58 @@ export function AdminPreviewTable({
             </div>
 
             <form className="soho-admin-form" onSubmit={handleUpdate}>
-              {editableFields.map((field) => {
+              {imageFieldConfig ? (
+                <div className="soho-admin-image-tools">
+                  <span className="soho-admin-image-tools-label">Képkezelés</span>
+
+                  {currentImageId ? (
+                    <div className="soho-admin-image-tools-preview">
+                      <img
+                        src={driveThumbnail(currentImageId)}
+                        alt=""
+                        className="soho-admin-thumb"
+                        loading="lazy"
+                      />
+                    </div>
+                  ) : (
+                    <p className="soho-admin-muted">Ehhez az elemhez jelenleg nincs feltöltött kép.</p>
+                  )}
+
+                  {currentImageId ? (
+                    <>
+                      <label>
+                        <span>Új kép kiválasztása</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(event) => setReplacementFile(event.target.files?.[0] ?? null)}
+                        />
+                      </label>
+
+                      <div className="soho-admin-row-actions">
+                        <button
+                          type="button"
+                          className="soho-admin-row-action"
+                          onClick={() => void handleReplaceImage()}
+                          disabled={!replacementFile || imageActionState !== "idle"}
+                        >
+                          {imageActionState === "replacing" ? "Csere..." : "Kép cseréje"}
+                        </button>
+                        <button
+                          type="button"
+                          className="soho-admin-row-action"
+                          onClick={() => void handleDeleteImage()}
+                          disabled={imageActionState !== "idle"}
+                        >
+                          {imageActionState === "deleting" ? "Törlés..." : "Kép törlése"}
+                        </button>
+                      </div>
+                    </>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {visibleEditableFields.map((field) => {
                 const type = fieldType(field);
                 const value = formValues[field] ?? "";
 
