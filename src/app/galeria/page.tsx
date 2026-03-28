@@ -15,7 +15,7 @@ export default async function GaleriaPage() {
       <section className="soho-gallery-shell">
         <div className="soho-gallery-wrap">
           <div className="soho-gallery-page-title">
-            <h1>Galeria</h1>
+            <h1>Galéria</h1>
           </div>
 
           <div className="soho-gallery-album-grid">

@@ -29,7 +29,7 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
         <div className="soho-gallery-wrap">
           <div className="soho-gallery-album-head">
             <Link href="/galeria" className="soho-gallery-backlink">
-              Vissza a galeriahoz
+              Vissza a galériához
             </Link>
           </div>
 

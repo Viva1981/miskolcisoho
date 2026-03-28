@@ -157,16 +157,12 @@ export function AdminDashboard() {
 
   return (
     <>
-      <section className="soho-admin-section">
-        <div className="soho-admin-section-header">
-          <div>
-            <span className="soho-gallery-kicker">Főoldal</span>
-            <h2>Események</h2>
-            <p>
-              Új esemény létrehozása, borítókép feltöltése és a meglévő események kezelése.
-            </p>
-          </div>
-        </div>
+      <details className="soho-admin-section-toggle" open>
+        <summary>
+          <span className="soho-gallery-kicker">Főoldal</span>
+          <h2>Események</h2>
+          <p>Új esemény létrehozása, borítókép feltöltése és a meglévő események kezelése.</p>
+        </summary>
 
         <div className="soho-admin-grid">
           <AdminEventForm onSuccess={loadDashboard} />
@@ -206,16 +202,14 @@ export function AdminDashboard() {
             loading={state.loading && state.events.data.length === 0}
           />
         </div>
-      </section>
+      </details>
 
-      <section className="soho-admin-section">
-        <div className="soho-admin-section-header">
-          <div>
-            <span className="soho-gallery-kicker">Főoldal</span>
-            <h2>Facebook blokk</h2>
-            <p>A „Kövess minket Facebookon” rész elemei képpel és hivatkozással.</p>
-          </div>
-        </div>
+      <details className="soho-admin-section-toggle" open>
+        <summary>
+          <span className="soho-gallery-kicker">Főoldal</span>
+          <h2>Facebook blokk</h2>
+          <p>A „Kövess minket Facebookon” rész elemei képpel és hivatkozással.</p>
+        </summary>
 
         <div className="soho-admin-grid">
           <AdminFacebookFeedForm onSuccess={loadDashboard} />
@@ -247,18 +241,26 @@ export function AdminDashboard() {
             loading={state.loading && state.facebookFeed.data.length === 0}
           />
         </div>
-      </section>
+      </details>
 
-      <AdminGalleryWorkspace
-        albumsResult={{
-          ok: state.galleryAlbums.ok,
-          source: state.galleryAlbums.source,
-          error: state.galleryAlbums.error,
-          rows: state.galleryAlbums.data,
-        }}
-        onAlbumsChange={loadDashboard}
-        loading={state.loading && state.galleryAlbums.data.length === 0}
-      />
+      <details className="soho-admin-section-toggle" open>
+        <summary>
+          <span className="soho-gallery-kicker">Galéria</span>
+          <h2>Albumok és képek</h2>
+          <p>Album létrehozása, képek feltöltése és a galériák rendezése.</p>
+        </summary>
+
+        <AdminGalleryWorkspace
+          albumsResult={{
+            ok: state.galleryAlbums.ok,
+            source: state.galleryAlbums.source,
+            error: state.galleryAlbums.error,
+            rows: state.galleryAlbums.data,
+          }}
+          onAlbumsChange={loadDashboard}
+          loading={state.loading && state.galleryAlbums.data.length === 0}
+        />
+      </details>
     </>
   );
 }

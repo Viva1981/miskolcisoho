@@ -132,8 +132,7 @@ export function SohoEventsCarousel({ events }: SohoEventsCarouselProps) {
   const visibleDesktopCount = Math.min(3, Math.max(events.length, 1));
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 640px)");
-    if (mediaQuery.matches || events.length <= 1) {
+    if (events.length <= 1) {
       return;
     }
 

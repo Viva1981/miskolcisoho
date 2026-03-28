@@ -1088,6 +1088,44 @@ textarea {
   margin-bottom: 1.5rem;
 }
 
+.soho-admin-section-toggle {
+  margin-bottom: 1.5rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 1.15rem 1.25rem 1.25rem;
+}
+
+.soho-admin-section-toggle summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.soho-admin-section-toggle summary::-webkit-details-marker {
+  display: none;
+}
+
+.soho-admin-section-toggle summary h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 2.6vw, 2.6rem);
+  text-transform: uppercase;
+  line-height: 0.98;
+}
+
+.soho-admin-section-toggle summary p {
+  margin: 0.45rem 0 0;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.7;
+  font-family: var(--font-body), sans-serif;
+  letter-spacing: 0;
+}
+
+.soho-admin-section-toggle[open] summary {
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .soho-admin-section-header {
   margin-bottom: 1rem;
 }
