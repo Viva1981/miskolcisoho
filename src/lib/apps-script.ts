@@ -4,6 +4,7 @@ import { AdminResource, AdminRow } from "@/lib/admin-resources";
 
 type AppsScriptAction =
   | "GET_CONTENT"
+  | "GET_DRIVE_STORAGE"
   | "CREATE_ROW"
   | "UPDATE_ROW"
   | "DELETE_ROW"
@@ -21,6 +22,10 @@ type AppsScriptRequest = {
 type AppsScriptSuccess = {
   ok: true;
   data?: AdminRow[];
+  storageUsedBytes?: number;
+  storageLimitBytes?: number;
+  storageFreeBytes?: number;
+  storageUsagePercent?: number;
   fileId?: string;
   fileUrl?: string;
   folderId?: string;

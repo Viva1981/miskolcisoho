@@ -16,6 +16,16 @@ export type AdminContentResult = {
   error?: string;
 };
 
+export type AdminDriveStorageResult = {
+  ok: boolean;
+  source: "mock" | "apps-script";
+  usedBytes: number;
+  limitBytes: number;
+  freeBytes: number;
+  usagePercent: number;
+  error?: string;
+};
+
 export async function getAdminContent(resource: AdminResource): Promise<AdminContentResult> {
   if (!isAppsScriptConfigured()) {
     return {
@@ -43,6 +53,45 @@ export async function getAdminContent(resource: AdminResource): Promise<AdminCon
     ok: true,
     source: "apps-script",
     data: response.data ?? [],
+  };
+}
+
+export async function getAdminDriveStorage(): Promise<AdminDriveStorageResult> {
+  if (!isAppsScriptConfigured()) {
+    return {
+      ok: true,
+      source: "mock",
+      usedBytes: 0,
+      limitBytes: 0,
+      freeBytes: 0,
+      usagePercent: 0,
+    };
+  }
+
+  const response = await callAppsScript({
+    action: "GET_DRIVE_STORAGE",
+    resource: "events",
+  });
+
+  if (!response.ok) {
+    return {
+      ok: false,
+      source: "apps-script",
+      usedBytes: 0,
+      limitBytes: 0,
+      freeBytes: 0,
+      usagePercent: 0,
+      error: response.error,
+    };
+  }
+
+  return {
+    ok: true,
+    source: "apps-script",
+    usedBytes: response.storageUsedBytes ?? 0,
+    limitBytes: response.storageLimitBytes ?? 0,
+    freeBytes: response.storageFreeBytes ?? 0,
+    usagePercent: response.storageUsagePercent ?? 0,
   };
 }
 

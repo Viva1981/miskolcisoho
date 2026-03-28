@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AdminDashboard } from "@/components/admin-dashboard";
+import { AdminDriveStorageCard } from "@/components/admin-drive-storage-card";
 import { SohoHeader } from "@/components/soho-header";
 import { isAppsScriptConfigured } from "@/lib/apps-script";
 import {
@@ -24,6 +25,8 @@ export default function AdminPage() {
               <span className="soho-gallery-kicker">Tartalomkezelő</span>
               <h1>Admin felület</h1>
             </div>
+
+            <AdminDriveStorageCard />
 
             <article className="soho-admin-summary-card">
               <h2>Kapcsolódás</h2>

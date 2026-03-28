@@ -1039,7 +1039,7 @@ textarea {
 
 .soho-admin-head {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 320px) minmax(260px, 320px);
   gap: 1.5rem;
   align-items: end;
   padding-bottom: 2rem;
@@ -1137,6 +1137,68 @@ textarea {
 
 .soho-admin-summary-card h2 {
   margin: 0 0 0.75rem;
+}
+
+.soho-admin-storage-card {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.soho-admin-storage-main {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.1;
+  color: #ffffff;
+}
+
+.soho-admin-storage-bar {
+  width: 100%;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.soho-admin-storage-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #d0d60d;
+}
+
+.soho-admin-storage-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin: 0;
+}
+
+.soho-admin-storage-meta div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.soho-admin-storage-meta dt,
+.soho-admin-storage-meta dd {
+  margin: 0;
+  font-family: var(--font-body), sans-serif;
+  letter-spacing: 0;
+}
+
+.soho-admin-storage-meta dt {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+.soho-admin-storage-meta dd {
+  color: #ffffff;
+  font-size: 0.98rem;
+}
+
+.soho-admin-storage-skeleton {
+  display: grid;
+  gap: 0.65rem;
 }
 
 .soho-admin-card h2,

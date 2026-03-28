@@ -32,6 +32,8 @@ function doPost(e) {
     switch (body.action) {
       case "GET_CONTENT":
         return handleGetContent(body);
+      case "GET_DRIVE_STORAGE":
+        return handleGetDriveStorage();
       case "CREATE_ROW":
         return handleCreateRow(body);
       case "UPDATE_ROW":
@@ -63,6 +65,22 @@ function handleGetContent(body) {
   return jsonResponse({
     ok: true,
     data: rows,
+  });
+}
+
+function handleGetDriveStorage() {
+  const storageLimitBytes = Number(DriveApp.getStorageLimit() || 0);
+  const storageUsedBytes = Number(DriveApp.getStorageUsed() || 0);
+  const storageFreeBytes = Math.max(storageLimitBytes - storageUsedBytes, 0);
+  const storageUsagePercent =
+    storageLimitBytes > 0 ? (storageUsedBytes / storageLimitBytes) * 100 : 0;
+
+  return jsonResponse({
+    ok: true,
+    storageLimitBytes: storageLimitBytes,
+    storageUsedBytes: storageUsedBytes,
+    storageFreeBytes: storageFreeBytes,
+    storageUsagePercent: storageUsagePercent,
   });
 }
 
