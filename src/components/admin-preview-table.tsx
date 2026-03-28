@@ -3,6 +3,7 @@
 import { DragEvent, FormEvent, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
+import { parseAdminJsonResponse, validateAdminImageFile } from "@/lib/admin-client";
 import type { AdminResource } from "@/lib/admin-resources";
 import { readFileAsBase64 } from "@/lib/read-file-as-base64";
 
@@ -179,6 +180,7 @@ export function AdminPreviewTable({
   const [replacementFile, setReplacementFile] = useState<File | null>(null);
   const [imageActionState, setImageActionState] = useState<"idle" | "deleting">("idle");
   const [imageRemovalRequested, setImageRemovalRequested] = useState(false);
+  const [imageStatusMessage, setImageStatusMessage] = useState("");
   const dropHandledRef = useRef(false);
 
   const baseRows = useMemo(() => sortRows(rows), [rows]);
@@ -232,7 +234,10 @@ export function AdminPreviewTable({
       body: JSON.stringify({ resource, id, payload }),
     });
 
-    const result = (await response.json()) as { ok: boolean; error?: string };
+    const result = await parseAdminJsonResponse<{ ok: boolean; error?: string }>(
+      response,
+      "Nem sikerült elmenteni a módosítást.",
+    );
 
     if (!response.ok || !result.ok) {
       setActionError(result.error ?? "Nem sikerült elmenteni a módosítást.");
@@ -271,7 +276,10 @@ export function AdminPreviewTable({
             },
           }),
         }).then(async (response) => {
-          const result = (await response.json()) as { ok: boolean; error?: string };
+          const result = await parseAdminJsonResponse<{ ok: boolean; error?: string }>(
+            response,
+            "Nem sikerült elmenteni az új sorrendet.",
+          );
           if (!response.ok || !result.ok) {
             throw new Error(result.error ?? "Nem sikerült elmenteni az új sorrendet.");
           }
@@ -311,6 +319,7 @@ export function AdminPreviewTable({
     if (!editingRowId) return;
 
     const nextPayload = { ...formValues };
+    setActionError("");
 
     if (imageFieldConfig && resource !== "gallery_images") {
       const requiredImage = true;
@@ -326,7 +335,16 @@ export function AdminPreviewTable({
       }
 
       if (replacementFile) {
-        setActionError("");
+        validateAdminImageFile(
+          replacementFile,
+          resource === "gallery_albums" ? "album borítókép" : "borítókép",
+        );
+
+        setImageStatusMessage(
+          originalImageId
+            ? "Új kép feltöltése folyamatban, a régit automatikusan lecseréljük."
+            : "Új kép feltöltése folyamatban.",
+        );
 
         const base64 = await readFileAsBase64(replacementFile);
         let uploadedImage: { fileId: string; fileUrl: string } | null = null;
@@ -345,15 +363,16 @@ export function AdminPreviewTable({
             }),
           });
 
-          const replaceResult = (await replaceResponse.json()) as {
+          const replaceResult = await parseAdminJsonResponse<{
             ok: boolean;
             fileId?: string;
             fileUrl?: string;
             error?: string;
-          };
+          }>(replaceResponse, "Nem sikerült feltölteni az új képet.");
 
           if (!replaceResponse.ok || !replaceResult.ok || !replaceResult.fileId || !replaceResult.fileUrl) {
             setActionError(replaceResult.error ?? "Nem sikerült feltölteni az új képet.");
+            setImageStatusMessage("");
             return;
           }
 
@@ -379,14 +398,15 @@ export function AdminPreviewTable({
               }),
             });
 
-            const folderResult = (await folderResponse.json()) as {
+            const folderResult = await parseAdminJsonResponse<{
               ok: boolean;
               folderId?: string;
               error?: string;
-            };
+            }>(folderResponse, "Nem sikerült létrehozni a kép új mappáját.");
 
             if (!folderResponse.ok || !folderResult.ok || !folderResult.folderId) {
               setActionError(folderResult.error ?? "Nem sikerült létrehozni a kép új mappáját.");
+              setImageStatusMessage("");
               return;
             }
 
@@ -395,6 +415,7 @@ export function AdminPreviewTable({
 
           if (!folderId) {
             setActionError("Nem található a képhez tartozó Drive mappa.");
+            setImageStatusMessage("");
             return;
           }
 
@@ -411,15 +432,16 @@ export function AdminPreviewTable({
             }),
           });
 
-          const uploadResult = (await uploadResponse.json()) as {
+          const uploadResult = await parseAdminJsonResponse<{
             ok: boolean;
             fileId?: string;
             fileUrl?: string;
             error?: string;
-          };
+          }>(uploadResponse, "Nem sikerült feltölteni az új képet.");
 
           if (!uploadResponse.ok || !uploadResult.ok || !uploadResult.fileId || !uploadResult.fileUrl) {
             setActionError(uploadResult.error ?? "Nem sikerült feltölteni az új képet.");
+            setImageStatusMessage("");
             return;
           }
 
@@ -437,12 +459,16 @@ export function AdminPreviewTable({
       }
     }
 
+    setImageStatusMessage("Módosítás mentése...");
     const success = await runMutation("PUT", editingRowId, nextPayload);
     if (success) {
       setEditingRowId("");
       setFormValues({});
       setReplacementFile(null);
       setImageRemovalRequested(false);
+      setImageStatusMessage("");
+    } else {
+      setImageStatusMessage("");
     }
   }
 
@@ -456,6 +482,7 @@ export function AdminPreviewTable({
     setEditingRowId(row.id ?? "");
     setReplacementFile(null);
     setImageRemovalRequested(false);
+    setImageStatusMessage("");
   }
 
   function closeEditor() {
@@ -464,6 +491,7 @@ export function AdminPreviewTable({
     setReplacementFile(null);
     setImageActionState("idle");
     setImageRemovalRequested(false);
+    setImageStatusMessage("");
   }
 
   async function handleDeleteImage() {
@@ -479,6 +507,7 @@ export function AdminPreviewTable({
       try {
         setActionError("");
         setImageActionState("deleting");
+        setImageStatusMessage("A galéria kép törlése folyamatban...");
 
         const deleteResponse = await fetch("/api/admin/delete-drive-file", {
           method: "POST",
@@ -490,10 +519,10 @@ export function AdminPreviewTable({
           }),
         });
 
-        const deleteResult = (await deleteResponse.json()) as {
+        const deleteResult = await parseAdminJsonResponse<{
           ok: boolean;
           error?: string;
-        };
+        }>(deleteResponse, "Nem sikerült törölni a képet a Drive-ból.");
 
         if (!deleteResponse.ok || !deleteResult.ok) {
           setActionError(deleteResult.error ?? "Nem sikerült törölni a képet a Drive-ból.");
@@ -519,6 +548,7 @@ export function AdminPreviewTable({
     setActionError("");
     setImageRemovalRequested(true);
     setReplacementFile(null);
+    setImageStatusMessage("A jelenlegi kép törlésre lett jelölve. Válassz új képet, majd mentsd el a módosítást.");
   }
 
   function handleDragStart(event: DragEvent<HTMLElement>, rowId: string) {
@@ -757,7 +787,17 @@ export function AdminPreviewTable({
                         <input
                           type="file"
                           accept="image/*"
-                          onChange={(event) => setReplacementFile(event.target.files?.[0] ?? null)}
+                          onChange={(event) => {
+                            const nextFile = event.target.files?.[0] ?? null;
+                            setReplacementFile(nextFile);
+                            setImageStatusMessage(
+                              nextFile
+                                ? `Új kép kiválasztva: ${nextFile.name}. A mentés után lecseréljük a jelenlegi képet.`
+                                : imageRemovalRequested
+                                  ? "A jelenlegi kép törlésre lett jelölve. Válassz új képet, majd mentsd el a módosítást."
+                                  : "",
+                            );
+                          }}
                         />
                       </label>
 
@@ -782,6 +822,21 @@ export function AdminPreviewTable({
                       >
                         {imageActionState === "deleting" ? "Törlés..." : "Galéria kép törlése"}
                       </button>
+                    </div>
+                  ) : null}
+                  {imageStatusMessage ? (
+                    <div
+                      className={`soho-admin-image-status ${
+                        activeRowId === editingRow.id || imageActionState === "deleting"
+                          ? "is-busy"
+                          : imageRemovalRequested || replacementFile
+                            ? "is-pending"
+                            : ""
+                      }`}
+                    >
+                      <span className="soho-admin-image-status-dot" />
+                      <strong>Képkezelés</strong>
+                      <span>{imageStatusMessage}</span>
                     </div>
                   ) : null}
                 </div>

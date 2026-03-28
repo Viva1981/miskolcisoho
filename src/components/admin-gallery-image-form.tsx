@@ -3,6 +3,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { parseAdminJsonResponse, validateAdminImageFile } from "@/lib/admin-client";
 import { readFileAsBase64 } from "@/lib/read-file-as-base64";
 
 type SubmitState =
@@ -38,11 +39,10 @@ export function AdminGalleryImageForm({
   const [files, setFiles] = useState<File[]>([]);
   const [fileInputKey, setFileInputKey] = useState(0);
 
-  const folderId =
-    useMemo(
-      () => albumOptions.find((album) => album.id === selectedAlbumId)?.driveFolderId ?? "",
-      [albumOptions, selectedAlbumId],
-    );
+  const folderId = useMemo(
+    () => albumOptions.find((album) => album.id === selectedAlbumId)?.driveFolderId ?? "",
+    [albumOptions, selectedAlbumId],
+  );
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -64,6 +64,8 @@ export function AdminGalleryImageForm({
     }
 
     try {
+      files.forEach((file) => validateAdminImageFile(file, "galéria kép"));
+
       const baseSortOrder = Number.parseInt(sortOrder, 10);
       const normalizedSortOrder = Number.isFinite(baseSortOrder) ? baseSortOrder : 10;
 
@@ -88,12 +90,12 @@ export function AdminGalleryImageForm({
           }),
         });
 
-        const uploadResult = (await uploadResponse.json()) as {
+        const uploadResult = await parseAdminJsonResponse<{
           ok: boolean;
           fileId?: string;
           fileUrl?: string;
           error?: string;
-        };
+        }>(uploadResponse, "Nem sikerült feltölteni az egyik képet a Drive-ba.");
 
         if (
           !uploadResponse.ok ||
@@ -130,10 +132,10 @@ export function AdminGalleryImageForm({
           }),
         });
 
-        const result = (await response.json()) as {
+        const result = await parseAdminJsonResponse<{
           ok: boolean;
           error?: string;
-        };
+        }>(response, "Nem sikerült elmenteni az egyik galéria képet.");
 
         if (!response.ok || !result.ok) {
           setState({
@@ -180,11 +182,7 @@ export function AdminGalleryImageForm({
       <form className="soho-admin-form" onSubmit={handleSubmit}>
         <label>
           <span>Album</span>
-          <select
-            value={selectedAlbumId}
-            onChange={(event) => onAlbumChange?.(event.target.value)}
-            required
-          >
+          <select value={selectedAlbumId} onChange={(event) => onAlbumChange?.(event.target.value)} required>
             <option value="">Válassz albumot</option>
             {albumOptions.map((album) => (
               <option key={album.id} value={album.id}>

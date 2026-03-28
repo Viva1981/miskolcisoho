@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ensureAdminApiAuth } from "@/lib/admin-auth";
 import { replaceAdminDriveFile } from "@/lib/admin-content";
 
-const MAX_IMAGE_SIZE_BYTES = 12 * 1024 * 1024;
+const MAX_IMAGE_SIZE_BYTES = 4 * 1024 * 1024;
 
 export async function POST(request: NextRequest) {
   const authResponse = ensureAdminApiAuth(request);
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         ok: false,
-        error: "A kiválasztott kép túl nagy. A maximális méret 12 MB.",
+        error: "A kiválasztott kép túl nagy. A maximális méret 4 MB.",
       },
       { status: 400 },
     );

@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { parseAdminJsonResponse, validateAdminImageFile } from "@/lib/admin-client";
 import { readFileAsBase64 } from "@/lib/read-file-as-base64";
 
 type SubmitState =
@@ -41,6 +42,7 @@ export function AdminGalleryAlbumForm({ onSuccess }: AdminGalleryAlbumFormProps)
     }
 
     try {
+      validateAdminImageFile(coverFile, "album borítókép");
       setState({ type: "saving", message: "Galéria mappa létrehozása a Drive-ban..." });
 
       const folderResponse = await fetch("/api/admin/create-drive-folder", {
@@ -54,16 +56,16 @@ export function AdminGalleryAlbumForm({ onSuccess }: AdminGalleryAlbumFormProps)
         }),
       });
 
-      const folderResult = (await folderResponse.json()) as {
+      const folderResult = await parseAdminJsonResponse<{
         ok: boolean;
         folderId?: string;
         error?: string;
-      };
+      }>(folderResponse, "Nem sikerült létrehozni a galéria mappáját a Drive-ban.");
 
       if (!folderResponse.ok || !folderResult.ok || !folderResult.folderId) {
         setState({
           type: "error",
-          message: folderResult.error ?? "Nem sikerült létrehozni a galéria mappát a Drive-ban.",
+          message: folderResult.error ?? "Nem sikerült létrehozni a galéria mappáját a Drive-ban.",
         });
         return;
       }
@@ -84,12 +86,12 @@ export function AdminGalleryAlbumForm({ onSuccess }: AdminGalleryAlbumFormProps)
         }),
       });
 
-      const uploadResult = (await uploadResponse.json()) as {
+      const uploadResult = await parseAdminJsonResponse<{
         ok: boolean;
         fileId?: string;
         fileUrl?: string;
         error?: string;
-      };
+      }>(uploadResponse, "Nem sikerült feltölteni az album borítóképét.");
 
       if (
         !uploadResponse.ok ||
@@ -127,10 +129,10 @@ export function AdminGalleryAlbumForm({ onSuccess }: AdminGalleryAlbumFormProps)
         }),
       });
 
-      const result = (await response.json()) as {
+      const result = await parseAdminJsonResponse<{
         ok: boolean;
         error?: string;
-      };
+      }>(response, "Nem sikerült elmenteni a galéria albumot.");
 
       if (!response.ok || !result.ok) {
         setState({

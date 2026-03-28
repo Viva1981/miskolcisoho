@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { parseAdminJsonResponse, validateAdminImageFile } from "@/lib/admin-client";
 import { readFileAsBase64 } from "@/lib/read-file-as-base64";
 
 type SubmitState =
@@ -39,6 +40,7 @@ export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps)
     }
 
     try {
+      validateAdminImageFile(file, "borítókép");
       setState({ type: "saving", message: "Facebook mappa létrehozása a Drive-ban..." });
 
       const folderResponse = await fetch("/api/admin/create-drive-folder", {
@@ -52,11 +54,11 @@ export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps)
         }),
       });
 
-      const folderResult = (await folderResponse.json()) as {
+      const folderResult = await parseAdminJsonResponse<{
         ok: boolean;
         folderId?: string;
         error?: string;
-      };
+      }>(folderResponse, "Nem sikerült létrehozni a Facebook elem mappáját.");
 
       if (!folderResponse.ok || !folderResult.ok || !folderResult.folderId) {
         setState({
@@ -82,12 +84,12 @@ export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps)
         }),
       });
 
-      const uploadResult = (await uploadResponse.json()) as {
+      const uploadResult = await parseAdminJsonResponse<{
         ok: boolean;
         fileId?: string;
         fileUrl?: string;
         error?: string;
-      };
+      }>(uploadResponse, "Nem sikerült feltölteni a Facebook elem borítóképét.");
 
       if (
         !uploadResponse.ok ||
@@ -123,10 +125,10 @@ export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps)
         }),
       });
 
-      const result = (await response.json()) as {
+      const result = await parseAdminJsonResponse<{
         ok: boolean;
         error?: string;
-      };
+      }>(response, "Nem sikerült elmenteni a Facebook elemet.");
 
       if (!response.ok || !result.ok) {
         setState({
@@ -165,9 +167,7 @@ export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps)
       <div className="soho-admin-preview-head">
         <div>
           <h2>Új Facebook elem</h2>
-          <p>
-            Itt tudsz új kártyát létrehozni a főoldali Facebook blokkhoz képpel és hivatkozással.
-          </p>
+          <p>Itt tudsz új kártyát létrehozni a főoldali Facebook blokkhoz képpel és hivatkozással.</p>
         </div>
       </div>
 

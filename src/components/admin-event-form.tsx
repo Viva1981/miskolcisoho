@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { parseAdminJsonResponse, validateAdminImageFile } from "@/lib/admin-client";
 import { readFileAsBase64 } from "@/lib/read-file-as-base64";
 
 type SubmitState =
@@ -51,6 +52,7 @@ export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
     }
 
     try {
+      validateAdminImageFile(file, "borítókép");
       setState({ type: "saving", message: "Eseménymappa létrehozása a Drive-ban..." });
 
       const folderResponse = await fetch("/api/admin/create-drive-folder", {
@@ -64,11 +66,11 @@ export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
         }),
       });
 
-      const folderResult = (await folderResponse.json()) as {
+      const folderResult = await parseAdminJsonResponse<{
         ok: boolean;
         folderId?: string;
         error?: string;
-      };
+      }>(folderResponse, "Nem sikerült létrehozni az esemény mappáját.");
 
       if (!folderResponse.ok || !folderResult.ok || !folderResult.folderId) {
         setState({
@@ -94,12 +96,12 @@ export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
         }),
       });
 
-      const uploadResult = (await uploadResponse.json()) as {
+      const uploadResult = await parseAdminJsonResponse<{
         ok: boolean;
         fileId?: string;
         fileUrl?: string;
         error?: string;
-      };
+      }>(uploadResponse, "Nem sikerült feltölteni az esemény borítóképét.");
 
       if (
         !uploadResponse.ok ||
@@ -139,10 +141,10 @@ export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
         }),
       });
 
-      const result = (await response.json()) as {
+      const result = await parseAdminJsonResponse<{
         ok: boolean;
         error?: string;
-      };
+      }>(response, "Nem sikerült elmenteni az eseményt.");
 
       if (!response.ok || !result.ok) {
         setState({
@@ -228,11 +230,7 @@ export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
         <div className="soho-admin-form-grid">
           <label>
             <span>Kezdő időpont</span>
-            <input
-              type="time"
-              value={time}
-              onChange={(event) => setTime(event.target.value)}
-            />
+            <input type="time" value={time} onChange={(event) => setTime(event.target.value)} />
           </label>
 
           <label>
