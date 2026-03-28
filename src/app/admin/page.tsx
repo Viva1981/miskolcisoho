@@ -25,26 +25,30 @@ export default function AdminPage() {
               <span className="soho-gallery-kicker">Tartalomkezelő</span>
               <h1>Admin felület</h1>
             </div>
-
-            <AdminDriveStorageCard />
-
-            <article className="soho-admin-summary-card">
-              <h2>Kapcsolódás</h2>
-              <p>
-                {appsScriptReady
-                  ? "A rendszer élő Google Drive és Google Sheets kapcsolattal működik."
-                  : "Az élő kapcsolat még nincs teljesen beállítva, ezért a felület nem tud menteni."}
-              </p>
-              <span className={`soho-admin-status-chip ${appsScriptReady ? "is-ok" : "is-error"}`}>
-                {appsScriptReady ? "Kapcsolódva" : "Nincs kapcsolat"}
-              </span>
-            </article>
           </div>
 
           <AdminDashboard />
 
           <details className="soho-admin-details">
             <summary>Haladó nézet és rendszerinformációk</summary>
+
+            <div className="soho-admin-grid">
+              <AdminDriveStorageCard />
+
+              <article className="soho-admin-summary-card">
+                <h2>Kapcsolódás</h2>
+                <p>
+                  {appsScriptReady
+                    ? "A rendszer élő Google Drive és Google Sheets kapcsolattal működik."
+                    : "Az élő kapcsolat még nincs teljesen beállítva, ezért a felület nem tud menteni."}
+                </p>
+                <span
+                  className={`soho-admin-status-chip ${appsScriptReady ? "is-ok" : "is-error"}`}
+                >
+                  {appsScriptReady ? "Kapcsolódva" : "Nincs kapcsolat"}
+                </span>
+              </article>
+            </div>
 
             <div className="soho-admin-grid">
               <article className="soho-admin-card">
