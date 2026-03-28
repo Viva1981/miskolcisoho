@@ -2,7 +2,9 @@ import Link from "next/link";
 
 import { AdminDashboard } from "@/components/admin-dashboard";
 import { AdminDriveStorageCard } from "@/components/admin-drive-storage-card";
+import { AdminLogoutButton } from "@/components/admin-logout-button";
 import { SohoHeader } from "@/components/soho-header";
+import { requireAdminPageAuth } from "@/lib/admin-auth";
 import { isAppsScriptConfigured } from "@/lib/apps-script";
 import {
   getContentConfig,
@@ -10,7 +12,9 @@ import {
   getGoogleSheetUrl,
 } from "@/lib/content-config";
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  await requireAdminPageAuth();
+
   const config = getContentConfig();
   const appsScriptReady = isAppsScriptConfigured();
 
@@ -25,6 +29,7 @@ export default function AdminPage() {
               <span className="soho-gallery-kicker">Tartalomkezelő</span>
               <h1>Admin felület</h1>
             </div>
+            <AdminLogoutButton />
           </div>
 
           <AdminDashboard />
@@ -122,3 +127,4 @@ export default function AdminPage() {
     </main>
   );
 }
+

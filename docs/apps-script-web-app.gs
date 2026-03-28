@@ -40,6 +40,8 @@ function doPost(e) {
         return handleUpdateRow(body);
       case "DELETE_ROW":
         return handleDeleteRow(body);
+      case "DELETE_DRIVE_FOLDER":
+        return handleDeleteDriveFolder(body);
       case "DELETE_DRIVE_FILE":
         return handleDeleteDriveFile(body);
       case "REPLACE_DRIVE_FILE":
@@ -152,6 +154,7 @@ function handleDeleteRow(body) {
 function handleDeleteDriveFile(body) {
   const payload = body.payload || {};
   const fileId = payload.fileId;
+  const deleteParentFolder = String(payload.deleteParentFolder || "").toLowerCase() === "true";
 
   if (!fileId) {
     return jsonResponse({
@@ -161,7 +164,37 @@ function handleDeleteDriveFile(body) {
   }
 
   const file = DriveApp.getFileById(fileId);
-  file.setTrashed(true);
+
+  if (deleteParentFolder) {
+    const parents = file.getParents();
+
+    if (parents.hasNext()) {
+      parents.next().setTrashed(true);
+    } else {
+      file.setTrashed(true);
+    }
+  } else {
+    file.setTrashed(true);
+  }
+
+  return jsonResponse({
+    ok: true,
+  });
+}
+
+function handleDeleteDriveFolder(body) {
+  const payload = body.payload || {};
+  const folderId = payload.folderId;
+
+  if (!folderId) {
+    return jsonResponse({
+      ok: false,
+      error: "Missing folderId.",
+    });
+  }
+
+  const folder = DriveApp.getFolderById(folderId);
+  folder.setTrashed(true);
 
   return jsonResponse({
     ok: true,

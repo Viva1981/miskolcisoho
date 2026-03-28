@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { ensureAdminApiAuth } from "@/lib/admin-auth";
 import { createAdminDriveFolder } from "@/lib/admin-content";
 
+const ALLOWED_COLLECTIONS = new Set(["events", "facebook_feed", "gallery"]);
+
 export async function POST(request: NextRequest) {
+  const authResponse = ensureAdminApiAuth(request);
+  if (authResponse) {
+    return authResponse;
+  }
+
   const body = (await request.json()) as {
     collectionName?: string;
     folderName?: string;
@@ -13,6 +21,16 @@ export async function POST(request: NextRequest) {
       {
         ok: false,
         error: "Missing folder creation fields.",
+      },
+      { status: 400 },
+    );
+  }
+
+  if (!ALLOWED_COLLECTIONS.has(body.collectionName.trim())) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Ismeretlen gyűjtőmappa.",
       },
       { status: 400 },
     );

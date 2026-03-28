@@ -1,8 +1,11 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
+import { ensureAdminApiAuth } from "@/lib/admin-auth";
 import {
   createAdminRow,
+  deleteAdminDriveFile,
+  deleteAdminDriveFolder,
   deleteAdminRow,
   getAdminContent,
   parseAdminResource,
@@ -10,6 +13,11 @@ import {
 } from "@/lib/admin-content";
 
 export async function GET(request: NextRequest) {
+  const authResponse = ensureAdminApiAuth(request);
+  if (authResponse) {
+    return authResponse;
+  }
+
   const resource = parseAdminResource(request.nextUrl.searchParams.get("resource"));
 
   if (!resource) {
@@ -43,6 +51,11 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const authResponse = ensureAdminApiAuth(request);
+  if (authResponse) {
+    return authResponse;
+  }
+
   const body = (await request.json()) as {
     resource?: string;
     payload?: Record<string, string>;
@@ -95,6 +108,7 @@ export async function POST(request: NextRequest) {
             time: body.payload.time?.trim() ?? "",
             time_end: body.payload.time_end?.trim() ?? "",
             facebook_url: body.payload.facebook_url?.trim() ?? "",
+            drive_folder_id: body.payload.drive_folder_id?.trim() ?? "",
             cover_drive_file_id: body.payload.cover_drive_file_id?.trim() ?? "",
             cover_drive_url: body.payload.cover_drive_url?.trim() ?? "",
             published: body.payload.published?.trim() ?? "true",
@@ -129,6 +143,7 @@ export async function POST(request: NextRequest) {
                 title: body.payload.title?.trim() ?? "",
                 text: "",
                 facebook_url: body.payload.facebook_url?.trim() ?? "",
+                drive_folder_id: body.payload.drive_folder_id?.trim() ?? "",
                 cover_drive_file_id: body.payload.cover_drive_file_id?.trim() ?? "",
                 cover_drive_url: body.payload.cover_drive_url?.trim() ?? "",
                 published: body.payload.published?.trim() ?? "true",
@@ -166,6 +181,11 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const authResponse = ensureAdminApiAuth(request);
+  if (authResponse) {
+    return authResponse;
+  }
+
   const body = (await request.json()) as {
     resource?: string;
     id?: string;
@@ -193,6 +213,18 @@ export async function DELETE(request: NextRequest) {
     );
   }
 
+  const cleanup = await deleteResourceAssets(resource, body.id.trim());
+
+  if (!cleanup.ok) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: cleanup.error,
+      },
+      { status: 502 },
+    );
+  }
+
   const response = await deleteAdminRow(resource, body.id.trim());
 
   if (!response.ok) {
@@ -216,6 +248,11 @@ export async function DELETE(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const authResponse = ensureAdminApiAuth(request);
+  if (authResponse) {
+    return authResponse;
+  }
+
   const body = (await request.json()) as {
     resource?: string;
     id?: string;
@@ -308,4 +345,118 @@ function revalidatePublicContent(
 
   revalidateTag("public-gallery-images-content", "max");
   revalidatePath("/galeria");
+}
+
+async function deleteResourceAssets(
+  resource: "events" | "facebook_feed" | "gallery_albums" | "gallery_images",
+  id: string,
+) {
+  const currentRows = await getAdminContent(resource);
+
+  if (!currentRows.ok) {
+    return {
+      ok: false as const,
+      error: currentRows.error ?? "Nem sikerült lekérni a törlendő elemet.",
+    };
+  }
+
+  const row = currentRows.data.find((entry) => entry.id === id);
+
+  if (!row) {
+    return {
+      ok: false as const,
+      error: "A törlendő elem nem található.",
+    };
+  }
+
+  if (resource === "gallery_images") {
+    if (row.drive_file_id) {
+      const deleteResult = await deleteAdminDriveFile(row.drive_file_id);
+
+      if (!deleteResult.ok) {
+        return {
+          ok: false as const,
+          error: deleteResult.error,
+        };
+      }
+    }
+
+    return { ok: true as const };
+  }
+
+  if (resource === "gallery_albums") {
+    if (row.drive_folder_id) {
+      const deleteFolderResult = await deleteAdminDriveFolder(row.drive_folder_id);
+
+      if (!deleteFolderResult.ok) {
+        return {
+          ok: false as const,
+          error: deleteFolderResult.error,
+        };
+      }
+    } else if (row.cover_drive_file_id) {
+      const deleteCoverResult = await deleteAdminDriveFile(row.cover_drive_file_id, {
+        deleteParentFolder: true,
+      });
+
+      if (!deleteCoverResult.ok) {
+        return {
+          ok: false as const,
+          error: deleteCoverResult.error,
+        };
+      }
+    }
+
+    const galleryImages = await getAdminContent("gallery_images");
+
+    if (!galleryImages.ok) {
+      return {
+        ok: false as const,
+        error: galleryImages.error ?? "Nem sikerült lekérni a galéria képeit.",
+      };
+    }
+
+    const linkedImages = galleryImages.data.filter((image) => image.album_id === id);
+
+    for (const image of linkedImages) {
+      const deleteRowResult = await deleteAdminRow("gallery_images", image.id);
+
+      if (!deleteRowResult.ok) {
+        return {
+          ok: false as const,
+          error: deleteRowResult.error ?? "Nem sikerült törölni a kapcsolódó galéria képeket.",
+        };
+      }
+    }
+
+    return { ok: true as const };
+  }
+
+  if (row.drive_folder_id) {
+    const deleteFolderResult = await deleteAdminDriveFolder(row.drive_folder_id);
+
+    if (!deleteFolderResult.ok) {
+      return {
+        ok: false as const,
+        error: deleteFolderResult.error,
+      };
+    }
+
+    return { ok: true as const };
+  }
+
+  if (row.cover_drive_file_id) {
+    const deleteCoverResult = await deleteAdminDriveFile(row.cover_drive_file_id, {
+      deleteParentFolder: true,
+    });
+
+    if (!deleteCoverResult.ok) {
+      return {
+        ok: false as const,
+        error: deleteCoverResult.error,
+      };
+    }
+  }
+
+  return { ok: true as const };
 }

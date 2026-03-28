@@ -208,8 +208,12 @@ const getCachedFacebookFeedContent = unstable_cache(
 export async function getHomepageEvents() {
   const result = await getCachedEventsContent();
 
-  if (!result.ok || result.source === "mock") {
+  if (process.env.NODE_ENV !== "production" && (!result.ok || result.source === "mock")) {
     return mockHomepageEvents;
+  }
+
+  if (!result.ok || result.source === "mock") {
+    return [];
   }
 
   const mapped = result.data
@@ -242,8 +246,12 @@ export async function getHomepageEvents() {
 export async function getFacebookFeedItems() {
   const result = await getCachedFacebookFeedContent();
 
-  if (!result.ok || result.source === "mock") {
+  if (process.env.NODE_ENV !== "production" && (!result.ok || result.source === "mock")) {
     return mockFacebookFeedItems;
+  }
+
+  if (!result.ok || result.source === "mock") {
+    return [];
   }
 
   const mapped = result.data

@@ -130,6 +130,7 @@ export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
             time,
             time_end: timeEnd,
             facebook_url: facebookUrl,
+            drive_folder_id: folderResult.folderId,
             cover_drive_file_id: uploadResult.fileId,
             cover_drive_url: uploadResult.fileUrl,
             published: published ? "true" : "false",

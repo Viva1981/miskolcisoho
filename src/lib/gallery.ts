@@ -144,11 +144,18 @@ export async function getGalleryAlbums() {
     getCachedGalleryImagesContent(),
   ]);
 
-  if (!albumsResult.ok || !imagesResult.ok || albumsResult.source === "mock") {
+  if (
+    process.env.NODE_ENV !== "production" &&
+    (!albumsResult.ok || !imagesResult.ok || albumsResult.source === "mock")
+  ) {
     return mockAlbums.map((album) => ({
       ...album,
       rootFolderId,
     }));
+  }
+
+  if (!albumsResult.ok || !imagesResult.ok || albumsResult.source === "mock") {
+    return [];
   }
 
   const publishedAlbums = albumsResult.data

@@ -271,7 +271,12 @@ export async function uploadAdminDriveFile(payload: {
   };
 }
 
-export async function deleteAdminDriveFile(fileId: string) {
+export async function deleteAdminDriveFile(
+  fileId: string,
+  options?: {
+    deleteParentFolder?: boolean;
+  },
+) {
   if (!isAppsScriptConfigured()) {
     return {
       ok: false as const,
@@ -284,6 +289,35 @@ export async function deleteAdminDriveFile(fileId: string) {
     resource: "gallery_images",
     payload: {
       fileId,
+      deleteParentFolder: options?.deleteParentFolder ? "true" : "false",
+    },
+  });
+
+  if (!response.ok) {
+    return {
+      ok: false as const,
+      error: response.error,
+    };
+  }
+
+  return {
+    ok: true as const,
+  };
+}
+
+export async function deleteAdminDriveFolder(folderId: string) {
+  if (!isAppsScriptConfigured()) {
+    return {
+      ok: false as const,
+      error: "A mappatörlés csak élő Apps Script kapcsolattal érhető el.",
+    };
+  }
+
+  const response = await callAppsScript({
+    action: "DELETE_DRIVE_FOLDER",
+    resource: "gallery_albums",
+    payload: {
+      folderId,
     },
   });
 

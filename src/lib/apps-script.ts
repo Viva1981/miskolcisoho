@@ -8,6 +8,7 @@ type AppsScriptAction =
   | "CREATE_ROW"
   | "UPDATE_ROW"
   | "DELETE_ROW"
+  | "DELETE_DRIVE_FOLDER"
   | "DELETE_DRIVE_FILE"
   | "REPLACE_DRIVE_FILE"
   | "UPLOAD_DRIVE_FILE"

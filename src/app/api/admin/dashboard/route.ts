@@ -1,8 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
+import { ensureAdminApiAuth } from "@/lib/admin-auth";
 import { getAdminContent, getAdminDriveStorage } from "@/lib/admin-content";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authResponse = ensureAdminApiAuth(request);
+  if (authResponse) {
+    return authResponse;
+  }
+
   const [events, facebookFeed, galleryAlbums, driveStorage] = await Promise.all([
     getAdminContent("events"),
     getAdminContent("facebook_feed"),

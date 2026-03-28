@@ -114,6 +114,7 @@ export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps)
           payload: {
             title,
             facebook_url: facebookUrl,
+            drive_folder_id: folderResult.folderId,
             cover_drive_file_id: uploadResult.fileId,
             cover_drive_url: uploadResult.fileUrl,
             published: published ? "true" : "false",
