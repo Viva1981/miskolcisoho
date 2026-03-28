@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState, useTransition } from "react";
+import { DragEvent, FormEvent, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import type { AdminResource } from "@/lib/admin-resources";
@@ -90,6 +90,24 @@ function formatPublished(value: string | undefined) {
   return value === "true" ? "Publikált" : "Rejtett";
 }
 
+function moveId(order: string[], draggedId: string, targetId: string) {
+  if (draggedId === targetId) {
+    return order;
+  }
+
+  const next = [...order];
+  const fromIndex = next.indexOf(draggedId);
+  const toIndex = next.indexOf(targetId);
+
+  if (fromIndex === -1 || toIndex === -1) {
+    return order;
+  }
+
+  next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, draggedId);
+  return next;
+}
+
 export function AdminPreviewTable({
   title,
   resource,
@@ -107,9 +125,28 @@ export function AdminPreviewTable({
   const [activeRowId, setActiveRowId] = useState("");
   const [editingRowId, setEditingRowId] = useState("");
   const [formValues, setFormValues] = useState<Record<string, string>>({});
+  const [dragOrder, setDragOrder] = useState<string[] | null>(null);
+  const [draggingRowId, setDraggingRowId] = useState("");
+  const [isReordering, setIsReordering] = useState(false);
+  const dropHandledRef = useRef(false);
 
   const editingRow = rows.find((row) => row.id === editingRowId) ?? null;
-  const previewRows = useMemo(() => rows.slice(0, 12), [rows]);
+  const baseRows = useMemo(() => rows, [rows]);
+
+  const displayRows = useMemo(() => {
+    if (!dragOrder) {
+      return baseRows;
+    }
+
+    const rowMap = new Map(baseRows.map((row) => [row.id ?? "", row]));
+    const orderedRows = dragOrder.map((id) => rowMap.get(id)).filter(Boolean) as Record<string, string>[];
+
+    if (orderedRows.length !== baseRows.length) {
+      return baseRows;
+    }
+
+    return orderedRows;
+  }, [baseRows, dragOrder]);
 
   async function runMutation(method: "PUT" | "DELETE", id: string, payload?: Record<string, string>) {
     setActionError("");
@@ -137,6 +174,51 @@ export function AdminPreviewTable({
 
     startTransition(() => router.refresh());
     return true;
+  }
+
+  async function persistReorder(nextRows: Record<string, string>[]) {
+    if (!nextRows.every((row) => "sort_order" in row)) {
+      return;
+    }
+
+    setActionError("");
+    setIsReordering(true);
+
+    try {
+      const updates = nextRows.map((row, index) =>
+        fetch("/api/admin/content", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            resource,
+            id: row.id,
+            payload: {
+              sort_order: String((index + 1) * 10),
+            },
+          }),
+        }).then(async (response) => {
+          const result = (await response.json()) as { ok: boolean; error?: string };
+          if (!response.ok || !result.ok) {
+            throw new Error(result.error ?? "Nem sikerült elmenteni az új sorrendet.");
+          }
+        }),
+      );
+
+      await Promise.all(updates);
+
+      if (onChange) {
+        await onChange();
+      }
+
+      startTransition(() => router.refresh());
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "Nem sikerült elmenteni az új sorrendet.");
+    } finally {
+      setIsReordering(false);
+      setDragOrder(null);
+      setDraggingRowId("");
+      dropHandledRef.current = false;
+    }
   }
 
   async function handleDelete(id: string) {
@@ -174,6 +256,54 @@ export function AdminPreviewTable({
     setFormValues({});
   }
 
+  function handleDragStart(event: DragEvent<HTMLElement>, rowId: string) {
+    if (isReordering || activeRowId) {
+      event.preventDefault();
+      return;
+    }
+
+    dropHandledRef.current = false;
+    setDraggingRowId(rowId);
+    setDragOrder(displayRows.map((row) => row.id ?? ""));
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", rowId);
+  }
+
+  function handleDragOver(event: DragEvent<HTMLElement>, targetId: string) {
+    event.preventDefault();
+
+    const draggedId = draggingRowId || event.dataTransfer.getData("text/plain");
+    if (!draggedId || draggedId === targetId) {
+      return;
+    }
+
+    setDragOrder((current) => moveId(current ?? displayRows.map((row) => row.id ?? ""), draggedId, targetId));
+  }
+
+  async function handleDrop(event: DragEvent<HTMLElement>, targetId: string) {
+    event.preventDefault();
+
+    const draggedId = draggingRowId || event.dataTransfer.getData("text/plain");
+    if (!draggedId) {
+      return;
+    }
+
+    const nextOrder = moveId(dragOrder ?? displayRows.map((row) => row.id ?? ""), draggedId, targetId);
+    const rowMap = new Map(displayRows.map((row) => [row.id ?? "", row]));
+    const reorderedRows = nextOrder.map((id) => rowMap.get(id)).filter(Boolean) as Record<string, string>[];
+
+    dropHandledRef.current = true;
+    await persistReorder(reorderedRows);
+  }
+
+  function handleDragEnd() {
+    if (!dropHandledRef.current) {
+      setDragOrder(null);
+      setDraggingRowId("");
+    }
+    dropHandledRef.current = false;
+  }
+
   return (
     <article className="soho-admin-card soho-admin-preview-card">
       <div className="soho-admin-preview-head">
@@ -184,7 +314,7 @@ export function AdminPreviewTable({
           </p>
         </div>
         <span className={`soho-admin-status-chip ${ok ? "is-ok" : "is-error"}`}>
-          {loading ? "Betöltés..." : ok ? `${rows.length} elem` : "Hiba"}
+          {loading ? "Betöltés..." : isReordering ? "Mentés..." : ok ? `${rows.length} elem` : "Hiba"}
         </span>
       </div>
 
@@ -212,13 +342,17 @@ export function AdminPreviewTable({
         <p className="soho-admin-empty">Még nincs adat ebben a blokkban.</p>
       ) : (
         <div className="soho-admin-card-grid">
-          {previewRows.map((row) => {
+          {displayRows.map((row) => {
             const rowId = row.id ?? `${title}-${JSON.stringify(row)}`;
             const imageId = getImageId(row);
-            const sortOrder = Number.parseInt(row.sort_order ?? "0", 10) || 0;
 
             return (
-              <article key={rowId} className="soho-admin-item-card">
+              <article
+                key={rowId}
+                className={`soho-admin-item-card ${draggingRowId === rowId ? "is-dragging" : ""}`}
+                onDragOver={(event) => handleDragOver(event, rowId)}
+                onDrop={(event) => void handleDrop(event, rowId)}
+              >
                 <button
                   type="button"
                   className="soho-admin-item-hitbox"
@@ -244,6 +378,17 @@ export function AdminPreviewTable({
                 </button>
 
                 <div className="soho-admin-item-actions">
+                  <button
+                    type="button"
+                    className="soho-admin-row-action soho-admin-drag-handle"
+                    draggable={!isPending && !isReordering}
+                    onDragStart={(event) => handleDragStart(event, rowId)}
+                    onDragEnd={handleDragEnd}
+                    disabled={isPending || isReordering}
+                  >
+                    Mozgatás
+                  </button>
+
                   {"published" in row ? (
                     <button
                       type="button"
@@ -253,46 +398,17 @@ export function AdminPreviewTable({
                           published: row.published === "true" ? "false" : "true",
                         })
                       }
-                      disabled={isPending || activeRowId === rowId}
+                      disabled={isPending || activeRowId === rowId || isReordering}
                     >
                       {formatPublished(row.published)}
                     </button>
-                  ) : null}
-
-                  {"sort_order" in row ? (
-                    <>
-                      <button
-                        type="button"
-                        className="soho-admin-row-action"
-                        onClick={() =>
-                          handleQuickUpdate(rowId, {
-                            sort_order: String(Math.max(1, sortOrder - 10)),
-                          })
-                        }
-                        disabled={isPending || activeRowId === rowId}
-                      >
-                        Sorrend -
-                      </button>
-                      <button
-                        type="button"
-                        className="soho-admin-row-action"
-                        onClick={() =>
-                          handleQuickUpdate(rowId, {
-                            sort_order: String(sortOrder + 10),
-                          })
-                        }
-                        disabled={isPending || activeRowId === rowId}
-                      >
-                        Sorrend +
-                      </button>
-                    </>
                   ) : null}
 
                   <button
                     type="button"
                     className="soho-admin-row-action"
                     onClick={() => openEditor(row)}
-                    disabled={isPending || activeRowId === rowId}
+                    disabled={isPending || activeRowId === rowId || isReordering}
                   >
                     Szerkesztés
                   </button>
@@ -300,7 +416,7 @@ export function AdminPreviewTable({
                     type="button"
                     className="soho-admin-row-action"
                     onClick={() => handleDelete(rowId)}
-                    disabled={isPending || activeRowId === rowId}
+                    disabled={isPending || activeRowId === rowId || isReordering}
                   >
                     {activeRowId === rowId ? "Folyamat..." : "Törlés"}
                   </button>

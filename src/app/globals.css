@@ -1229,10 +1229,20 @@ textarea {
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
   overflow: hidden;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .soho-admin-item-card.is-loading {
   pointer-events: none;
+}
+
+.soho-admin-item-card.is-dragging {
+  transform: scale(0.985);
+  border-color: rgba(208, 214, 13, 0.65);
+  box-shadow: 0 0 0 1px rgba(208, 214, 13, 0.35);
 }
 
 .soho-admin-item-hitbox {
@@ -1577,6 +1587,14 @@ textarea {
     background-color 160ms ease,
     border-color 160ms ease,
     color 160ms ease;
+}
+
+.soho-admin-drag-handle {
+  cursor: grab;
+}
+
+.soho-admin-drag-handle:active {
+  cursor: grabbing;
 }
 
 .soho-admin-row-action:hover:not(:disabled) {
