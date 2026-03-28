@@ -15,6 +15,7 @@ type Props = {
   columns: string[];
   editableFields: string[];
   onChange?: () => Promise<void> | void;
+  loading?: boolean;
 };
 
 const FIELD_LABELS: Record<string, string> = {
@@ -98,6 +99,7 @@ export function AdminPreviewTable({
   rows,
   editableFields,
   onChange,
+  loading = false,
 }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -182,12 +184,30 @@ export function AdminPreviewTable({
           </p>
         </div>
         <span className={`soho-admin-status-chip ${ok ? "is-ok" : "is-error"}`}>
-          {ok ? `${rows.length} elem` : "Hiba"}
+          {loading ? "Betöltés..." : ok ? `${rows.length} elem` : "Hiba"}
         </span>
       </div>
 
-      {!ok ? (
+      {!ok && !loading ? (
         <p className="soho-admin-error">{error ?? "Ismeretlen hiba."}</p>
+      ) : loading && rows.length === 0 ? (
+        <div className="soho-admin-card-grid">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <article key={`${title}-loading-${index}`} className="soho-admin-item-card is-loading">
+              <div className="soho-admin-item-media">
+                <div className="soho-admin-item-placeholder soho-admin-skeleton-block" />
+              </div>
+              <div className="soho-admin-item-copy">
+                <span className="soho-admin-skeleton-line is-wide" />
+                <span className="soho-admin-skeleton-line" />
+              </div>
+              <div className="soho-admin-item-actions">
+                <span className="soho-admin-skeleton-pill" />
+                <span className="soho-admin-skeleton-pill" />
+              </div>
+            </article>
+          ))}
+        </div>
       ) : rows.length === 0 ? (
         <p className="soho-admin-empty">Még nincs adat ebben a blokkban.</p>
       ) : (

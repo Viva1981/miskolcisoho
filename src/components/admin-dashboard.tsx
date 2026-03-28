@@ -25,7 +25,6 @@ const LOADING_RESULT: ResourceResult = {
   ok: true,
   source: "apps-script",
   data: [],
-  error: "Betöltés...",
 };
 
 export function AdminDashboard() {
@@ -113,8 +112,7 @@ export function AdminDashboard() {
 
       applyDashboardResponse(result);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Ismeretlen hiba történt.";
-      applyDashboardError(message);
+      applyDashboardError(error instanceof Error ? error.message : "Ismeretlen hiba történt.");
     }
   }, [applyDashboardError, applyDashboardResponse]);
 
@@ -176,7 +174,7 @@ export function AdminDashboard() {
             resource="events"
             source={state.events.source}
             ok={state.events.ok}
-            error={state.loading && state.events.data.length === 0 ? "Betöltés..." : state.events.error}
+            error={state.events.error}
             rows={state.events.data}
             columns={[
               "id",
@@ -199,6 +197,7 @@ export function AdminDashboard() {
               "sort_order",
             ]}
             onChange={loadDashboard}
+            loading={state.loading && state.events.data.length === 0}
           />
         </div>
       </section>
@@ -220,11 +219,7 @@ export function AdminDashboard() {
             resource="facebook_feed"
             source={state.facebookFeed.source}
             ok={state.facebookFeed.ok}
-            error={
-              state.loading && state.facebookFeed.data.length === 0
-                ? "Betöltés..."
-                : state.facebookFeed.error
-            }
+            error={state.facebookFeed.error}
             rows={state.facebookFeed.data}
             columns={[
               "id",
@@ -245,6 +240,7 @@ export function AdminDashboard() {
               "sort_order",
             ]}
             onChange={loadDashboard}
+            loading={state.loading && state.facebookFeed.data.length === 0}
           />
         </div>
       </section>
@@ -253,13 +249,11 @@ export function AdminDashboard() {
         albumsResult={{
           ok: state.galleryAlbums.ok,
           source: state.galleryAlbums.source,
-          error:
-            state.loading && state.galleryAlbums.data.length === 0
-              ? "Betöltés..."
-              : state.galleryAlbums.error,
+          error: state.galleryAlbums.error,
           rows: state.galleryAlbums.data,
         }}
         onAlbumsChange={loadDashboard}
+        loading={state.loading && state.galleryAlbums.data.length === 0}
       />
     </>
   );

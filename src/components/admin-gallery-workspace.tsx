@@ -14,9 +14,14 @@ type AdminGalleryWorkspaceProps = {
     rows: Record<string, string>[];
   };
   onAlbumsChange?: () => Promise<void> | void;
+  loading?: boolean;
 };
 
-export function AdminGalleryWorkspace({ albumsResult, onAlbumsChange }: AdminGalleryWorkspaceProps) {
+export function AdminGalleryWorkspace({
+  albumsResult,
+  onAlbumsChange,
+  loading = false,
+}: AdminGalleryWorkspaceProps) {
   const [selectedAlbumId, setSelectedAlbumId] = useState(albumsResult.rows[0]?.id ?? "");
   const [galleryImagesResult, setGalleryImagesResult] = useState<{
     ok: boolean;
@@ -178,6 +183,7 @@ export function AdminGalleryWorkspace({ albumsResult, onAlbumsChange }: AdminGal
             "sort_order",
           ]}
           onChange={onAlbumsChange}
+          loading={loading}
         />
       </div>
 
