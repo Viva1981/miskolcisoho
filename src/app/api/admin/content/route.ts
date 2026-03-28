@@ -84,53 +84,56 @@ export async function POST(request: NextRequest) {
           : resource === "gallery_albums"
             ? "album"
             : "image";
+
     const response = await createAdminRow(resource, {
       ...(resource === "events"
         ? {
             id: `${idPrefix}_${Date.now()}`,
             title: body.payload.title?.trim() ?? "",
             date: body.payload.date?.trim() ?? "",
+            date_end: body.payload.date_end?.trim() ?? "",
             time: body.payload.time?.trim() ?? "",
+            time_end: body.payload.time_end?.trim() ?? "",
             facebook_url: body.payload.facebook_url?.trim() ?? "",
             cover_drive_file_id: body.payload.cover_drive_file_id?.trim() ?? "",
             cover_drive_url: body.payload.cover_drive_url?.trim() ?? "",
             published: body.payload.published?.trim() ?? "true",
             sort_order: body.payload.sort_order?.trim() ?? "10",
           }
-          : resource === "gallery_albums"
+        : resource === "gallery_albums"
+          ? {
+              id: `${idPrefix}_${Date.now()}`,
+              slug:
+                body.payload.slug?.trim() ||
+                slugify(body.payload.title?.trim() ?? `${idPrefix}_${Date.now()}`),
+              title: body.payload.title?.trim() ?? "",
+              event_date: body.payload.event_date?.trim() ?? "",
+              description: body.payload.description?.trim() ?? "",
+              drive_folder_id: body.payload.drive_folder_id?.trim() ?? "",
+              cover_drive_file_id: body.payload.cover_drive_file_id?.trim() ?? "",
+              cover_drive_url: body.payload.cover_drive_url?.trim() ?? "",
+              published: body.payload.published?.trim() ?? "true",
+              sort_order: body.payload.sort_order?.trim() ?? "10",
+            }
+          : resource === "gallery_images"
             ? {
                 id: `${idPrefix}_${Date.now()}`,
-                slug:
-                  body.payload.slug?.trim() ||
-                  slugify(body.payload.title?.trim() ?? `${idPrefix}_${Date.now()}`),
+                album_id: body.payload.album_id?.trim() ?? "",
+                drive_file_id: body.payload.drive_file_id?.trim() ?? "",
+                drive_file_url: body.payload.drive_file_url?.trim() ?? "",
+                caption: body.payload.caption?.trim() ?? "",
+                sort_order: body.payload.sort_order?.trim() ?? "10",
+              }
+            : {
+                id: `${idPrefix}_${Date.now()}`,
                 title: body.payload.title?.trim() ?? "",
-                event_date: body.payload.event_date?.trim() ?? "",
-                description: body.payload.description?.trim() ?? "",
-                drive_folder_id: body.payload.drive_folder_id?.trim() ?? "",
+                text: "",
+                facebook_url: body.payload.facebook_url?.trim() ?? "",
                 cover_drive_file_id: body.payload.cover_drive_file_id?.trim() ?? "",
                 cover_drive_url: body.payload.cover_drive_url?.trim() ?? "",
                 published: body.payload.published?.trim() ?? "true",
                 sort_order: body.payload.sort_order?.trim() ?? "10",
-              }
-            : resource === "gallery_images"
-              ? {
-                  id: `${idPrefix}_${Date.now()}`,
-                  album_id: body.payload.album_id?.trim() ?? "",
-                  drive_file_id: body.payload.drive_file_id?.trim() ?? "",
-                  drive_file_url: body.payload.drive_file_url?.trim() ?? "",
-                  caption: body.payload.caption?.trim() ?? "",
-                  sort_order: body.payload.sort_order?.trim() ?? "10",
-                }
-              : {
-                  id: `${idPrefix}_${Date.now()}`,
-                  title: body.payload.title?.trim() ?? "",
-                  text: body.payload.text?.trim() ?? "",
-                  facebook_url: body.payload.facebook_url?.trim() ?? "",
-                  cover_drive_file_id: body.payload.cover_drive_file_id?.trim() ?? "",
-                  cover_drive_url: body.payload.cover_drive_url?.trim() ?? "",
-                  published: body.payload.published?.trim() ?? "true",
-                  sort_order: body.payload.sort_order?.trim() ?? "10",
-                }),
+              }),
     });
 
     if (!response.ok) {

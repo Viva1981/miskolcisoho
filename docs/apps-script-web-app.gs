@@ -240,11 +240,11 @@ function stringifyCellValue(value, header, timezone) {
   }
 
   if (Object.prototype.toString.call(value) === "[object Date]") {
-    if (header === "date" || header === "event_date") {
+    if (header === "date" || header === "date_end" || header === "event_date") {
       return Utilities.formatDate(value, timezone, "yyyy-MM-dd");
     }
 
-    if (header === "time") {
+    if (header === "time" || header === "time_end") {
       return Utilities.formatDate(value, timezone, "HH:mm");
     }
   }

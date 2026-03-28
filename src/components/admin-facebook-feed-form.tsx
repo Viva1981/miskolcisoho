@@ -21,7 +21,6 @@ export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps)
   const router = useRouter();
   const [state, setState] = useState<SubmitState>({ type: "idle" });
   const [title, setTitle] = useState("");
-  const [text, setText] = useState("");
   const [facebookUrl, setFacebookUrl] = useState("");
   const [sortOrder, setSortOrder] = useState(INITIAL_SORT_ORDER);
   const [published, setPublished] = useState(true);
@@ -114,7 +113,6 @@ export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps)
           resource: "facebook_feed",
           payload: {
             title,
-            text,
             facebook_url: facebookUrl,
             cover_drive_file_id: uploadResult.fileId,
             cover_drive_url: uploadResult.fileUrl,
@@ -138,7 +136,6 @@ export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps)
       }
 
       setTitle("");
-      setText("");
       setFacebookUrl("");
       setSortOrder(INITIAL_SORT_ORDER);
       setPublished(true);
@@ -168,8 +165,7 @@ export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps)
         <div>
           <h2>Új Facebook elem</h2>
           <p>
-            Itt tudsz új kártyát létrehozni a főoldali Facebook blokkhoz képpel, szöveggel és
-            linkkel.
+            Itt tudsz új kártyát létrehozni a főoldali Facebook blokkhoz képpel és hivatkozással.
           </p>
         </div>
       </div>
@@ -182,17 +178,6 @@ export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps)
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="Például: Hétvégi nyitó est"
-            required
-          />
-        </label>
-
-        <label>
-          <span>Leírás</span>
-          <input
-            type="text"
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-            placeholder="Rövid leírás a kártyához"
             required
           />
         </label>

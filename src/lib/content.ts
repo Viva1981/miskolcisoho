@@ -16,7 +16,11 @@ export type HomepageEvent = {
   id: string;
   title: string;
   date: string;
-  time: string;
+  dateEnd?: string;
+  time?: string;
+  timeEnd?: string;
+  dateLabel: string;
+  timeLabel: string;
   accent: AccentTone;
   facebookUrl: string;
   coverImageUrl?: string;
@@ -40,6 +44,8 @@ const mockHomepageEvents: HomepageEvent[] = [
     title: "Húsvéti Vén Teenager Party",
     date: "2026-04-03",
     time: "20:00",
+    dateLabel: "2026-04-03",
+    timeLabel: "20:00",
     accent: "emerald",
     facebookUrl: "https://fb.me/e/3lJC1LLFD",
   },
@@ -48,6 +54,8 @@ const mockHomepageEvents: HomepageEvent[] = [
     title: "Csajpéntek",
     date: "2026-04-10",
     time: "22:00",
+    dateLabel: "2026-04-10",
+    timeLabel: "22:00",
     accent: "sunset",
     facebookUrl: "https://fb.me/e/8hWvC5sVa",
   },
@@ -56,6 +64,8 @@ const mockHomepageEvents: HomepageEvent[] = [
     title: "Nagy Bogi Lemezbemutató",
     date: "2026-04-17",
     time: "20:00",
+    dateLabel: "2026-04-17",
+    timeLabel: "20:00",
     accent: "blue",
     facebookUrl: "https://www.facebook.com/profile.php?id=61575425759586&locale=hu_HU",
   },
@@ -64,6 +74,8 @@ const mockHomepageEvents: HomepageEvent[] = [
     title: "Soho Opening Night",
     date: "2026-04-24",
     time: "21:00",
+    dateLabel: "2026-04-24",
+    timeLabel: "21:00",
     accent: "violet",
     facebookUrl: "https://www.facebook.com/profile.php?id=61575425759586&locale=hu_HU",
   },
@@ -72,6 +84,8 @@ const mockHomepageEvents: HomepageEvent[] = [
     title: "Retro City Lights",
     date: "2026-05-01",
     time: "22:30",
+    dateLabel: "2026-05-01",
+    timeLabel: "22:30",
     accent: "graphite",
     facebookUrl: "https://www.facebook.com/profile.php?id=61575425759586&locale=hu_HU",
   },
@@ -80,25 +94,25 @@ const mockHomepageEvents: HomepageEvent[] = [
 const mockFacebookFeedItems: FacebookFeedItem[] = [
   {
     id: "event-1",
-    eyebrow: "Facebook event",
+    eyebrow: "Facebook",
     title: "Hétvégi nyitó est",
-    subtitle: "Kattintás után a valódi Facebook esemény nyílik meg.",
+    subtitle: "",
     href: "https://fb.me/e/3lJC1LLFD",
     tone: "lime",
   },
   {
     id: "event-2",
-    eyebrow: "Következő buli",
+    eyebrow: "Facebook",
     title: "Soho night session",
-    subtitle: "Valódi event linkkel, saját dizájnéppel megjelenítve.",
+    subtitle: "",
     href: "https://fb.me/e/8hWvC5sVa",
     tone: "blue",
   },
   {
     id: "post-1",
-    eyebrow: "Friss poszt",
+    eyebrow: "Facebook",
     title: "Klubpillanatok",
-    subtitle: "Poszt, teaser vagy aftermovie is bekerülhet ugyanebbe a rácsba.",
+    subtitle: "",
     href: "https://www.facebook.com/permalink.php?story_fbid=pfbid0h1oLuAHyUKjYGaiPyFdr6Q98pMWwxuFWkqD39rHufsFwAP7oKP9mwKYNLPETbKCzl&id=61575425759586",
     tone: "violet",
   },
@@ -115,6 +129,48 @@ function isPublished(value: string | undefined) {
 function toSortOrder(value: string | undefined, fallback: number) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function normalizeValue(value: string | undefined) {
+  return String(value ?? "").trim();
+}
+
+function buildDateLabel(start: string, end?: string) {
+  const normalizedStart = normalizeValue(start);
+  const normalizedEnd = normalizeValue(end);
+
+  if (!normalizedStart) {
+    return "";
+  }
+
+  if (!normalizedEnd || normalizedEnd === normalizedStart) {
+    return normalizedStart;
+  }
+
+  return `${normalizedStart} - ${normalizedEnd}`;
+}
+
+function buildTimeLabel(start?: string, end?: string) {
+  const normalizedStart = normalizeValue(start);
+  const normalizedEnd = normalizeValue(end);
+
+  if (!normalizedStart && !normalizedEnd) {
+    return "";
+  }
+
+  if (normalizedStart && !normalizedEnd) {
+    return normalizedStart;
+  }
+
+  if (!normalizedStart && normalizedEnd) {
+    return normalizedEnd;
+  }
+
+  if (normalizedStart === normalizedEnd) {
+    return normalizedStart;
+  }
+
+  return `${normalizedStart} - ${normalizedEnd}`;
 }
 
 export function getDriveThumbnailUrl(fileId: string | undefined, size = 1200) {
@@ -159,15 +215,26 @@ export async function getHomepageEvents() {
   const mapped = result.data
     .filter((row) => isPublished(row.published))
     .sort((a, b) => toSortOrder(a.sort_order, 9999) - toSortOrder(b.sort_order, 9999))
-    .map((row, index) => ({
-      id: row.id || `event-${index + 1}`,
-      title: row.title || "Esemény",
-      date: row.date || "",
-      time: row.time || "",
-      accent: getTone(index),
-      facebookUrl: row.facebook_url || "#",
-      coverImageUrl: getDriveThumbnailUrl(row.cover_drive_file_id, 1600),
-    }));
+    .map((row, index) => {
+      const date = normalizeValue(row.date);
+      const dateEnd = normalizeValue(row.date_end);
+      const time = normalizeValue(row.time);
+      const timeEnd = normalizeValue(row.time_end);
+
+      return {
+        id: row.id || `event-${index + 1}`,
+        title: row.title || "Esemény",
+        date,
+        dateEnd: dateEnd || undefined,
+        time: time || undefined,
+        timeEnd: timeEnd || undefined,
+        dateLabel: buildDateLabel(date, dateEnd),
+        timeLabel: buildTimeLabel(time, timeEnd),
+        accent: getTone(index),
+        facebookUrl: row.facebook_url || "#",
+        coverImageUrl: getDriveThumbnailUrl(row.cover_drive_file_id, 1600),
+      };
+    });
 
   return mapped.length > 0 ? mapped : mockHomepageEvents;
 }
@@ -184,9 +251,9 @@ export async function getFacebookFeedItems() {
     .sort((a, b) => toSortOrder(a.sort_order, 9999) - toSortOrder(b.sort_order, 9999))
     .map((row, index) => ({
       id: row.id || `feed-${index + 1}`,
-      eyebrow: index < 2 ? "Facebook event" : "Friss poszt",
+      eyebrow: "Facebook",
       title: row.title || "Facebook tartalom",
-      subtitle: row.text || "Facebook tartalom a Soho felületén.",
+      subtitle: "",
       href: row.facebook_url || "#",
       tone: getTone(index),
       coverImageUrl: getDriveThumbnailUrl(row.cover_drive_file_id, 1200),

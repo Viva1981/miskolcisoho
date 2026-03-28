@@ -95,14 +95,19 @@ function EventCard({
 
       <div className="soho-event-body">
         <div className="soho-event-meta">
-          <span>
-            <CalendarIcon />
-            {event.date}
-          </span>
-          <span>
-            <ClockIcon />
-            {event.time}
-          </span>
+          {event.dateLabel ? (
+            <span>
+              <CalendarIcon />
+              {event.dateLabel}
+            </span>
+          ) : null}
+
+          {event.timeLabel ? (
+            <span>
+              <ClockIcon />
+              {event.timeLabel}
+            </span>
+          ) : null}
         </div>
 
         <h3>{event.title}</h3>

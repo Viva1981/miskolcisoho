@@ -24,9 +24,11 @@ const FIELD_LABELS: Record<string, string> = {
   text: "Leírás",
   description: "Leírás",
   caption: "Képaláírás",
-  date: "Dátum",
+  date: "Kezdő dátum",
+  date_end: "Záró dátum",
   event_date: "Esemény dátuma",
-  time: "Időpont",
+  time: "Kezdő időpont",
+  time_end: "Záró időpont",
   facebook_url: "Facebook link",
   cover_drive_file_id: "Borítókép fájl",
   cover_drive_url: "Borítókép link",
@@ -45,8 +47,8 @@ function fieldLabel(field: string) {
 
 function fieldType(field: string) {
   if (field === "published") return "checkbox";
-  if (field === "date" || field === "event_date") return "date";
-  if (field === "time") return "time";
+  if (field === "date" || field === "date_end" || field === "event_date") return "date";
+  if (field === "time" || field === "time_end") return "time";
   if (field.endsWith("_url") || field === "facebook_url") return "url";
   if (field === "description" || field === "text" || field === "caption") return "textarea";
   return "text";
@@ -68,11 +70,25 @@ function getCardTitle(row: Record<string, string>, resource: AdminResource) {
   return row.title || row.id || "Névtelen elem";
 }
 
+function buildEventSubtitle(row: Record<string, string>) {
+  const dateStart = row.date || "";
+  const dateEnd = row.date_end || "";
+  const timeStart = row.time || "";
+  const timeEnd = row.time_end || "";
+
+  const dateLabel =
+    dateStart && dateEnd && dateStart !== dateEnd ? `${dateStart} - ${dateEnd}` : dateStart;
+  const timeLabel =
+    timeStart && timeEnd && timeStart !== timeEnd
+      ? `${timeStart} - ${timeEnd}`
+      : timeStart || timeEnd;
+
+  return [dateLabel, timeLabel].filter(Boolean).join(" • ");
+}
+
 function getCardSubtitle(row: Record<string, string>, resource: AdminResource) {
   if (resource === "events") {
-    const date = row.date || "";
-    const time = row.time || "";
-    return [date, time].filter(Boolean).join(" • ");
+    return buildEventSubtitle(row);
   }
 
   if (resource === "gallery_albums") {
@@ -152,7 +168,10 @@ export function AdminPreviewTable({
     }
 
     const rowMap = new Map(baseRows.map((row) => [row.id ?? "", row]));
-    const orderedRows = dragOrder.map((id) => rowMap.get(id)).filter(Boolean) as Record<string, string>[];
+    const orderedRows = dragOrder.map((id) => rowMap.get(id)).filter(Boolean) as Record<
+      string,
+      string
+    >[];
 
     if (orderedRows.length !== baseRows.length) {
       return baseRows;
@@ -225,7 +244,9 @@ export function AdminPreviewTable({
 
       startTransition(() => router.refresh());
     } catch (error) {
-      setActionError(error instanceof Error ? error.message : "Nem sikerült elmenteni az új sorrendet.");
+      setActionError(
+        error instanceof Error ? error.message : "Nem sikerült elmenteni az új sorrendet.",
+      );
     } finally {
       setIsReordering(false);
       setDragOrder(null);
@@ -290,7 +311,9 @@ export function AdminPreviewTable({
       return;
     }
 
-    setDragOrder((current) => moveId(current ?? displayRows.map((row) => row.id ?? ""), draggedId, targetId));
+    setDragOrder((current) =>
+      moveId(current ?? displayRows.map((row) => row.id ?? ""), draggedId, targetId),
+    );
   }
 
   async function handleDrop(event: DragEvent<HTMLElement>, targetId: string) {
@@ -301,9 +324,16 @@ export function AdminPreviewTable({
       return;
     }
 
-    const nextOrder = moveId(dragOrder ?? displayRows.map((row) => row.id ?? ""), draggedId, targetId);
+    const nextOrder = moveId(
+      dragOrder ?? displayRows.map((row) => row.id ?? ""),
+      draggedId,
+      targetId,
+    );
     const rowMap = new Map(displayRows.map((row) => [row.id ?? "", row]));
-    const reorderedRows = nextOrder.map((id) => rowMap.get(id)).filter(Boolean) as Record<string, string>[];
+    const reorderedRows = nextOrder.map((id) => rowMap.get(id)).filter(Boolean) as Record<
+      string,
+      string
+    >[];
 
     dropHandledRef.current = true;
     await persistReorder(reorderedRows);

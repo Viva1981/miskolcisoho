@@ -162,7 +162,9 @@ export function AdminDashboard() {
           <div>
             <span className="soho-gallery-kicker">Főoldal</span>
             <h2>Események</h2>
-            <p>Új esemény létrehozása, borítókép feltöltése és a meglévő események kezelése.</p>
+            <p>
+              Új esemény létrehozása, borítókép feltöltése és a meglévő események kezelése.
+            </p>
           </div>
         </div>
 
@@ -180,7 +182,9 @@ export function AdminDashboard() {
               "id",
               "title",
               "date",
+              "date_end",
               "time",
+              "time_end",
               "facebook_url",
               "cover_drive_file_id",
               "published",
@@ -189,7 +193,9 @@ export function AdminDashboard() {
             editableFields={[
               "title",
               "date",
+              "date_end",
               "time",
+              "time_end",
               "facebook_url",
               "cover_drive_file_id",
               "cover_drive_url",
@@ -207,7 +213,7 @@ export function AdminDashboard() {
           <div>
             <span className="soho-gallery-kicker">Főoldal</span>
             <h2>Facebook blokk</h2>
-            <p>A „Kövess minket Facebookon” rész elemei képpel, szöveggel és hivatkozással.</p>
+            <p>A „Kövess minket Facebookon” rész elemei képpel és hivatkozással.</p>
           </div>
         </div>
 
@@ -224,7 +230,6 @@ export function AdminDashboard() {
             columns={[
               "id",
               "title",
-              "text",
               "facebook_url",
               "cover_drive_file_id",
               "published",
@@ -232,7 +237,6 @@ export function AdminDashboard() {
             ]}
             editableFields={[
               "title",
-              "text",
               "facebook_url",
               "cover_drive_file_id",
               "cover_drive_url",

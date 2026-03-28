@@ -22,7 +22,9 @@ export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
   const [state, setState] = useState<SubmitState>({ type: "idle" });
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
+  const [dateEnd, setDateEnd] = useState("");
   const [time, setTime] = useState("");
+  const [timeEnd, setTimeEnd] = useState("");
   const [facebookUrl, setFacebookUrl] = useState("");
   const [sortOrder, setSortOrder] = useState(INITIAL_SORT_ORDER);
   const [published, setPublished] = useState(true);
@@ -36,6 +38,14 @@ export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
       setState({
         type: "error",
         message: "Válassz ki egy borítóképet az eseményhez.",
+      });
+      return;
+    }
+
+    if (timeEnd && !time) {
+      setState({
+        type: "error",
+        message: "Záró időpont csak kezdő időponttal együtt adható meg.",
       });
       return;
     }
@@ -116,7 +126,9 @@ export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
           payload: {
             title,
             date,
+            date_end: dateEnd,
             time,
+            time_end: timeEnd,
             facebook_url: facebookUrl,
             cover_drive_file_id: uploadResult.fileId,
             cover_drive_url: uploadResult.fileUrl,
@@ -141,7 +153,9 @@ export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
 
       setTitle("");
       setDate("");
+      setDateEnd("");
       setTime("");
+      setTimeEnd("");
       setFacebookUrl("");
       setSortOrder(INITIAL_SORT_ORDER);
       setPublished(true);
@@ -191,13 +205,42 @@ export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
 
         <div className="soho-admin-form-grid">
           <label>
-            <span>Dátum</span>
-            <input type="date" value={date} onChange={(event) => setDate(event.target.value)} required />
+            <span>Kezdő dátum</span>
+            <input
+              type="date"
+              value={date}
+              onChange={(event) => setDate(event.target.value)}
+              required
+            />
           </label>
 
           <label>
-            <span>Időpont</span>
-            <input type="time" value={time} onChange={(event) => setTime(event.target.value)} required />
+            <span>Záró dátum</span>
+            <input
+              type="date"
+              value={dateEnd}
+              onChange={(event) => setDateEnd(event.target.value)}
+            />
+          </label>
+        </div>
+
+        <div className="soho-admin-form-grid">
+          <label>
+            <span>Kezdő időpont</span>
+            <input
+              type="time"
+              value={time}
+              onChange={(event) => setTime(event.target.value)}
+            />
+          </label>
+
+          <label>
+            <span>Záró időpont</span>
+            <input
+              type="time"
+              value={timeEnd}
+              onChange={(event) => setTimeEnd(event.target.value)}
+            />
           </label>
         </div>
 
