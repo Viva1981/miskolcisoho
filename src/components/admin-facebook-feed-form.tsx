@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { useAdminOperations } from "@/components/admin-operation-provider";
 import { parseAdminJsonResponse, validateAdminImageFile } from "@/lib/admin-client";
 import { readFileAsBase64 } from "@/lib/read-file-as-base64";
 
@@ -20,6 +21,7 @@ const INITIAL_SORT_ORDER = "10";
 
 export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps) {
   const router = useRouter();
+  const { failOperation, finishOperation, startOperation, updateOperation } = useAdminOperations();
   const [state, setState] = useState<SubmitState>({ type: "idle" });
   const [title, setTitle] = useState("");
   const [facebookUrl, setFacebookUrl] = useState("");
@@ -30,6 +32,7 @@ export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    let operationId = "";
 
     if (!file) {
       setState({
@@ -40,6 +43,7 @@ export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps)
     }
 
     try {
+      operationId = startOperation("Új Facebook elem", "Drive mappa létrehozása...");
       validateAdminImageFile(file, "borítókép");
       setState({ type: "saving", message: "Facebook mappa létrehozása a Drive-ban..." });
 
@@ -69,6 +73,7 @@ export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps)
       }
 
       setState({ type: "saving", message: "Borítókép feltöltése a Drive-ba..." });
+      updateOperation(operationId, "Borítókép feltöltése a Drive-ba...");
       const base64 = await readFileAsBase64(file);
 
       const uploadResponse = await fetch("/api/admin/upload-drive-file", {
@@ -105,6 +110,7 @@ export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps)
       }
 
       setState({ type: "saving", message: "Facebook elem mentése..." });
+      updateOperation(operationId, "Facebook elem mentése...");
 
       const response = await fetch("/api/admin/content", {
         method: "POST",
@@ -148,6 +154,7 @@ export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps)
         type: "success",
         message: "A Facebook elem és a borítóképe sikeresen bekerült a rendszerbe.",
       });
+      finishOperation(operationId, "A Facebook elem sikeresen létrejött.");
 
       if (onSuccess) {
         await onSuccess();
@@ -155,6 +162,9 @@ export function AdminFacebookFeedForm({ onSuccess }: AdminFacebookFeedFormProps)
 
       router.refresh();
     } catch (error) {
+      if (operationId) {
+        failOperation(operationId, error instanceof Error ? error.message : "Ismeretlen hiba történt.");
+      }
       setState({
         type: "error",
         message: error instanceof Error ? error.message : "Ismeretlen hiba történt.",

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { parseAdminJsonResponse, validateAdminImageFile } from "@/lib/admin-client";
 import { readFileAsBase64 } from "@/lib/read-file-as-base64";
+import { useAdminOperations } from "@/components/admin-operation-provider";
 
 type SubmitState =
   | { type: "idle" }
@@ -20,6 +21,7 @@ const INITIAL_SORT_ORDER = "10";
 
 export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
   const router = useRouter();
+  const { failOperation, finishOperation, startOperation, updateOperation } = useAdminOperations();
   const [state, setState] = useState<SubmitState>({ type: "idle" });
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
@@ -34,6 +36,7 @@ export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    let operationId = "";
 
     if (!file) {
       setState({
@@ -52,6 +55,7 @@ export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
     }
 
     try {
+      operationId = startOperation("Új esemény", "Drive mappa létrehozása...");
       validateAdminImageFile(file, "borítókép");
       setState({ type: "saving", message: "Eseménymappa létrehozása a Drive-ban..." });
 
@@ -81,6 +85,7 @@ export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
       }
 
       setState({ type: "saving", message: "Borítókép feltöltése a Drive-ba..." });
+      updateOperation(operationId, "Borítókép feltöltése a Drive-ba...");
       const base64 = await readFileAsBase64(file);
 
       const uploadResponse = await fetch("/api/admin/upload-drive-file", {
@@ -117,6 +122,7 @@ export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
       }
 
       setState({ type: "saving", message: "Esemény mentése..." });
+      updateOperation(operationId, "Esemény adatai mentése...");
 
       const response = await fetch("/api/admin/content", {
         method: "POST",
@@ -168,6 +174,7 @@ export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
         type: "success",
         message: "Az esemény és a borítóképe sikeresen bekerült a rendszerbe.",
       });
+      finishOperation(operationId, "Az esemény sikeresen létrejött.");
 
       if (onSuccess) {
         await onSuccess();
@@ -175,6 +182,9 @@ export function AdminEventForm({ onSuccess }: AdminEventFormProps) {
 
       router.refresh();
     } catch (error) {
+      if (operationId) {
+        failOperation(operationId, error instanceof Error ? error.message : "Ismeretlen hiba történt.");
+      }
       setState({
         type: "error",
         message: error instanceof Error ? error.message : "Ismeretlen hiba történt.",

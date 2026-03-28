@@ -3,6 +3,7 @@
 import { DragEvent, FormEvent, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
+import { useAdminOperations } from "@/components/admin-operation-provider";
 import { parseAdminJsonResponse, validateAdminImageFile } from "@/lib/admin-client";
 import type { AdminResource } from "@/lib/admin-resources";
 import { readFileAsBase64 } from "@/lib/read-file-as-base64";
@@ -169,6 +170,7 @@ export function AdminPreviewTable({
   loading = false,
 }: Props) {
   const router = useRouter();
+  const { failOperation, finishOperation, startOperation } = useAdminOperations();
   const [isPending, startTransition] = useTransition();
   const [actionError, setActionError] = useState("");
   const [activeRowId, setActiveRowId] = useState("");
@@ -227,6 +229,10 @@ export function AdminPreviewTable({
   async function runMutation(method: "PUT" | "DELETE", id: string, payload?: Record<string, string>) {
     setActionError("");
     setActiveRowId(id);
+    const operationId = startOperation(
+      method === "DELETE" ? "Elem törlése" : "Elem mentése",
+      method === "DELETE" ? "A módosítás Drive és adatbázis oldalon is feldolgozás alatt van..." : "A módosítás mentése folyamatban...",
+    );
 
     const response = await fetch("/api/admin/content", {
       method,
@@ -241,11 +247,16 @@ export function AdminPreviewTable({
 
     if (!response.ok || !result.ok) {
       setActionError(result.error ?? "Nem sikerült elmenteni a módosítást.");
+      failOperation(operationId, result.error ?? "Nem sikerült befejezni a műveletet.");
       setActiveRowId("");
       return false;
     }
 
     setActiveRowId("");
+    finishOperation(
+      operationId,
+      method === "DELETE" ? "Az elem sikeresen törölve lett." : "A módosítás sikeresen elmentve.",
+    );
 
     if (onChange) {
       await onChange();
@@ -262,6 +273,7 @@ export function AdminPreviewTable({
 
     setActionError("");
     setIsReordering(true);
+    const operationId = startOperation("Sorrend mentése", "Az új sorrend rögzítése folyamatban...");
 
     try {
       const updates = nextRows.map((row, index) =>
@@ -292,6 +304,7 @@ export function AdminPreviewTable({
         await onChange();
       }
 
+      finishOperation(operationId, "Az új sorrend sikeresen elmentve.");
       startTransition(() => router.refresh());
     } catch (error) {
       setActionError(

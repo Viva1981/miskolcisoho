@@ -3,6 +3,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { useAdminOperations } from "@/components/admin-operation-provider";
 import { parseAdminJsonResponse, validateAdminImageFile } from "@/lib/admin-client";
 import { readFileAsBase64 } from "@/lib/read-file-as-base64";
 
@@ -34,6 +35,7 @@ export function AdminGalleryImageForm({
   onSuccess,
 }: AdminGalleryImageFormProps) {
   const router = useRouter();
+  const { failOperation, finishOperation, startOperation, updateOperation } = useAdminOperations();
   const [state, setState] = useState<SubmitState>({ type: "idle" });
   const [sortOrder, setSortOrder] = useState(INITIAL_SORT_ORDER);
   const [files, setFiles] = useState<File[]>([]);
@@ -46,6 +48,7 @@ export function AdminGalleryImageForm({
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    let operationId = "";
 
     if (!selectedAlbumId || !folderId) {
       setState({
@@ -64,6 +67,7 @@ export function AdminGalleryImageForm({
     }
 
     try {
+      operationId = startOperation("Galéria képek", "Képfájlok ellenőrzése...");
       files.forEach((file) => validateAdminImageFile(file, "galéria kép"));
 
       const baseSortOrder = Number.parseInt(sortOrder, 10);
@@ -74,6 +78,7 @@ export function AdminGalleryImageForm({
           type: "saving",
           message: `${index + 1}/${files.length} kép feltöltése a Drive-ba...`,
         });
+        updateOperation(operationId, `${index + 1}/${files.length} kép feltöltése a Drive-ba...`);
 
         const base64 = await readFileAsBase64(file);
 
@@ -114,6 +119,7 @@ export function AdminGalleryImageForm({
           type: "saving",
           message: `${index + 1}/${files.length} kép mentése a rendszerbe...`,
         });
+        updateOperation(operationId, `${index + 1}/${files.length} kép mentése a rendszerbe...`);
 
         const response = await fetch("/api/admin/content", {
           method: "POST",
@@ -153,6 +159,7 @@ export function AdminGalleryImageForm({
         type: "success",
         message: `${files.length} kép sikeresen feltöltődött a Drive-ba és bekerült a galériába.`,
       });
+      finishOperation(operationId, `${files.length} kép sikeresen bekerült a galériába.`);
 
       if (onSuccess) {
         await onSuccess();
@@ -160,6 +167,9 @@ export function AdminGalleryImageForm({
 
       router.refresh();
     } catch (error) {
+      if (operationId) {
+        failOperation(operationId, error instanceof Error ? error.message : "Ismeretlen hiba történt.");
+      }
       setState({
         type: "error",
         message: error instanceof Error ? error.message : "Ismeretlen hiba történt.",

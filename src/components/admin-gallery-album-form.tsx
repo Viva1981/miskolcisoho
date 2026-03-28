@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { useAdminOperations } from "@/components/admin-operation-provider";
 import { parseAdminJsonResponse, validateAdminImageFile } from "@/lib/admin-client";
 import { readFileAsBase64 } from "@/lib/read-file-as-base64";
 
@@ -20,6 +21,7 @@ const INITIAL_SORT_ORDER = "10";
 
 export function AdminGalleryAlbumForm({ onSuccess }: AdminGalleryAlbumFormProps) {
   const router = useRouter();
+  const { failOperation, finishOperation, startOperation, updateOperation } = useAdminOperations();
   const [state, setState] = useState<SubmitState>({ type: "idle" });
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
@@ -32,6 +34,7 @@ export function AdminGalleryAlbumForm({ onSuccess }: AdminGalleryAlbumFormProps)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    let operationId = "";
 
     if (!coverFile) {
       setState({
@@ -42,6 +45,7 @@ export function AdminGalleryAlbumForm({ onSuccess }: AdminGalleryAlbumFormProps)
     }
 
     try {
+      operationId = startOperation("Új galéria album", "Galéria mappa létrehozása...");
       validateAdminImageFile(coverFile, "album borítókép");
       setState({ type: "saving", message: "Galéria mappa létrehozása a Drive-ban..." });
 
@@ -71,6 +75,7 @@ export function AdminGalleryAlbumForm({ onSuccess }: AdminGalleryAlbumFormProps)
       }
 
       setState({ type: "saving", message: "Album borítókép feltöltése a Drive-ba..." });
+      updateOperation(operationId, "Album borítókép feltöltése a Drive-ba...");
       const base64 = await readFileAsBase64(coverFile);
 
       const uploadResponse = await fetch("/api/admin/upload-drive-file", {
@@ -107,6 +112,7 @@ export function AdminGalleryAlbumForm({ onSuccess }: AdminGalleryAlbumFormProps)
       }
 
       setState({ type: "saving", message: "Galéria album mentése..." });
+      updateOperation(operationId, "Galéria album mentése...");
 
       const response = await fetch("/api/admin/content", {
         method: "POST",
@@ -154,6 +160,7 @@ export function AdminGalleryAlbumForm({ onSuccess }: AdminGalleryAlbumFormProps)
         type: "success",
         message: "A galéria album, a saját mappa és a dedikált borítókép sikeresen létrejött.",
       });
+      finishOperation(operationId, "A galéria album sikeresen létrejött.");
 
       if (onSuccess) {
         await onSuccess();
@@ -161,6 +168,9 @@ export function AdminGalleryAlbumForm({ onSuccess }: AdminGalleryAlbumFormProps)
 
       router.refresh();
     } catch (error) {
+      if (operationId) {
+        failOperation(operationId, error instanceof Error ? error.message : "Ismeretlen hiba történt.");
+      }
       setState({
         type: "error",
         message: error instanceof Error ? error.message : "Ismeretlen hiba történt.",

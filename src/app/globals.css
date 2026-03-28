@@ -1049,6 +1049,84 @@ textarea {
   padding-bottom: 1.25rem;
 }
 
+.soho-admin-operations {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 1100;
+  display: grid;
+  gap: 0.75rem;
+  width: min(360px, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+.soho-admin-operation-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.9rem;
+  align-items: start;
+  padding: 0.95rem 1rem;
+  border-radius: 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(9, 9, 9, 0.94);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+}
+
+.soho-admin-operation-card.is-running {
+  border-color: rgba(208, 214, 13, 0.34);
+}
+
+.soho-admin-operation-card.is-success {
+  border-color: rgba(208, 214, 13, 0.42);
+  background: rgba(17, 19, 6, 0.96);
+}
+
+.soho-admin-operation-card.is-error {
+  border-color: rgba(255, 91, 91, 0.36);
+  background: rgba(28, 8, 8, 0.96);
+}
+
+.soho-admin-operation-icon {
+  width: 1rem;
+  height: 1rem;
+  padding-top: 0.25rem;
+}
+
+.soho-admin-operation-icon span {
+  display: block;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  background: #d0d60d;
+  box-shadow: 0 0 0 0 rgba(208, 214, 13, 0.5);
+}
+
+.soho-admin-operation-card.is-running .soho-admin-operation-icon span {
+  animation: soho-admin-image-pulse 1.15s ease-in-out infinite;
+}
+
+.soho-admin-operation-card.is-error .soho-admin-operation-icon span {
+  background: #ff7b7b;
+}
+
+.soho-admin-operation-copy {
+  display: grid;
+  gap: 0.2rem;
+  font-family: var(--font-body), sans-serif;
+  letter-spacing: 0;
+}
+
+.soho-admin-operation-copy strong {
+  color: #ffffff;
+  font-size: 0.96rem;
+}
+
+.soho-admin-operation-copy span {
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.45;
+}
+
 .soho-admin-head h1 {
   margin: 0;
   font-size: clamp(2.2rem, 4vw, 3.8rem);
