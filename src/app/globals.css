@@ -1604,6 +1604,19 @@ textarea {
   font-size: 0.98rem;
 }
 
+.soho-admin-form input[type="date"],
+.soho-admin-form input[type="time"] {
+  color-scheme: dark;
+}
+
+.soho-admin-form input[type="date"]::-webkit-calendar-picker-indicator,
+.soho-admin-form input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  cursor: pointer;
+  filter: brightness(0) saturate(100%) invert(88%) sepia(39%) saturate(1035%)
+    hue-rotate(16deg) brightness(99%) contrast(92%);
+}
+
 .soho-admin-form input::placeholder {
   color: rgba(255, 255, 255, 0.4);
 }
