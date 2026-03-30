@@ -530,6 +530,16 @@ textarea {
   font-size: 1rem;
 }
 
+.soho-footer-inline-link {
+  color: inherit;
+  font-weight: 560;
+  text-decoration: none;
+}
+
+.soho-footer-inline-link:hover {
+  color: #d0d60d;
+}
+
 .soho-footer-socials {
   grid-auto-flow: column;
   justify-content: start;

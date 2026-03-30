@@ -134,7 +134,11 @@ export default async function Home() {
                 className="soho-facebook-card link"
                 aria-label={item.title}
               >
-                <div className={`soho-facebook-thumb ${item.tone} ${item.coverImageUrl ? "has-image" : ""}`}>
+                <div
+                  className={`soho-facebook-thumb ${item.tone} ${
+                    item.coverImageUrl ? "has-image" : ""
+                  }`}
+                >
                   {item.coverImageUrl ? (
                     <img
                       src={item.coverImageUrl}
@@ -162,10 +166,36 @@ export default async function Home() {
             />
 
             <p>
-              A Miskolci Soho négy helyi vállalkozás - A LEVES és BURGER, a Melon Cafe, a
-              Rockabilly Chicken és az Ex-Home Apartmanházak - összefogásából született. Az a
-              célunk, hogy egy olyan városi szegletet teremtsünk, amely él, lélegzik, és ahol jó
-              megállni, leülni, találkozni.
+              A Miskolci Soho négy helyi vállalkozás -{" "}
+              <a
+                href="https://alevesesburger.hu/"
+                target="_blank"
+                rel="noreferrer"
+                className="soho-footer-inline-link"
+              >
+                A LEVES és BURGER
+              </a>
+              ,{" "}
+              <a
+                href="https://melonbar.hu/"
+                target="_blank"
+                rel="noreferrer"
+                className="soho-footer-inline-link"
+              >
+                a Melon Cafe
+              </a>
+              ,{" "}
+              <a
+                href="https://www.rockabillychicken.hu/"
+                target="_blank"
+                rel="noreferrer"
+                className="soho-footer-inline-link"
+              >
+                a Rockabilly Chicken
+              </a>{" "}
+              és az Ex-Home Apartmanházak összefogásából született. Az a célunk, hogy egy olyan
+              városi szegletet teremtsünk, amely él, lélegzik, és ahol jó megállni, leülni,
+              találkozni.
             </p>
 
             <div className="soho-footer-socials">
