@@ -15,61 +15,56 @@ const bebasNeue = Bebas_Neue({
   weight: "400",
 });
 
+const seoDescription =
+  "Célunk egy olyan városi közösségi teret teremteni, amely él, lélegzik, ahol jó megállni, leülni, találkozni Miskolcon.";
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://miskolcisoho.vercel.app"),
   title: {
-    default: "Miskolc Soho",
-    template: "%s | Miskolc Soho",
+    default: "Miskolci SOHO",
+    template: "%s | Miskolci SOHO",
   },
-  description:
-    "Miskolc Soho: események, galéria és közösségi élet Miskolc szívében. Nézd meg a közelgő bulikat, a friss tartalmakat és a galériákat.",
-  applicationName: "Miskolc Soho",
+  description: seoDescription,
+  applicationName: "Miskolci SOHO",
   keywords: [
-    "Miskolc Soho",
-    "Soho Miskolc",
+    "Miskolci SOHO",
+    "SOHO Miskolc",
     "miskolci programok",
     "miskolci események",
     "miskolci szórakozóhely",
     "Miskolc klub",
     "Miskolc galéria",
-    "Soho események",
+    "SOHO események",
   ],
   icons: {
     icon: [
       {
-        url: "/branding/soho_logo.png",
-        type: "image/png",
+        url: "/favicon.ico",
+        type: "image/x-icon",
       },
     ],
-    shortcut: ["/branding/soho_logo.png"],
-    apple: [
-      {
-        url: "/branding/soho_logo.png",
-      },
-    ],
+    shortcut: ["/favicon.ico"],
   },
   openGraph: {
     type: "website",
     locale: "hu_HU",
     url: "https://miskolcisoho.vercel.app",
-    siteName: "Miskolc Soho",
-    title: "Miskolc Soho",
-    description:
-      "Események, galéria és közösségi élet Miskolcon. Kövesd a Miskolc Soho friss programjait és tartalmait.",
+    siteName: "Miskolci SOHO",
+    title: "Miskolci SOHO",
+    description: seoDescription,
     images: [
       {
         url: "/branding/soho_logo.png",
         width: 1500,
         height: 820,
-        alt: "Miskolc Soho logó",
+        alt: "Miskolci SOHO logó",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Miskolc Soho",
-    description:
-      "Események, galéria és közösségi élet Miskolcon. Kövesd a Miskolc Soho friss programjait és tartalmait.",
+    title: "Miskolci SOHO",
+    description: seoDescription,
     images: ["/branding/soho_logo.png"],
   },
   alternates: {
