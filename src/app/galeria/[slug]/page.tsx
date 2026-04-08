@@ -5,7 +5,7 @@ import { GalleryLightbox } from "@/components/gallery-lightbox";
 import { SohoHeader } from "@/components/soho-header";
 import { getGalleryAlbum } from "@/lib/gallery";
 
-export const revalidate = 60;
+export const revalidate = 300;
 
 type AlbumPageProps = {
   params: Promise<{
@@ -40,6 +40,7 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
               id: image.id,
               alt: image.alt,
               imageUrl: image.imageUrl,
+              lightboxImageUrl: image.lightboxImageUrl,
             }))}
           />
         </div>

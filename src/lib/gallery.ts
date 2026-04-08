@@ -13,6 +13,7 @@ export type GalleryImage = {
   caption?: string;
   tone: string;
   imageUrl?: string;
+  lightboxImageUrl?: string;
   fileUrl?: string;
 };
 
@@ -31,6 +32,10 @@ export type GalleryAlbum = {
 };
 
 const tones = ["lime", "blue", "violet", "sunset", "graphite", "emerald"] as const;
+const PUBLIC_GALLERY_REVALIDATE_SECONDS = 300;
+const GALLERY_COVER_THUMBNAIL_WIDTH = 960;
+const GALLERY_GRID_THUMBNAIL_WIDTH = 960;
+const GALLERY_LIGHTBOX_WIDTH = 1800;
 
 const mockAlbums: Omit<GalleryAlbum, "rootFolderId">[] = [
   {
@@ -128,13 +133,19 @@ function toSortOrder(value: string | undefined, fallback: number) {
 const getCachedGalleryAlbumsContent = unstable_cache(
   async () => getAdminContent("gallery_albums"),
   ["public-gallery-albums-content"],
-  { revalidate: 60, tags: ["public-gallery-albums-content"] },
+  {
+    revalidate: PUBLIC_GALLERY_REVALIDATE_SECONDS,
+    tags: ["public-gallery-albums-content"],
+  },
 );
 
 const getCachedGalleryImagesContent = unstable_cache(
   async () => getAdminContent("gallery_images"),
   ["public-gallery-images-content"],
-  { revalidate: 60, tags: ["public-gallery-images-content"] },
+  {
+    revalidate: PUBLIC_GALLERY_REVALIDATE_SECONDS,
+    tags: ["public-gallery-images-content"],
+  },
 );
 
 export async function getGalleryAlbums() {
@@ -175,7 +186,8 @@ export async function getGalleryAlbums() {
         alt: image.caption || row.title || `Galeria kep ${imageIndex + 1}`,
         caption: image.caption || "",
         tone: getTone(imageIndex),
-        imageUrl: getDriveThumbnailUrl(image.drive_file_id, 1600),
+        imageUrl: getDriveThumbnailUrl(image.drive_file_id, GALLERY_GRID_THUMBNAIL_WIDTH),
+        lightboxImageUrl: getDriveThumbnailUrl(image.drive_file_id, GALLERY_LIGHTBOX_WIDTH),
         fileUrl: image.drive_file_url || "",
       }));
 
@@ -190,7 +202,9 @@ export async function getGalleryAlbums() {
       driveFolderId: row.drive_folder_id || "",
       rootFolderId,
       coverImageUrl:
-        getDriveThumbnailUrl(row.cover_drive_file_id, 1400) || albumImages[0]?.imageUrl || "",
+        getDriveThumbnailUrl(row.cover_drive_file_id, GALLERY_COVER_THUMBNAIL_WIDTH) ||
+        albumImages[0]?.imageUrl ||
+        "",
       images: albumImages,
     } satisfies GalleryAlbum;
   });

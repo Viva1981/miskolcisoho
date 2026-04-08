@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SohoHeader } from "@/components/soho-header";
 import { getGalleryAlbums } from "@/lib/gallery";
 
-export const revalidate = 60;
+export const revalidate = 300;
 
 export default async function GaleriaPage() {
   const albums = await getGalleryAlbums();

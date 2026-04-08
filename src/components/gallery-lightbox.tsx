@@ -6,6 +6,7 @@ type GalleryLightboxImage = {
   id: string;
   alt: string;
   imageUrl?: string;
+  lightboxImageUrl?: string;
 };
 
 type GalleryLightboxProps = {
@@ -131,6 +132,7 @@ export function GalleryLightbox({ title, eventDate, images }: GalleryLightboxPro
               alt={image.alt}
               className="soho-gallery-item-image soho-gallery-item-image-static"
               loading="lazy"
+              decoding="async"
             />
           </button>
         ))}
@@ -187,7 +189,12 @@ export function GalleryLightbox({ title, eventDate, images }: GalleryLightboxPro
             onTouchStart={(event) => handleTouchStart(event.changedTouches[0]?.clientX ?? 0)}
             onTouchEnd={(event) => handleTouchEnd(event.changedTouches[0]?.clientX ?? 0)}
           >
-            <img src={activeImage.imageUrl} alt={activeImage.alt} className="soho-lightbox-image" />
+            <img
+              src={activeImage.lightboxImageUrl || activeImage.imageUrl}
+              alt={activeImage.alt}
+              className="soho-lightbox-image"
+              decoding="async"
+            />
           </div>
         </div>
       ) : null}

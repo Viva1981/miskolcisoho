@@ -37,6 +37,9 @@ export type FacebookFeedItem = {
 };
 
 const tones: AccentTone[] = ["lime", "blue", "violet", "sunset", "graphite", "emerald"];
+const PUBLIC_CONTENT_REVALIDATE_SECONDS = 300;
+const HOMEPAGE_EVENT_THUMBNAIL_WIDTH = 960;
+const FACEBOOK_FEED_THUMBNAIL_WIDTH = 960;
 
 const mockHomepageEvents: HomepageEvent[] = [
   {
@@ -196,13 +199,19 @@ export function getDrivePreviewUrl(fileId: string | undefined) {
 const getCachedEventsContent = unstable_cache(
   async () => getAdminContent("events"),
   ["public-events-content"],
-  { revalidate: 60, tags: ["public-events-content"] },
+  {
+    revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS,
+    tags: ["public-events-content"],
+  },
 );
 
 const getCachedFacebookFeedContent = unstable_cache(
   async () => getAdminContent("facebook_feed"),
   ["public-facebook-feed-content"],
-  { revalidate: 60, tags: ["public-facebook-feed-content"] },
+  {
+    revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS,
+    tags: ["public-facebook-feed-content"],
+  },
 );
 
 export async function getHomepageEvents() {
@@ -236,7 +245,7 @@ export async function getHomepageEvents() {
         timeLabel: buildTimeLabel(time, timeEnd),
         accent: getTone(index),
         facebookUrl: row.facebook_url || "#",
-        coverImageUrl: getDriveThumbnailUrl(row.cover_drive_file_id, 1600),
+        coverImageUrl: getDriveThumbnailUrl(row.cover_drive_file_id, HOMEPAGE_EVENT_THUMBNAIL_WIDTH),
       };
     });
 
@@ -264,7 +273,7 @@ export async function getFacebookFeedItems() {
       subtitle: "",
       href: row.facebook_url || "#",
       tone: getTone(index),
-      coverImageUrl: getDriveThumbnailUrl(row.cover_drive_file_id, 1200),
+      coverImageUrl: getDriveThumbnailUrl(row.cover_drive_file_id, FACEBOOK_FEED_THUMBNAIL_WIDTH),
     }));
 
   return mapped.length > 0 ? mapped : mockFacebookFeedItems;
