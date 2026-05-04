@@ -171,6 +171,9 @@ textarea {
 }
 
 .soho-audio-toggle {
+  --soho-audio-bg-alpha: 0.76;
+  --soho-audio-glow-alpha: 0.08;
+  --soho-audio-glow-size: 4px;
   width: 48px;
   height: 48px;
   padding: 0;
@@ -211,8 +214,18 @@ textarea {
 
 .soho-audio-toggle.is-playing {
   border-color: #d0d60d;
-  background: #d0d60d;
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(208, 214, 13, var(--soho-audio-bg-alpha)) 0%,
+      rgba(208, 214, 13, 0.9) 58%,
+      rgba(208, 214, 13, 0.78) 100%
+    );
   color: #000000;
+  box-shadow:
+    0 0 0 var(--soho-audio-glow-size) rgba(208, 214, 13, var(--soho-audio-glow-alpha)),
+    0 18px 36px rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
 }
 
 .soho-audio-icon {

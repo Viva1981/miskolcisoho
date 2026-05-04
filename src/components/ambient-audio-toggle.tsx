@@ -6,6 +6,12 @@ const AUDIO_SRC = "/branding/miskolci-harangjatek.m4a";
 const STORAGE_KEY = "soho-ambient-audio";
 const TARGET_VOLUME = 0.58;
 const FADE_DURATION_MS = 520;
+const PULSE_FALLOFF = 0.82;
+
+type WebAudioWindow = Window &
+  typeof globalThis & {
+    webkitAudioContext?: typeof AudioContext;
+  };
 
 function saveAudioPreference(isOn: boolean) {
   try {
@@ -62,8 +68,137 @@ function SoundIcon({ isPlaying }: { isPlaying: boolean }) {
 
 export function AmbientAudioToggle() {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const frameRef = useRef<number | null>(null);
+  const pulseFrameRef = useRef<number | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const frequencyDataRef = useRef<Uint8Array<ArrayBuffer> | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+
+  const resetPulse = useCallback(() => {
+    const button = buttonRef.current;
+
+    if (!button) {
+      return;
+    }
+
+    button.style.setProperty("--soho-audio-bg-alpha", "0.76");
+    button.style.setProperty("--soho-audio-glow-alpha", "0.08");
+    button.style.setProperty("--soho-audio-glow-size", "4px");
+  }, []);
+
+  const stopRhythmPulse = useCallback(() => {
+    if (pulseFrameRef.current !== null) {
+      window.cancelAnimationFrame(pulseFrameRef.current);
+      pulseFrameRef.current = null;
+    }
+
+    resetPulse();
+  }, [resetPulse]);
+
+  const setupAudioAnalyser = useCallback(async () => {
+    const audio = audioRef.current;
+    const AudioContextConstructor =
+      window.AudioContext ?? (window as WebAudioWindow).webkitAudioContext;
+
+    if (!audio || !AudioContextConstructor) {
+      return null;
+    }
+
+    let audioContext = audioContextRef.current;
+
+    if (!audioContext) {
+      audioContext = new AudioContextConstructor();
+      audioContextRef.current = audioContext;
+    }
+
+    if (!sourceRef.current) {
+      const analyser = audioContext.createAnalyser();
+
+      analyser.fftSize = 128;
+      analyser.smoothingTimeConstant = 0.76;
+
+      sourceRef.current = audioContext.createMediaElementSource(audio);
+      sourceRef.current.connect(analyser);
+      analyser.connect(audioContext.destination);
+
+      analyserRef.current = analyser;
+      frequencyDataRef.current = new Uint8Array(analyser.frequencyBinCount);
+    }
+
+    if (audioContext.state === "suspended") {
+      await audioContext.resume();
+    }
+
+    return analyserRef.current;
+  }, []);
+
+  const startRhythmPulse = useCallback(() => {
+    const audio = audioRef.current;
+    const analyser = analyserRef.current;
+    const frequencyData = frequencyDataRef.current;
+
+    if (!audio || !analyser || !frequencyData) {
+      resetPulse();
+      return;
+    }
+
+    if (pulseFrameRef.current !== null) {
+      window.cancelAnimationFrame(pulseFrameRef.current);
+    }
+
+    let smoothedPulse = 0;
+
+    const tick = () => {
+      const button = buttonRef.current;
+
+      if (!button || audio.paused) {
+        pulseFrameRef.current = null;
+        resetPulse();
+        return;
+      }
+
+      analyser.getByteFrequencyData(frequencyData);
+
+      const sampledBins = Math.min(frequencyData.length, 30);
+      let weightedEnergy = 0;
+      let totalWeight = 0;
+
+      for (let index = 0; index < sampledBins; index += 1) {
+        const weight = index < 10 ? 1.25 : 0.82;
+
+        weightedEnergy += frequencyData[index] * weight;
+        totalWeight += weight;
+      }
+
+      const averageEnergy = totalWeight > 0 ? weightedEnergy / totalWeight : 0;
+      const beatEnergy = Math.max(0, averageEnergy / 255 - 0.08) * 1.9;
+
+      smoothedPulse = Math.max(
+        Math.min(beatEnergy, 1),
+        smoothedPulse * PULSE_FALLOFF,
+      );
+
+      button.style.setProperty(
+        "--soho-audio-bg-alpha",
+        (0.76 + smoothedPulse * 0.24).toFixed(3),
+      );
+      button.style.setProperty(
+        "--soho-audio-glow-alpha",
+        (0.08 + smoothedPulse * 0.22).toFixed(3),
+      );
+      button.style.setProperty(
+        "--soho-audio-glow-size",
+        `${(4 + smoothedPulse * 16).toFixed(1)}px`,
+      );
+
+      pulseFrameRef.current = window.requestAnimationFrame(tick);
+    };
+
+    pulseFrameRef.current = window.requestAnimationFrame(tick);
+  }, [resetPulse]);
 
   const fadeTo = useCallback((targetVolume: number, onDone?: () => void) => {
     const audio = audioRef.current;
@@ -115,22 +250,25 @@ export function AmbientAudioToggle() {
       audio.volume = 0;
 
       try {
+        await setupAudioAnalyser();
         await audio.play();
         setIsPlaying(true);
         fadeTo(TARGET_VOLUME);
+        startRhythmPulse();
 
         if (persist) {
           saveAudioPreference(true);
         }
       } catch {
         setIsPlaying(false);
+        stopRhythmPulse();
 
         if (persist) {
           saveAudioPreference(false);
         }
       }
     },
-    [fadeTo],
+    [fadeTo, setupAudioAnalyser, startRhythmPulse, stopRhythmPulse],
   );
 
   const muteAmbient = useCallback(() => {
@@ -141,12 +279,13 @@ export function AmbientAudioToggle() {
     }
 
     saveAudioPreference(false);
+    stopRhythmPulse();
 
     fadeTo(0, () => {
       audio.pause();
       setIsPlaying(false);
     });
-  }, [fadeTo]);
+  }, [fadeTo, stopRhythmPulse]);
 
   useEffect(() => {
     const startTimer =
@@ -163,6 +302,10 @@ export function AmbientAudioToggle() {
 
       if (frameRef.current !== null) {
         window.cancelAnimationFrame(frameRef.current);
+      }
+
+      if (pulseFrameRef.current !== null) {
+        window.cancelAnimationFrame(pulseFrameRef.current);
       }
     };
   }, [playAmbient]);
@@ -181,6 +324,7 @@ export function AmbientAudioToggle() {
       <audio ref={audioRef} src={AUDIO_SRC} loop preload="none" />
 
       <button
+        ref={buttonRef}
         type="button"
         className={`soho-audio-toggle ${isPlaying ? "is-playing" : ""}`}
         aria-pressed={isPlaying}
