@@ -64,7 +64,6 @@ export function AmbientAudioToggle() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const frameRef = useRef<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [needsGesture, setNeedsGesture] = useState(false);
 
   const fadeTo = useCallback((targetVolume: number, onDone?: () => void) => {
     const audio = audioRef.current;
@@ -114,7 +113,6 @@ export function AmbientAudioToggle() {
 
       audio.loop = true;
       audio.volume = 0;
-      setNeedsGesture(false);
 
       try {
         await audio.play();
@@ -126,7 +124,6 @@ export function AmbientAudioToggle() {
         }
       } catch {
         setIsPlaying(false);
-        setNeedsGesture(true);
 
         if (persist) {
           saveAudioPreference(false);
@@ -144,7 +141,6 @@ export function AmbientAudioToggle() {
     }
 
     saveAudioPreference(false);
-    setNeedsGesture(false);
 
     fadeTo(0, () => {
       audio.pause();
@@ -189,24 +185,11 @@ export function AmbientAudioToggle() {
         className={`soho-audio-toggle ${isPlaying ? "is-playing" : ""}`}
         aria-pressed={isPlaying}
         aria-label={isPlaying ? "Hang nemitasa" : "Hang bekapcsolasa"}
+        title={isPlaying ? "Hang nemitasa" : "Hang bekapcsolasa"}
         onClick={handleToggle}
       >
         <span className="soho-audio-icon" aria-hidden="true">
           <SoundIcon isPlaying={isPlaying} />
-        </span>
-
-        <span className="soho-audio-copy">
-          <span className="soho-audio-title">SOHO SOUND</span>
-          <span className="soho-audio-status">
-            {isPlaying ? "LIVE" : needsGesture ? "TAP TO PLAY" : "OFF"}
-          </span>
-        </span>
-
-        <span className="soho-audio-eq" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-          <span />
         </span>
       </button>
     </div>
