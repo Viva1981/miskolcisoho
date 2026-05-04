@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Bebas_Neue } from "next/font/google";
 
+import { AmbientAudioToggle } from "@/components/ambient-audio-toggle";
 import { SohoEventsCarousel } from "@/components/soho-events-carousel";
 import { SohoHeader } from "@/components/soho-header";
 import { getFacebookFeedItems, getHomepageEvents } from "@/lib/content";
@@ -76,6 +77,7 @@ export default async function Home() {
   return (
     <main className={`soho-landing ${sohoDisplay.className}`}>
       <SohoHeader />
+      <AmbientAudioToggle />
 
       <section id="fooldal" className="soho-hero-v2">
         <div className="soho-hero-inner">
