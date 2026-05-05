@@ -7,6 +7,7 @@ const STORAGE_KEY = "soho-ambient-audio";
 const TARGET_VOLUME = 0.58;
 const FADE_DURATION_MS = 520;
 const PULSE_FALLOFF = 0.82;
+const FIRST_PLAY_VOLUME_FALLBACK_MS = 420;
 
 type WebAudioWindow = Window &
   typeof globalThis & {
@@ -27,6 +28,29 @@ function getAudioPreference() {
   } catch {
     return null;
   }
+}
+
+async function waitForAudioMetadata(audio: HTMLAudioElement) {
+  if (audio.readyState >= 1) {
+    return;
+  }
+
+  await new Promise<void>((resolve) => {
+    const cleanup = () => {
+      audio.removeEventListener("loadedmetadata", onReady);
+      audio.removeEventListener("canplay", onReady);
+      audio.removeEventListener("error", onReady);
+    };
+
+    const onReady = () => {
+      cleanup();
+      resolve();
+    };
+
+    audio.addEventListener("loadedmetadata", onReady, { once: true });
+    audio.addEventListener("canplay", onReady, { once: true });
+    audio.addEventListener("error", onReady, { once: true });
+  });
 }
 
 function SoundIcon({ isPlaying }: { isPlaying: boolean }) {
@@ -106,6 +130,8 @@ export function AmbientAudioToggle() {
     if (!audio || !AudioContextConstructor) {
       return null;
     }
+
+    await waitForAudioMetadata(audio);
 
     let audioContext = audioContextRef.current;
 
@@ -256,6 +282,12 @@ export function AmbientAudioToggle() {
         fadeTo(TARGET_VOLUME);
         startRhythmPulse();
 
+        window.setTimeout(() => {
+          if (!audio.paused && audio.volume < TARGET_VOLUME * 0.4) {
+            audio.volume = TARGET_VOLUME;
+          }
+        }, FIRST_PLAY_VOLUME_FALLBACK_MS);
+
         if (persist) {
           saveAudioPreference(true);
         }
@@ -321,7 +353,7 @@ export function AmbientAudioToggle() {
 
   return (
     <div className={`soho-audio-dock ${isPlaying ? "is-playing" : ""}`}>
-      <audio ref={audioRef} src={AUDIO_SRC} loop preload="none" />
+      <audio ref={audioRef} src={AUDIO_SRC} loop preload="metadata" />
 
       <button
         ref={buttonRef}
